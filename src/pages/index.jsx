@@ -6,24 +6,43 @@ import {
   AnimatePresence, 
   useInView,
   useMotionValue,
-  useSpring 
+  useSpring,
+  MotionConfig
 } from "framer-motion";
 import Footer from "@/views/Footer";
 import FeatureSections from "@/views/FeaturesSection";
 import CardSliderSection from "@/views/CardSliderSection";
 
 function LandingPage() {
-  // Refs for scroll animations
+  // Detect mobile devices
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check initial size
+    checkMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Refs for scroll animations - using once:true for better performance
   const heroRef = useRef(null);
   const gradientTextRef = useRef(null);
   const integrationRef = useRef(null);
   
-  // Check if elements are in viewport
-  const heroInView = useInView(heroRef, { once: false, amount: 0.2 });
-  const gradientTextInView = useInView(gradientTextRef, { once: false, amount: 0.3 });
-  const integrationInView = useInView(integrationRef, { once: false, amount: 0.3 });
+  // Check if elements are in viewport with once:true for better performance
+  const heroInView = useInView(heroRef, { once: true, amount: 0.2 });
+  const gradientTextInView = useInView(gradientTextRef, { once: true, amount: 0.3 });
+  const integrationInView = useInView(integrationRef, { once: true, amount: 0.3 });
   
-  // Mouse position for parallax effects
+  // Mouse position for parallax effects - only updated on desktop
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   
   // State for interactive elements
@@ -37,18 +56,27 @@ function LandingPage() {
   const scale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
   const y = useTransform(scrollYProgress, [0, 0.15], [0, -50]);
   
-  // Smooth spring animations for better performance
-  const smoothY = useSpring(y, { stiffness: 100, damping: 30 });
-  const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
-  const smoothScale = useSpring(scale, { stiffness: 100, damping: 30 });
+  // Smooth spring animations with lighter settings for better mobile performance
+  const smoothY = useSpring(y, { stiffness: isMobile ? 50 : 100, damping: isMobile ? 15 : 30 });
+  const smoothOpacity = useSpring(opacity, { stiffness: isMobile ? 50 : 100, damping: isMobile ? 15 : 30 });
+  const smoothScale = useSpring(scale, { stiffness: isMobile ? 50 : 100, damping: isMobile ? 15 : 30 });
   
-  // Parallax effect for mouse movement
+  // Parallax effect for mouse movement - only on desktop
   const parallaxX = useMotionValue(0);
   const parallaxY = useMotionValue(0);
   
-  // Update mouse position for parallax effect
+  // Update mouse position for parallax effect - only on desktop
   useEffect(() => {
+    if (isMobile) return; // Skip on mobile
+    
+    let lastTime = 0;
+    const throttleMs = 50; // Only update every 50ms for better performance
+    
     const handleMouseMove = (e) => {
+      const now = Date.now();
+      if (now - lastTime < throttleMs) return;
+      lastTime = now;
+      
       const { clientX, clientY } = e;
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
@@ -58,17 +86,17 @@ function LandingPage() {
       const yPos = (clientY - windowHeight / 2) / (windowHeight / 2);
       
       setMousePosition({ x: xPos, y: yPos });
-      parallaxX.set(xPos * 20); // Move 20px max
-      parallaxY.set(yPos * 20); // Move 20px max
+      parallaxX.set(xPos * 10); // Reduced from 20px to 10px
+      parallaxY.set(yPos * 10); // Reduced from 20px to 10px
     };
     
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, []);
+  }, [isMobile]);
   
-  // Show particles after a delay
+  // Show particles after a delay - fewer particles on mobile
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowParticles(true);
@@ -76,51 +104,56 @@ function LandingPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Animation variants
+  // Animation variants - simplified for mobile
   const heroVariants = {
-    hidden: { opacity: 0, y: 100 },
+    hidden: { opacity: 0, y: isMobile ? 50 : 100 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 1,
-        ease: [0.25, 0.1, 0.25, 1], // Improved easing function
+        duration: isMobile ? 0.7 : 1,
+        ease: [0.25, 0.1, 0.25, 1],
         when: "beforeChildren",
-        staggerChildren: 0.3,
+        staggerChildren: isMobile ? 0.15 : 0.3,
       },
     },
     exit: {
       opacity: 0,
-      y: -50,
+      y: -20,
       transition: {
-        duration: 0.5,
+        duration: 0.3,
       }
     }
   };
 
   const childVariants = {
-    hidden: { opacity: 0, y: 50, filter: "blur(5px)" },
+    hidden: { 
+      opacity: 0, 
+      y: isMobile ? 20 : 50, 
+      filter: isMobile ? "blur(2px)" : "blur(5px)" 
+    },
     visible: { 
       opacity: 1, 
       y: 0, 
       filter: "blur(0px)",
       transition: { 
-        duration: 0.8, 
+        duration: isMobile ? 0.5 : 0.8, 
         ease: [0.25, 0.1, 0.25, 1] 
       } 
     },
     hover: {
-      scale: 1.05,
+      scale: 1.03, // Reduced from 1.05
       transition: { duration: 0.3 }
     }
   };
 
+  // Simpler, more performant animations for mobile
   const floatingAnimation = {
     hidden: { y: 0 },
     visible: {
-      y: [0, -20, 0],
+      y: isMobile ? [0, -5, 0] : [0, -15, 0],
       transition: {
-        duration: 6,
+        duration: isMobile ? 4 : 6,
         ease: "easeInOut",
         repeat: Infinity,
         repeatType: "reverse",
@@ -131,10 +164,10 @@ function LandingPage() {
   const pulseAnimation = {
     hidden: { scale: 1, opacity: 0.7 },
     visible: {
-      scale: [1, 1.05, 1],
-      opacity: [0.7, 1, 0.7],
+      scale: isMobile ? [1, 1.02, 1] : [1, 1.05, 1],
+      opacity: [0.7, 0.9, 0.7],
       transition: {
-        duration: 4,
+        duration: isMobile ? 3 : 4,
         ease: "easeInOut",
         repeat: Infinity,
         repeatType: "reverse",
@@ -143,12 +176,12 @@ function LandingPage() {
   };
 
   const glowAnimation = {
-    hidden: { opacity: 0.5, filter: "blur(5px)" },
+    hidden: { opacity: 0.5, filter: "blur(2px)" },
     visible: {
-      opacity: [0.5, 0.8, 0.5],
-      filter: ["blur(5px)", "blur(15px)", "blur(5px)"],
+      opacity: [0.5, 0.7, 0.5],
+      filter: isMobile ? ["blur(2px)", "blur(5px)", "blur(2px)"] : ["blur(5px)", "blur(15px)", "blur(5px)"],
       transition: {
-        duration: 4,
+        duration: isMobile ? 3 : 4,
         ease: "easeInOut",
         repeat: Infinity,
         repeatType: "reverse",
@@ -159,15 +192,15 @@ function LandingPage() {
   const gradientTextVariants = {
     hidden: { 
       opacity: 0,
-      filter: "blur(10px)",
-      y: 50
+      filter: isMobile ? "blur(3px)" : "blur(10px)",
+      y: isMobile ? 20 : 50
     },
     visible: {
       opacity: 1,
       filter: "blur(0px)",
       y: 0,
       transition: {
-        duration: 1.2,
+        duration: isMobile ? 0.8 : 1.2,
         ease: [0.25, 0.1, 0.25, 1]
       }
     }
@@ -178,20 +211,24 @@ function LandingPage() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.12,
-        delayChildren: 0.3
+        staggerChildren: isMobile ? 0.08 : 0.12,
+        delayChildren: isMobile ? 0.1 : 0.3
       }
     }
   };
   
   const staggerItem = {
-    hidden: { opacity: 0, y: 20, filter: "blur(4px)" },
+    hidden: { 
+      opacity: 0, 
+      y: isMobile ? 10 : 20, 
+      filter: isMobile ? "blur(2px)" : "blur(4px)" 
+    },
     visible: {
       opacity: 1,
       y: 0,
       filter: "blur(0px)",
       transition: { 
-        duration: 0.8,
+        duration: isMobile ? 0.5 : 0.8,
         ease: [0.25, 0.1, 0.25, 1]
       }
     }
@@ -203,7 +240,7 @@ function LandingPage() {
       backgroundColor: "rgba(255, 255, 255, 0)",
     },
     hover: { 
-      scale: 1.05,
+      scale: 1.03, // Reduced from 1.05
       backgroundColor: "rgba(255, 255, 255, 1)",
       color: "#000000",
       transition: {
@@ -219,33 +256,19 @@ function LandingPage() {
     }
   };
 
-  // Enhanced particle effect component with reactive motion
+  // Optimized particle effect component
   const Particles = () => {
-    // Detect if we're on mobile (used for conditional rendering)
-    const [isMobile, setIsMobile] = useState(false);
-    
-    useEffect(() => {
-      const checkMobile = () => {
-        setIsMobile(window.innerWidth < 768);
-      };
-      
-      // Check initial size
-      checkMobile();
-      
-      // Add event listener for window resize
-      window.addEventListener('resize', checkMobile);
-      
-      // Cleanup
-      return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
     if (!showParticles) return null;
     
-    // Use mouse position to affect particle movement
-    const particleEffect = {
-      x: mousePosition.x * -5, // Subtle movement based on mouse
-      y: mousePosition.y * -5
+    // Use mouse position to affect particle movement - more subtle on mobile
+    const particleEffect = isMobile ? {} : {
+      x: mousePosition.x * -2, // Reduced from -5
+      y: mousePosition.y * -2  // Reduced from -5
     };
+    
+    // Reduced particle count on mobile
+    const particleCount = isMobile ? 15 : 75; // Reduced from 30/150
+    const largeParticleCount = isMobile ? 4 : 12; // Reduced from 8/25
     
     return (
       <>
@@ -253,32 +276,32 @@ function LandingPage() {
         <motion.div 
           className="absolute inset-0 overflow-hidden -z-5 pointer-events-none"
           animate={particleEffect}
-          transition={{ type: "spring", stiffness: 50, damping: 30 }}
+          transition={{ type: "spring", stiffness: 30, damping: 30 }}
         >
-          {[...Array(isMobile ? 30 : 150)].map((_, i) => (
+          {[...Array(particleCount)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full"
               style={{
-                width: `${Math.random() * (isMobile ? 3 : 6) + (isMobile ? 1 : 3)}px`,
-                height: `${Math.random() * (isMobile ? 3 : 6) + (isMobile ? 1 : 3)}px`,
+                width: `${Math.random() * (isMobile ? 2 : 4) + (isMobile ? 1 : 2)}px`,
+                height: `${Math.random() * (isMobile ? 2 : 4) + (isMobile ? 1 : 2)}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 background: i % 5 === 0 
-                  ? "radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(96, 165, 250, 0.5) 100%)" 
-                  : "radial-gradient(circle, rgba(96, 165, 250, 0.9) 0%, rgba(59, 130, 246, 0.5) 100%)",
+                  ? "radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(96, 165, 250, 0.4) 100%)" 
+                  : "radial-gradient(circle, rgba(96, 165, 250, 0.7) 0%, rgba(59, 130, 246, 0.4) 100%)",
                 boxShadow: i % 5 === 0 
-                  ? `0 0 ${isMobile ? '8px' : '15px'} ${isMobile ? '2px' : '5px'} rgba(255, 255, 255, ${isMobile ? '0.3' : '0.6'})`
-                  : `0 0 ${isMobile ? '8px' : '15px'} ${isMobile ? '2px' : '5px'} rgba(59, 130, 246, ${isMobile ? '0.3' : '0.6'})`
+                  ? `0 0 ${isMobile ? '4px' : '8px'} ${isMobile ? '1px' : '2px'} rgba(255, 255, 255, ${isMobile ? '0.2' : '0.4'})`
+                  : `0 0 ${isMobile ? '4px' : '8px'} ${isMobile ? '1px' : '2px'} rgba(59, 130, 246, ${isMobile ? '0.2' : '0.4'})`
               }}
               animate={{
-                y: [0, Math.random() * (isMobile ? -150 : -300) - (isMobile ? 50 : 100)],
-                x: [0, (Math.random() - 0.5) * (isMobile ? 75 : 150)],
-                opacity: [0, isMobile ? 0.7 : 0.9, 0],
-                scale: [0, isMobile ? 1.1 : 1.2, 0],
+                y: [0, Math.random() * (isMobile ? -50 : -150) - (isMobile ? 25 : 50)],
+                x: [0, (Math.random() - 0.5) * (isMobile ? 30 : 75)],
+                opacity: [0, isMobile ? 0.5 : 0.7, 0],
+                scale: [0, isMobile ? 1.05 : 1.1, 0],
               }}
               transition={{
-                duration: 6 + Math.random() * 10,
+                duration: 6 + Math.random() * 6, // Reduced from 10
                 repeat: Infinity,
                 delay: Math.random() * 5,
               }}
@@ -286,32 +309,32 @@ function LandingPage() {
           ))}
         </motion.div>
 
-        {/* Larger particles - only show few on mobile */}
+        {/* Larger particles - reduced count for better performance */}
         <motion.div 
           className="absolute inset-0 overflow-hidden -z-5 pointer-events-none"
           animate={particleEffect}
-          transition={{ type: "spring", stiffness: 40, damping: 25 }}
+          transition={{ type: "spring", stiffness: 25, damping: 25 }}
         >
-          {[...Array(isMobile ? 8 : 25)].map((_, i) => (
+          {[...Array(largeParticleCount)].map((_, i) => (
             <motion.div
               key={`large-${i}`}
               className="absolute rounded-full"
               style={{
-                width: `${Math.random() * (isMobile ? 8 : 12) + (isMobile ? 4 : 8)}px`,
-                height: `${Math.random() * (isMobile ? 8 : 12) + (isMobile ? 4 : 8)}px`,
+                width: `${Math.random() * (isMobile ? 6 : 10) + (isMobile ? 3 : 6)}px`,
+                height: `${Math.random() * (isMobile ? 6 : 10) + (isMobile ? 3 : 6)}px`,
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
-                background: "radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(147, 197, 253, 0.6) 50%, transparent 100%)",
-                boxShadow: `0 0 ${isMobile ? '12px' : '25px'} ${isMobile ? '6px' : '15px'} rgba(147, 197, 253, ${isMobile ? '0.4' : '0.7'})`
+                background: "radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(147, 197, 253, 0.5) 50%, transparent 100%)",
+                boxShadow: `0 0 ${isMobile ? '8px' : '15px'} ${isMobile ? '3px' : '10px'} rgba(147, 197, 253, ${isMobile ? '0.3' : '0.5'})`
               }}
               animate={{
-                y: [0, Math.random() * (isMobile ? -75 : -150) - (isMobile ? 25 : 50)],
-                x: [0, (Math.random() - 0.5) * (isMobile ? 40 : 80)],
-                opacity: [0, isMobile ? 0.6 : 0.8, 0],
-                scale: [0.2, isMobile ? 1.2 : 1.5, 0.2],
+                y: [0, Math.random() * (isMobile ? -50 : -100) - (isMobile ? 15 : 30)],
+                x: [0, (Math.random() - 0.5) * (isMobile ? 20 : 40)],
+                opacity: [0, isMobile ? 0.5 : 0.7, 0],
+                scale: [0.2, isMobile ? 1.1 : 1.3, 0.2],
               }}
               transition={{
-                duration: 8 + Math.random() * 15,
+                duration: 7 + Math.random() * 8, // Reduced from 15
                 repeat: Infinity,
                 delay: Math.random() * 5,
               }}
@@ -319,12 +342,12 @@ function LandingPage() {
           ))}
         </motion.div>
 
-        {/* Connection lines - fewer on mobile */}
+        {/* Connection lines - only on desktop */}
         {!isMobile && (
           <motion.svg 
             className="absolute inset-0 w-full h-full -z-6 opacity-30 pointer-events-none"
             animate={particleEffect}
-            transition={{ type: "spring", stiffness: 30, damping: 20 }}
+            transition={{ type: "spring", stiffness: 20, damping: 20 }}
           >
             <defs>
               <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -333,7 +356,7 @@ function LandingPage() {
                 <stop offset="100%" stopColor="rgba(59, 130, 246, 0)" />
               </linearGradient>
             </defs>
-            {[...Array(15)].map((_, i) => {
+            {[...Array(8)].map((_, i) => { // Reduced from 15
               const x1 = `${Math.random() * 100}%`;
               const y1 = `${Math.random() * 100}%`;
               const x2 = `${Math.random() * 100}%`;
@@ -350,11 +373,11 @@ function LandingPage() {
                   strokeWidth="1"
                   initial={{ opacity: 0 }}
                   animate={{ 
-                    opacity: [0, 0.8, 0],
+                    opacity: [0, 0.6, 0], // Reduced from 0.8
                     pathLength: [0, 1, 0]
                   }}
                   transition={{
-                    duration: 8 + Math.random() * 10,
+                    duration: 8 + Math.random() * 5, // Reduced from 10
                     repeat: Infinity,
                     delay: Math.random() * 5,
                   }}
@@ -367,172 +390,173 @@ function LandingPage() {
     );
   };
 
-
   return (
-    <>
-      <div className="min-h-screen bg-gradient-to-b from-black via-[#050e28] to-black text-white relative overflow-hidden">
-        {/* Particles Effect */}
-        <Particles />
+    // Apply MotionConfig to set global reduced motion settings for mobile
+    <MotionConfig reducedMotion={isMobile ? "user" : "never"}>
+      <MotionConfig>
+        <div className="min-h-screen bg-gradient-to-b from-black via-[#050e28] to-black text-white relative overflow-hidden">
+          {/* Particles Effect */}
+          <Particles />
 
-        <section 
-          ref={heroRef}
-          className="relative flex flex-col-reverse md:block content-center md:min-h-[70vh] lg:min-h-[90vh]"
-        >
-          {/* Additional ambient glowing dots with mouse interactivity */}
-          <motion.div 
-            className="absolute inset-0 overflow-hidden -z-4 pointer-events-none"
-            animate={{
-              x: mousePosition.x * 15,
-              y: mousePosition.y * 15
-            }}
-            transition={{ type: "spring", stiffness: 40, damping: 30 }}
+          <section 
+            ref={heroRef}
+            className="relative flex flex-col-reverse md:block content-center md:min-h-[70vh] lg:min-h-[90vh]"
           >
-            {[...Array(15)].map((_, i) => (
-              <motion.div
-                key={`glow-${i}`}
-                className="absolute rounded-full"
-                style={{
-                  width: `${Math.random() * 8 + 4}px`,
-                  height: `${Math.random() * 8 + 4}px`,
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  background: "radial-gradient(circle, rgba(96, 165, 250, 0.8) 0%, rgba(59, 130, 246, 0.3) 50%, transparent 100%)",
-                  boxShadow: "0 0 15px 5px rgba(59, 130, 246, 0.5)"
-                }}
-                animate={{
-                  opacity: [0.3, 0.8, 0.3],
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 4,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                  delay: Math.random() * 2,
-                }}
-              />
-            ))}
-          </motion.div>
-          
-          {/* Content Overlay */}
-          <AnimatePresence>
-            {heroInView && (
-              <motion.div 
-                className="w-full max-w-7xl mx-auto px-4 md:px-10 relative z-10 pt-64 lg:pt-28 lg:pb-10"
-                variants={heroVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                style={{
-                  opacity: smoothOpacity,
-                  scale: smoothScale,
-                  y: smoothY
-                }}
-              >
-                <motion.div 
-                  className="w-full md:w-3/4 lg:w-1/2 lg:pt-32 lg:my-auto"
-                  animate={{
-                    x: mousePosition.x * -10,
-                    y: mousePosition.y * -10
+            {/* Additional ambient glowing dots - reduced for mobile */}
+            <motion.div 
+              className="absolute inset-0 overflow-hidden -z-4 pointer-events-none"
+              animate={isMobile ? {} : {
+                x: mousePosition.x * 5, // Reduced from 15
+                y: mousePosition.y * 5  // Reduced from 15
+              }}
+              transition={{ type: "spring", stiffness: 20, damping: 30 }}
+            >
+              {[...Array(isMobile ? 5 : 12)].map((_, i) => (
+                <motion.div
+                  key={`glow-${i}`}
+                  className="absolute rounded-full"
+                  style={{
+                    width: `${Math.random() * 6 + 3}px`,
+                    height: `${Math.random() * 6 + 3}px`,
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                    background: "radial-gradient(circle, rgba(96, 165, 250, 0.6) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 100%)",
+                    boxShadow: "0 0 10px 3px rgba(59, 130, 246, 0.3)"
                   }}
-                  transition={{ type: "spring", stiffness: 50, damping: 30 }}
+                  animate={{
+                    opacity: [0.2, 0.6, 0.2],
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{
+                    duration: 3 + Math.random() * 2,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    delay: Math.random() * 2,
+                  }}
+                />
+              ))}
+            </motion.div>
+            
+            {/* Content Overlay - more performant animations */}
+            <AnimatePresence>
+              {heroInView && (
+                <motion.div 
+                  className="w-full max-w-7xl mx-auto px-4 md:px-10 relative z-10 pt-40 lg:pt-28 lg:pb-10"
+                  variants={heroVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  style={isMobile ? {} : {
+                    opacity: smoothOpacity,
+                    scale: smoothScale,
+                    y: smoothY
+                  }}
                 >
                   <motion.div 
-                    variants={childVariants}
-                    className="relative"
-                    whileHover="hover"
+                    className="w-full md:w-3/4 lg:w-1/2 lg:pt-32 lg:my-auto"
+                    animate={isMobile ? {} : {
+                      x: mousePosition.x * -5, // Reduced from -10
+                      y: mousePosition.y * -5  // Reduced from -10
+                    }}
+                    transition={{ type: "spring", stiffness: 30, damping: 30 }}
                   >
-                    <motion.div
-                      className="absolute -inset-1 rounded-lg blur opacity-30"
-                      animate={{
-                        opacity: [0.2, 0.4, 0.2],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                      }}
-                    />
-                    <img 
-                      src="/logo-text.png" 
-                      alt="D&V GROUP BLOCKCHAIN" 
-                      className="relative h-12 sm:h-16 mb-6 sm:mb-8" 
-                    />
-                  </motion.div>
-                  
-                  <motion.h1 
-                    variants={childVariants}
-                    className="text-pretty font-bold font-youth text-white text-[3rem] leading-[1] tracking-normal lg:text-[5.125rem] lg:leading-[1] mb-4"
-                  >
-                    BLOCKCHAIN AND TOKENIZATION
-                  </motion.h1>
-                  
-                  <motion.p 
-                    variants={childVariants}
-                    className="text-pretty text-white text-[1.0625rem] leading-[2rem] lg:text-2xl lg:leading-[2rem] mb-8"
-                  >
-                    D&V Group Blockchain is taking a leap into the future with D&V 
-                    Token, a cryptocurrency designed to revolutionize investing in 
-                    <span className="whitespace-nowrap"> real estate</span>, renewable energy, and 
-                    decentralized financial services.
-                  </motion.p>
-                  
-                  <motion.div 
-                    variants={childVariants}
-                    className="lg:w-10/12 w-full gap-4 md:w-full md:flex md:flex-wrap lg:gap-10"
-                  >
-                    {/* Presale Button with enhanced interaction */}
-                    <motion.a 
-                      href="/presale" 
-                      className="flex justify-between items-center group py-3 px-0 group relative overflow-hidden transition-all duration-200 hover:px-4 text-white no-underline border-t border-white md:inline-flex mb-4 md:mb-0"
-                      onMouseEnter={() => setIsHoveredPresale(true)}
-                      onMouseLeave={() => setIsHoveredPresale(false)}
-                      whileHover={{ paddingLeft: "1rem", paddingRight: "1rem" }}
-                      whileTap={{ scale: 0.98 }}
+                    <motion.div 
+                      variants={childVariants}
+                      className="relative"
+                      whileHover={isMobile ? {} : "hover"}
                     >
-                      <div className="z-0 absolute w-0 h-[200%] top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-300 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
-                      <p className="relative z-10 text-xl leading-[1.2] uppercase tracking-wider grow-1 pr-14 group-hover:text-black transition-colors duration-200">
-                        Presale
-                      </p>
-                      <motion.div 
-                        className="group transition-colors duration-200 relative overflow-hidden rounded-full h-6 w-6 bg-transparent flex-grow-0 shrink-0"
-                        animate={{ rotate: isHoveredPresale ? 45 : 135 }}
-                        transition={{ duration: 0.3 }}
+                      <motion.div
+                        className="absolute -inset-1 rounded-lg blur opacity-20"
+                        animate={{
+                          opacity: [0.1, 0.25, 0.1],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                        }}
+                      />
+                      <img 
+                        src="/logo-text.png" 
+                        alt="D&V GROUP BLOCKCHAIN" 
+                        className="relative h-12 sm:h-16 mb-6 sm:mb-8" 
+                      />
+                    </motion.div>
+                    
+                    <motion.h1 
+                      variants={childVariants}
+                      className="text-pretty font-bold font-youth text-white text-[3rem] leading-[1] tracking-normal lg:text-[5.125rem] lg:leading-[1] mb-4"
+                    >
+                      BLOCKCHAIN AND TOKENIZATION
+                    </motion.h1>
+                    
+                    <motion.p 
+                      variants={childVariants}
+                      className="text-pretty text-white text-[1.0625rem] leading-[2rem] lg:text-2xl lg:leading-[2rem] mb-8"
+                    >
+                      D&V Group Blockchain is taking a leap into the future with D&V 
+                      Token, a cryptocurrency designed to revolutionize investing in 
+                      <span className="whitespace-nowrap"> real estate</span>, renewable energy, and 
+                      decentralized financial services.
+                    </motion.p>
+                    
+                    <motion.div 
+                      variants={childVariants}
+                      className="lg:w-10/12 w-full gap-4 md:w-full md:flex md:flex-wrap lg:gap-10"
+                    >
+                      {/* Presale Button with simpler interaction for mobile */}
+                      <motion.a 
+                        href="/presale" 
+                        className="flex justify-between items-center group py-3 px-0 group relative overflow-hidden transition-all duration-200 hover:px-4 text-white no-underline border-t border-white md:inline-flex mb-4 md:mb-0"
+                        onMouseEnter={() => !isMobile && setIsHoveredPresale(true)}
+                        onMouseLeave={() => !isMobile && setIsHoveredPresale(false)}
+                        whileHover={isMobile ? {} : { paddingLeft: "1rem", paddingRight: "1rem" }}
+                        whileTap={isMobile ? {} : { scale: 0.98 }}
                       >
-                        <div className="absolute top-0 left-0 h-full w-full transition-transform rotate-[135deg]">
-                          <div className="absolute top-0 left-0 h-full w-full transition-all duration-300 group-hover:-top-full">
-                            <div className="top-0 left-0 absolute h-full w-full flex justify-center items-center">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
-                              </svg>
-                            </div>
-                            <div className="top-full left-0 absolute h-full w-full flex justify-center items-center transition-transform rotate-0">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
-                              </svg>
+                        <div className="z-0 absolute w-0 h-[200%] top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-300 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
+                        <p className="relative z-10 text-xl leading-[1.2] uppercase tracking-wider grow-1 pr-14 group-hover:text-black transition-colors duration-200">
+                          Presale
+                        </p>
+                        <motion.div 
+                          className="group transition-colors duration-200 relative overflow-hidden rounded-full h-6 w-6 bg-transparent flex-grow-0 shrink-0"
+                          animate={isMobile ? {} : { rotate: isHoveredPresale ? 45 : 135 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div className="absolute top-0 left-0 h-full w-full transition-transform rotate-[135deg]">
+                            <div className="absolute top-0 left-0 h-full w-full transition-all duration-300 group-hover:-top-full">
+                              <div className="top-0 left-0 absolute h-full w-full flex justify-center items-center">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
+                                </svg>
+                              </div>
+                              <div className="top-full left-0 absolute h-full w-full flex justify-center items-center transition-transform rotate-0">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
+                                </svg>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    </motion.a>
-                    
-                    {/* Explore Button with enhanced interaction */}
-                    <motion.a 
-                      href="#explore-dvg" 
-                      className="flex justify-between items-center group py-3 px-0 group relative overflow-hidden transition-all duration-200 hover:px-4 text-white no-underline border-t border-white md:inline-flex"
-                      onMouseEnter={() => setIsHoveredExplore(true)}
-                      onMouseLeave={() => setIsHoveredExplore(false)}
-                      whileHover={{ paddingLeft: "1rem", paddingRight: "1rem" }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className="z-0 absolute w-0 h-[200%] top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-300 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
-                      <p className="relative z-10 text-xl leading-[1.2] uppercase tracking-wider grow-1 pr-14 group-hover:text-black transition-colors duration-200">
-                        Explore
-                      </p>
-                      <motion.div 
-                        className="group transition-colors duration-200 relative overflow-hidden rounded-full h-6 w-6 bg-transparent flex-grow-0 shrink-0"
-                        animate={{ rotate: isHoveredExplore ? 45 : 135 }}
-                        transition={{ duration: 0.3 }}
+                        </motion.div>
+                      </motion.a>
+                      
+                      {/* Explore Button with simpler interaction for mobile */}
+                      <motion.a 
+                        href="#explore-dvg" 
+                        className="flex justify-between items-center group py-3 px-0 group relative overflow-hidden transition-all duration-200 hover:px-4 text-white no-underline border-t border-white md:inline-flex"
+                        onMouseEnter={() => !isMobile && setIsHoveredExplore(true)}
+                        onMouseLeave={() => !isMobile && setIsHoveredExplore(false)}
+                        whileHover={isMobile ? {} : { paddingLeft: "1rem", paddingRight: "1rem" }}
+                        whileTap={isMobile ? {} : { scale: 0.98 }}
                       >
+                        <div className="z-0 absolute w-0 h-[200%] top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-300 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
+                        <p className="relative z-10 text-xl leading-[1.2] uppercase tracking-wider grow-1 pr-14 group-hover:text-black transition-colors duration-200">
+                          Explore
+                        </p>
+                        <motion.div 
+                          className="group transition-colors duration-200 relative overflow-hidden rounded-full h-6 w-6 bg-transparent flex-grow-0 shrink-0"
+                          animate={isMobile ? {} : { rotate: isHoveredExplore ? 45 : 135 }}
+                          transition={{ duration: 0.3 }}
+                        >
                         <div className="absolute top-0 left-0 h-full w-full transition-transform rotate-[135deg]">
                           <div className="absolute top-0 left-0 h-full w-full transition-all duration-300 group-hover:-top-full">
                             <div className="top-0 left-0 absolute h-full w-full flex justify-center items-center">
@@ -832,7 +856,8 @@ function LandingPage() {
           />
         </div>
         <Footer />
-      </>
+        </MotionConfig>
+      </MotionConfig>
     );
   }
   

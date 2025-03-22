@@ -1,59 +1,78 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { Target, Building, BarChart3, FileText, Landmark, Lightbulb, Sparkles, Leaf, Shield } from 'lucide-react';
 
 const FeatureSections = () => {
+  // Detect if we're on mobile
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check initial size
+    checkMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Refs for each section to detect when in view
   const section1Ref = useRef(null);
   const section2Ref = useRef(null);
   const section3Ref = useRef(null);
   
   // Check if sections are in viewport
-  const section1InView = useInView(section1Ref, { once: true, amount: 0.3 });
-  const section2InView = useInView(section2Ref, { once: true, amount: 0.3 });
-  const section3InView = useInView(section3Ref, { once: true, amount: 0.3 });
+  const section1InView = useInView(section1Ref, { once: true, amount: 0.1 });
+  const section2InView = useInView(section2Ref, { once: true, amount: 0.1 });
+  const section3InView = useInView(section3Ref, { once: true, amount: 0.1 });
 
-  // Animation variants
+  // Animation variants - simplified for mobile
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
       transition: {
         when: "beforeChildren",
-        staggerChildren: 0.2,
-        duration: 0.8
+        staggerChildren: isMobile ? 0.1 : 0.2,
+        duration: isMobile ? 0.5 : 0.8
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: isMobile ? 15 : 30 },
     visible: { 
       opacity: 1, 
       y: 0,
       transition: {
-        duration: 0.6
+        duration: isMobile ? 0.4 : 0.6
       }
     }
   };
 
   const imageVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0, scale: 0.95 },
     visible: { 
       opacity: 1, 
       scale: 1,
       transition: {
-        duration: 0.8,
+        duration: isMobile ? 0.5 : 0.8,
         ease: "easeOut"
       }
     }
   };
 
+  // Simpler floating animation for mobile
   const floatingAnimation = {
     animate: {
-      y: [0, -10, 0],
+      y: isMobile ? [0, -5, 0] : [0, -10, 0],
       transition: {
-        duration: 5,
+        duration: isMobile ? 3 : 5,
         repeat: Infinity,
         repeatType: "reverse",
         ease: "easeInOut"
@@ -61,11 +80,11 @@ const FeatureSections = () => {
     }
   };
 
-  // Button hover variants
+  // Simpler button hover for mobile
   const buttonHoverVariants = {
     rest: { scale: 1 },
     hover: { 
-      scale: 1.05,
+      scale: isMobile ? 1.02 : 1.05,
       transition: {
         duration: 0.3,
         ease: "easeOut"
@@ -86,11 +105,11 @@ const FeatureSections = () => {
         >
           {/* Image container - Right side */}
           <motion.div 
-            className="block relative w-full h-[100vw] bg-slate-900 overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible"
+            className="block relative w-full h-[50vh] md:h-[60vh] lg:h-auto bg-slate-900 overflow-hidden lg:w-1/2 lg:overflow-visible"
             variants={imageVariants}
           >
             <motion.div 
-              className="lg:absolute lg:top-0 lg:left-0 lg:h-full lg:w-[44vw]"
+              className="h-full w-full md:absolute md:top-0 md:left-0 md:h-full md:w-full lg:w-[44vw]"
               {...floatingAnimation}
             >
               <div className="h-full w-full absolute block top-0 left-0">
@@ -98,6 +117,7 @@ const FeatureSections = () => {
                   src="/figura-1.png" 
                   alt="D&V Group Values" 
                   className="w-full h-full object-contain"
+                  style={{ maxHeight: "100%" }}
                 />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent lg:bg-gradient-to-l"></div>
@@ -124,7 +144,7 @@ const FeatureSections = () => {
               <div className="bg-blue-900/30 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-blue-500/30">
                 <motion.h3 
                   className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-blue-300"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   VISION
@@ -132,7 +152,7 @@ const FeatureSections = () => {
                 <motion.p 
                   className="text-sm md:text-base text-gray-300"
                   initial={{ opacity: 0.9 }}
-                  whileHover={{ opacity: 1 }}
+                  whileHover={isMobile ? {} : { opacity: 1 }}
                 >
                   To be a leading investment firm in the development of local
                   communities, promoting sustainable and innovative projects that
@@ -143,7 +163,7 @@ const FeatureSections = () => {
               <div className="bg-blue-900/30 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-blue-500/30">
                 <motion.h3 
                   className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-blue-300"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   MISSION
@@ -151,7 +171,7 @@ const FeatureSections = () => {
                 <motion.p 
                   className="text-sm md:text-base text-gray-300"
                   initial={{ opacity: 0.9 }}
-                  whileHover={{ opacity: 1 }}
+                  whileHover={isMobile ? {} : { opacity: 1 }}
                 >
                   Promote sustainable community growth through responsible investment and 
                   management practices, strengthening ourselves with the implementation
@@ -162,7 +182,7 @@ const FeatureSections = () => {
               <div className="mt-6 space-y-3">
                 <motion.div 
                   className="flex items-start"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <Sparkles className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
@@ -170,7 +190,7 @@ const FeatureSections = () => {
                 </motion.div>
                 <motion.div 
                   className="flex items-start"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <Shield className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
@@ -221,11 +241,11 @@ const FeatureSections = () => {
         >
           {/* Image container - Left side */}
           <motion.div 
-            className="block relative bg-slate-900 w-full h-[100vw] overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible"
+            className="block relative w-full h-[50vh] md:h-[60vh] lg:h-auto bg-slate-900 overflow-hidden lg:w-1/2 lg:overflow-visible"
             variants={imageVariants}
           >
             <motion.div 
-              className="lg:absolute lg:top-0 lg:right-0 lg:h-full lg:w-[41vw]"
+              className="h-full w-full md:absolute md:top-0 md:right-0 md:h-full md:w-full lg:w-[41vw]"
               {...floatingAnimation}
             >
               <div className="h-full w-full absolute block top-0 left-0">
@@ -233,6 +253,7 @@ const FeatureSections = () => {
                   src="/medio.png" 
                   alt="D&V Real Estate Projects" 
                   className="w-full h-full object-contain"
+                  style={{ maxHeight: "100%" }}
                 />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent lg:bg-gradient-to-r"></div>
@@ -257,14 +278,14 @@ const FeatureSections = () => {
             >
               <motion.p 
                 className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
-                whileHover={{ x: 5 }}
+                whileHover={isMobile ? {} : { x: 5 }}
                 transition={{ duration: 0.2 }}
               >
                 Our blockchain platform brings innovative solutions to real estate investments, enabling fractional ownership through tokenization and creating new opportunities for communities to invest in local development.
               </motion.p>
               <motion.p 
                 className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
-                whileHover={{ x: 5 }}
+                whileHover={isMobile ? {} : { x: 5 }}
                 transition={{ duration: 0.2 }}
               >
                 Ownership records, transaction history, and property details are all secured on the blockchain, providing unprecedented transparency and security for all stakeholders.
@@ -273,7 +294,7 @@ const FeatureSections = () => {
               <div className="mt-6 space-y-3">
                 <motion.div 
                   className="flex items-start"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <Landmark className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
@@ -281,7 +302,7 @@ const FeatureSections = () => {
                 </motion.div>
                 <motion.div 
                   className="flex items-start"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <Shield className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
@@ -317,18 +338,19 @@ const FeatureSections = () => {
         >
           {/* Image container - Right side */}
           <motion.div 
-            className="block relative w-full h-[100vw] bg-slate-900 overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible"
+            className="block relative w-full h-[50vh] md:h-[60vh] lg:h-auto bg-slate-900 overflow-hidden lg:w-1/2 lg:overflow-visible"
             variants={imageVariants}
           >
             <motion.div 
-              className="lg:absolute lg:top-0 lg:left-0 lg:h-full lg:w-[41vw]"
+              className="h-full w-full md:absolute md:top-0 md:left-0 md:h-full md:w-full lg:w-[41vw]"
               {...floatingAnimation}
             >
-              <div className="h-full w-full absolute block top-0 left-4">
+              <div className="h-full w-full absolute block top-0 left-0">
                 <img 
                   src="/final.png" 
                   alt="D&V Future Projects" 
                   className="w-full h-full object-contain"
+                  style={{ maxHeight: "100%" }}
                 />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent lg:bg-gradient-to-l"></div>
@@ -353,14 +375,14 @@ const FeatureSections = () => {
             >
               <motion.p 
                 className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
-                whileHover={{ x: 5 }}
+                whileHover={isMobile ? {} : { x: 5 }}
                 transition={{ duration: 0.2 }}
               >
                 Our roadmap extends beyond current offerings with ambitious plans to revolutionize renewable energy investments, community development programs, and decentralized financial services.
               </motion.p>
               <motion.p 
                 className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
-                whileHover={{ x: 5 }}
+                whileHover={isMobile ? {} : { x: 5 }}
                 transition={{ duration: 0.2 }}
               >
                 D&V Group Blockchain is committed to building a comprehensive ecosystem that empowers communities, delivers sustainable solutions, and creates meaningful economic opportunities through blockchain technology.
@@ -369,7 +391,7 @@ const FeatureSections = () => {
               <div className="mt-6 space-y-3">
                 <motion.div 
                   className="flex items-start"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <Leaf className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
@@ -377,7 +399,7 @@ const FeatureSections = () => {
                 </motion.div>
                 <motion.div 
                   className="flex items-start"
-                  whileHover={{ x: 5 }}
+                  whileHover={isMobile ? {} : { x: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <BarChart3 className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
