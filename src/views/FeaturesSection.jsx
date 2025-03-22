@@ -1,142 +1,329 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { Coins, Building, BarChart3, FileText, Landmark, Lightbulb, Sparkles, Leaf, Shield } from 'lucide-react';
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Target, Building, BarChart3, FileText, Landmark, Lightbulb, Sparkles, Leaf, Shield } from 'lucide-react';
 
 const FeatureSections = () => {
+  // Refs for each section to detect when in view
+  const section1Ref = useRef(null);
+  const section2Ref = useRef(null);
+  const section3Ref = useRef(null);
+  
+  // Check if sections are in viewport
+  const section1InView = useInView(section1Ref, { once: true, amount: 0.3 });
+  const section2InView = useInView(section2Ref, { once: true, amount: 0.3 });
+  const section3InView = useInView(section3Ref, { once: true, amount: 0.3 });
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        when: "beforeChildren",
+        staggerChildren: 0.2,
+        duration: 0.8
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6
+      }
+    }
+  };
+
+  const imageVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const floatingAnimation = {
+    animate: {
+      y: [0, -10, 0],
+      transition: {
+        duration: 5,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  // Button hover variants
+  const buttonHoverVariants = {
+    rest: { scale: 1 },
+    hover: { 
+      scale: 1.05,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
     <section className="bg-black text-white" id="explore-dvgroup">
       <div className="w-full max-w-[1408px] mx-auto">
-        {/* First Section: Token Presale - Image on right */}
-        <div className="w-full lg:flex lg:place-items-stretch lg:flex-row-reverse">
+        {/* First Section: Mission & Vision - Image on right */}
+        <motion.div 
+          ref={section1Ref}
+          className="w-full lg:flex lg:place-items-stretch lg:flex-row-reverse"
+          variants={containerVariants}
+          initial="hidden"
+          animate={section1InView ? "visible" : "hidden"}
+        >
           {/* Image container - Right side */}
-          <div className="block relative w-full h-[100vw] bg-slate-900 overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible">
-            <div className="lg:absolute lg:top-0 lg:left-0 lg:h-full lg:w-[44vw]">
+          <motion.div 
+            className="block relative w-full h-[100vw] bg-slate-900 overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible"
+            variants={imageVariants}
+          >
+            <motion.div 
+              className="lg:absolute lg:top-0 lg:left-0 lg:h-full lg:w-[44vw]"
+              {...floatingAnimation}
+            >
               <div className="h-full w-full absolute block top-0 left-0">
                 <img 
-               src="/figura-1.png" 
-                  alt="D&V Token Presale" 
-                   className="w-full h-full object-contain"
+                  src="/figura-1.png" 
+                  alt="D&V Group Values" 
+                  className="w-full h-full object-contain"
                 />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent lg:bg-gradient-to-l"></div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Content - Left side */}
           <div className="w-full lg:w-1/2 px-4 py-10 lg:py-24 xl:py-44 lg:px-20 xl:px-32">
-            <div className="w-full flex items-center mb-8">
-              <Coins className="h-8 w-8 text-blue-400 mr-3" />
+            <motion.div 
+              className="w-full flex items-center mb-8"
+              variants={itemVariants}
+            >
+              <Target className="h-8 w-8 text-blue-400 mr-3" />
               <h2 className="font-bold text-4xl leading-[1.2] lg:text-[2.5rem] lg:leading-tight text-white">
-                Token Presale
+                Our Purpose
               </h2>
-            </div>
-            <div className="mb-8">
-              <p className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300">
-                Participate in the D&V Token presale and be among the first to invest in our revolutionary platform. Our token powers the entire ecosystem of real estate, renewable energy, and decentralized financial services.
-              </p>
-              <p className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300">
-                With a vesting schedule designed for long-term stability and a clear allocation strategy, D&V Token offers a secure and transparent investment opportunity with strong growth potential.
-              </p>
+            </motion.div>
+
+            <motion.div 
+              className="mb-8 space-y-6"
+              variants={itemVariants}
+            >
+              <div className="bg-blue-900/30 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-blue-500/30">
+                <motion.h3 
+                  className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-blue-300"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  VISION
+                </motion.h3>
+                <motion.p 
+                  className="text-sm md:text-base text-gray-300"
+                  initial={{ opacity: 0.9 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  To be a leading investment firm in the development of local
+                  communities, promoting sustainable and innovative projects that
+                  generate a positive impact on the economy and social well-being.
+                </motion.p>
+              </div>
+              
+              <div className="bg-blue-900/30 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-blue-500/30">
+                <motion.h3 
+                  className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-blue-300"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  MISSION
+                </motion.h3>
+                <motion.p 
+                  className="text-sm md:text-base text-gray-300"
+                  initial={{ opacity: 0.9 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  Promote sustainable community growth through responsible investment and 
+                  management practices, strengthening ourselves with the implementation
+                  of blockchain technology.
+                </motion.p>
+              </div>
               
               <div className="mt-6 space-y-3">
-                <div className="flex items-start">
+                <motion.div 
+                  className="flex items-start"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <Sparkles className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
-                  <span className="text-gray-200">Initial price of 0.00000000175 USDC with listing at 0.000000003 USDC</span>
-                </div>
-                <div className="flex items-start">
+                  <span className="text-gray-200">Innovative blockchain solutions for real-world investment challenges</span>
+                </motion.div>
+                <motion.div 
+                  className="flex items-start"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <Shield className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
-                  <span className="text-gray-200">Secure presale with vesting periods to ensure long-term stability</span>
+                  <span className="text-gray-200">Commitment to security, transparency, and sustainable growth</span>
+                </motion.div>
+              </div>
+            </motion.div>
+
+            {/* Buttons with animation */}
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
+              <motion.a 
+                target="_self" 
+                className="group relative leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 bg-blue-600 text-white border-blue-600 hover:text-blue-800 hover:border-blue-600 transition-all duration-300 border inline-block group" 
+                href="/about"
+                variants={buttonHoverVariants}
+                whileHover="hover"
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="absolute inset-0 overflow-hidden rounded-full">
+                  <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
                 </div>
-              </div>
-            </div>
-            {/* Buttons */}
-            <a 
-              target="_self" 
-              className="group relative leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 bg-blue-600 text-white border-blue-600 hover:text-blue-800 hover:border-blue-600 transition-all duration-300 border inline-block mr-3 mb-3 group" 
-              href="/presale"
-            >
-              <div className="absolute inset-0 overflow-hidden rounded-full">
-                <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
-              </div>
-              <div className="relative z-10">Join Presale</div>
-            </a>
-            <a 
-              target="_self" 
-              className="group relative block leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 text-white border-white hover:text-blue-900 transition-all duration-300 border inline-block mr-3 mb-3 group" 
-              href="/tokenomics"
-            >
-              <div className="absolute inset-0 overflow-hidden rounded-full">
-                <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-blue-400"></div>
-              </div>
-              <div className="relative z-10">Tokenomics</div>
-            </a>
+                <div className="relative z-10">Learn More</div>
+              </motion.a>
+              <motion.a 
+                target="_self" 
+                className="group relative block leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 text-white border-white hover:text-blue-900 transition-all duration-300 border inline-block group" 
+                href="/team"
+                variants={buttonHoverVariants}
+                whileHover="hover"
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="absolute inset-0 overflow-hidden rounded-full">
+                  <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-blue-400"></div>
+                </div>
+                <div className="relative z-10">Our Team</div>
+              </motion.a>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Second Section: Real Estate Projects - Image on left */}
-        <div className="w-full lg:flex lg:place-items-stretch lg:flex-row">
+        <motion.div 
+          ref={section2Ref}
+          className="w-full lg:flex lg:place-items-stretch lg:flex-row"
+          variants={containerVariants}
+          initial="hidden"
+          animate={section2InView ? "visible" : "hidden"}
+        >
           {/* Image container - Left side */}
-          <div className="block relative bg-slate-900  w-full h-[100vw] overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible">
-            <div className="lg:absolute lg:top-0 lg:right-0 lg:h-full lg:w-[41vw]">
+          <motion.div 
+            className="block relative bg-slate-900 w-full h-[100vw] overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible"
+            variants={imageVariants}
+          >
+            <motion.div 
+              className="lg:absolute lg:top-0 lg:right-0 lg:h-full lg:w-[41vw]"
+              {...floatingAnimation}
+            >
               <div className="h-full w-full absolute block top-0 left-0">
                 <img 
-               src="/medio.png" 
+                  src="/medio.png" 
                   alt="D&V Real Estate Projects" 
                   className="w-full h-full object-contain"
                 />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent lg:bg-gradient-to-r"></div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Content - Right side */}
           <div className="w-full lg:w-1/2 px-4 py-10 lg:py-24 xl:py-44 lg:px-20 xl:px-32">
-            <div className="w-full flex items-center mb-8">
+            <motion.div 
+              className="w-full flex items-center mb-8"
+              variants={itemVariants}
+            >
               <Building className="h-8 w-8 text-blue-400 mr-3" />
               <h2 className="font-bold text-4xl leading-[1.2] lg:text-[2.5rem] lg:leading-tight text-white">
                 Real Estate Integration
               </h2>
-            </div>
-            <div className="mb-8">
-              <p className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300">
+            </motion.div>
+            <motion.div 
+              className="mb-8"
+              variants={itemVariants}
+            >
+              <motion.p 
+                className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
                 Our blockchain platform brings innovative solutions to real estate investments, enabling fractional ownership through tokenization and creating new opportunities for communities to invest in local development.
-              </p>
-              <p className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300">
+              </motion.p>
+              <motion.p 
+                className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
                 Ownership records, transaction history, and property details are all secured on the blockchain, providing unprecedented transparency and security for all stakeholders.
-              </p>
+              </motion.p>
               
               <div className="mt-6 space-y-3">
-                <div className="flex items-start">
+                <motion.div 
+                  className="flex items-start"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <Landmark className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
                   <span className="text-gray-200">Tokenized real estate assets for fractional ownership</span>
-                </div>
-                <div className="flex items-start">
+                </motion.div>
+                <motion.div 
+                  className="flex items-start"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <Shield className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
                   <span className="text-gray-200">Transparent and immutable property records on blockchain</span>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
             {/* Buttons */}
-            <a 
+            <motion.a 
               target="_self" 
               className="group relative leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 bg-blue-600 text-white border-blue-600 hover:text-blue-800 hover:border-blue-600 transition-all duration-300 border inline-block mr-3 mb-3 group" 
               href="/real-estate"
+              variants={buttonHoverVariants}
+              initial="rest"
+              whileHover="hover"
+              whileTap={{ scale: 0.95 }}
             >
               <div className="absolute inset-0 overflow-hidden rounded-full">
                 <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
               </div>
               <div className="relative z-10">Explore Projects</div>
-            </a>
+            </motion.a>
           </div>
-        </div>
+        </motion.div>
 
         {/* Third Section: Future Initiatives - Image on right */}
-        <div className="w-full lg:flex lg:place-items-stretch lg:flex-row-reverse">
+        <motion.div 
+          ref={section3Ref}
+          className="w-full lg:flex lg:place-items-stretch lg:flex-row-reverse"
+          variants={containerVariants}
+          initial="hidden"
+          animate={section3InView ? "visible" : "hidden"}
+        >
           {/* Image container - Right side */}
-          <div className="block relative w-full h-[100vw] bg-slate-900 overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible">
-            <div className="lg:absolute lg:top-0 lg:left-0 lg:h-full lg:w-[41vw]">
+          <motion.div 
+            className="block relative w-full h-[100vw] bg-slate-900 overflow-hidden lg:w-1/2 lg:h-auto lg:overflow-visible"
+            variants={imageVariants}
+          >
+            <motion.div 
+              className="lg:absolute lg:top-0 lg:left-0 lg:h-full lg:w-[41vw]"
+              {...floatingAnimation}
+            >
               <div className="h-full w-full absolute block top-0 left-4">
                 <img 
                   src="/final.png" 
@@ -146,62 +333,92 @@ const FeatureSections = () => {
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent lg:bg-gradient-to-l"></div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Content - Left side */}
           <div className="w-full lg:w-1/2 px-4 py-10 lg:py-24 xl:py-44 lg:px-20 xl:px-32">
-            <div className="w-full flex items-center mb-8">
+            <motion.div 
+              className="w-full flex items-center mb-8"
+              variants={itemVariants}
+            >
               <Lightbulb className="h-8 w-8 text-blue-400 mr-3" />
               <h2 className="font-bold text-4xl leading-[1.2] lg:text-[2.5rem] lg:leading-tight text-white">
                 Future Initiatives
               </h2>
-            </div>
-            <div className="mb-8">
-              <p className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300">
+            </motion.div>
+            <motion.div 
+              className="mb-8"
+              variants={itemVariants}
+            >
+              <motion.p 
+                className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
                 Our roadmap extends beyond current offerings with ambitious plans to revolutionize renewable energy investments, community development programs, and decentralized financial services.
-              </p>
-              <p className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300">
+              </motion.p>
+              <motion.p 
+                className="text-pretty text-[1.0625rem] leading-[1.647] mb-3 text-gray-300"
+                whileHover={{ x: 5 }}
+                transition={{ duration: 0.2 }}
+              >
                 D&V Group Blockchain is committed to building a comprehensive ecosystem that empowers communities, delivers sustainable solutions, and creates meaningful economic opportunities through blockchain technology.
-              </p>
+              </motion.p>
               
               <div className="mt-6 space-y-3">
-                <div className="flex items-start">
+                <motion.div 
+                  className="flex items-start"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <Leaf className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
                   <span className="text-gray-200">Renewable energy project funding and tokenization</span>
-                </div>
-                <div className="flex items-start">
+                </motion.div>
+                <motion.div 
+                  className="flex items-start"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
                   <BarChart3 className="h-5 w-5 text-blue-400 mr-3 mt-1 flex-shrink-0" />
                   <span className="text-gray-200">Advanced DeFi services for community economic development</span>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
             {/* Buttons */}
-            <a 
-              target="_self" 
-              className="group relative leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 bg-blue-600 text-white border-blue-600 hover:text-blue-800 hover:border-blue-600 transition-all duration-300 border inline-block mr-3 mb-3 group" 
-              href="/roadmap"
-            >
-              <div className="absolute inset-0 overflow-hidden rounded-full">
-                <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
-              </div>
-              <div className="relative z-10">View Roadmap</div>
-            </a>
-            <a 
-              target="_self" 
-              className="group relative block leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 text-white border-white hover:text-blue-900 transition-all duration-300 border inline-block mr-3 mb-3 group" 
-              href="/whitepaper"
-            >
-              <div className="absolute inset-0 overflow-hidden rounded-full">
-                <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-blue-400"></div>
-              </div>
-              <div className="relative z-10 flex items-center justify-center">
-                <FileText className="h-4 w-4 mr-1" />
-                <span>Whitepaper</span>
-              </div>
-            </a>
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
+              <motion.a 
+                target="_self" 
+                className="group relative leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 bg-blue-600 text-white border-blue-600 hover:text-blue-800 hover:border-blue-600 transition-all duration-300 border inline-block group" 
+                href="/roadmap"
+                variants={buttonHoverVariants}
+                whileHover="hover"
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="absolute inset-0 overflow-hidden rounded-full">
+                  <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
+                </div>
+                <div className="relative z-10">View Roadmap</div>
+              </motion.a>
+              <motion.a 
+                target="_self" 
+                className="group relative block leading-none text-center uppercase rounded-full block no-underline transform transition-all duration-150 text-xs px-5 py-3 text-white border-white hover:text-blue-900 transition-all duration-300 border inline-block group" 
+                href="/whitepaper"
+                variants={buttonHoverVariants}
+                whileHover="hover"
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className="absolute inset-0 overflow-hidden rounded-full">
+                  <div className="absolute w-1/2 h-full top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-blue-400"></div>
+                </div>
+                <div className="relative z-10 flex items-center justify-center">
+                  <FileText className="h-4 w-4 mr-1" />
+                  <span>Whitepaper</span>
+                </div>
+              </motion.a>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
