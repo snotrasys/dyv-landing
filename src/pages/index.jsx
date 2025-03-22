@@ -398,7 +398,7 @@ function LandingPage() {
         <div className="min-h-screen bg-gradient-to-b from-black via-[#050e28] to-black text-white relative overflow-hidden">
           {/* Particles Effect */}
           <Particles />
-
+<FadeIn>
           <section 
             ref={heroRef}
             className="relative flex flex-col-reverse md:block content-center md:min-h-[70vh] lg:min-h-[90vh]"
@@ -580,8 +580,9 @@ function LandingPage() {
             )}
           </AnimatePresence>
         </section>
-
+        </FadeIn>
         {/* Gradient Text Section with staggered reveal */}
+        <FadeIn>
         <div 
           ref={gradientTextRef}
           className="py-20 px-4 lg:pt-36 lg:pb-36 overflow-hidden text-white"
@@ -668,12 +669,15 @@ function LandingPage() {
               )}
             </AnimatePresence>
           </div>
-  
+          </FadeIn>
           {/* Feature Sections */}
           <FeatureSections />
   
           {/* Card Slider Section */}
+          <FadeIn>
           <CardSliderSection />
+          </FadeIn>
+
   
           {/* Blockchain Integration Section with advanced animations */}
           <section

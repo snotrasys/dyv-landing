@@ -16,6 +16,7 @@ import { useRouter } from 'next/router';
 import RouterLoadingIndicator from '@/components/RouterLoadingIndicator';
 import { MultiApproveProvider } from '@/context/MultiApprove';
 import Navbar from '@/components/Navbar';
+import NavbarMenu from '@/components/NavbarMenu';
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
 
@@ -63,7 +64,7 @@ function MyApp({ Component, pageProps }) {
         
           <MultiApproveProvider>
           <TokenProvider>
-            <Navbar />
+            <NavbarMenu />
                 <div className="break-all font-primary">
                   <Toaster
                     position="top-right"
