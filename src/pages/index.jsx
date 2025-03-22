@@ -582,7 +582,7 @@ function LandingPage() {
         </section>
 
         {/* Gradient Text Section with staggered reveal */}
-        <FadeIn 
+        <div 
           ref={gradientTextRef}
           className="py-20 px-4 lg:pt-36 lg:pb-36 overflow-hidden text-white"
         >
@@ -667,7 +667,7 @@ function LandingPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </FadeIn>
+          </div>
   
           {/* Feature Sections */}
           <FeatureSections />
