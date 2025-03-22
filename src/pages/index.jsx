@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Footer from "@/views/Footer";
+import FeatureSections from "@/views/FeaturesSection";
+import CardSliderSection from "@/views/CardSliderSection";
 
 function LandingPage() {
   // State for interactive elements
@@ -217,7 +219,13 @@ function LandingPage() {
         {/* Particles Effect */}
         <Particles />
 
-{/* Additional ambient glowing dots */}
+        <section 
+      className=" relative flex flex-col-reverse md:block content-center md:min-h-[70vh] lg:min-h-[90vh]"
+    >
+   
+
+ 
+
 <div className="absolute inset-0 overflow-hidden -z-4 pointer-events-none">
           {[...Array(15)].map((_, i) => (
             <motion.div
@@ -244,6 +252,206 @@ function LandingPage() {
             />
           ))}
         </div>
+      {/* Content Overlay */}
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-10 relative z-10 pt-64 lg:pt-28 lg:pb-10">
+        <div className="w-full md:w-3/4 lg:w-1/2 lg:pt-32 lg:my-auto">
+        <motion.div 
+                variants={childVariants}
+                className="relative"
+              >
+                <motion.div
+                  className="absolute -inset-1  rounded-lg blur opacity-30"
+                  animate={{
+                    opacity: [0.2, 0.4, 0.2],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                />
+                <img 
+                  src="/logo-text.png" 
+                  alt="D&V GROUP BLOCKCHAIN" 
+                  className="relative h-12 sm:h-16 mb-6 sm:mb-8" 
+                />
+              </motion.div>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-pretty font-bold font-youth text-white text-[3rem] leading-[1] tracking-normal lg:text-[5.125rem] lg:leading-[1] mb-4"
+          >
+            BLOCKCHAIN AND TOKENIZATION
+          </motion.h1>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-pretty text-white text-[1.0625rem] leading-[2rem] lg:text-2xl lg:leading-[2rem] mb-8"
+          >
+            D&V Group Blockchain is taking a leap into the future with D&V 
+            Token, a cryptocurrency designed to revolutionize investing in 
+            <span className="whitespace-nowrap"> real estate</span>, renewable energy, and 
+            decentralized financial services.
+          </motion.p>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="lg:w-10/12 w-full gap-4 md:w-full md:flex md:flex-wrap lg:gap-10"
+          >
+            {/* Dashboard Button */}
+            <a 
+              href="/presale" 
+              className="flex justify-between items-center group py-3 px-0 group relative overflow-hidden transition-all duration-200 hover:px-4 text-white no-underline border-t border-white md:inline-flex"
+            >
+              <div className="z-0 absolute w-0 h-[200%] top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
+              <p className="relative z-10 text-xl leading-[1.2] uppercase tracking-wider grow-1 pr-14 group-hover:text-black transition-colors duration-200">
+                Presale
+              </p>
+              <div className="group transition-colors duration-200 relative overflow-hidden rounded-full h-6 w-6 bg-transparent flex-grow-0 shrink-0">
+                <div className="absolute top-0 left-0 h-full w-full transition-transform rotate-[135deg]">
+                  <div className="absolute top-0 left-0 h-full w-full transition-all duration-300 group-hover:-top-full">
+                    <div className="top-0 left-0 absolute h-full w-full flex justify-center items-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
+                      </svg>
+                    </div>
+                    <div className="top-full left-0 absolute h-full w-full flex justify-center items-center transition-transform rotate-0">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+            
+            {/* Explore Button */}
+            <a 
+              href="#explore-dvg" 
+              className="flex justify-between items-center group py-3 px-0 group relative overflow-hidden transition-all duration-200 hover:px-4 text-white no-underline border-t border-white md:inline-flex"
+            >
+              <div className="z-0 absolute w-0 h-[200%] top-full left-1/2 -translate-x-1/2 block rounded-full transition-all duration-200 group-hover:top-0 group-hover:w-full group-hover:scale-125 bg-white"></div>
+              <p className="relative z-10 text-xl leading-[1.2] uppercase tracking-wider grow-1 pr-14 group-hover:text-black transition-colors duration-200">
+                Explore
+              </p>
+              <div className="group transition-colors duration-200 relative overflow-hidden rounded-full h-6 w-6 bg-transparent flex-grow-0 shrink-0">
+                <div className="absolute top-0 left-0 h-full w-full transition-transform rotate-[135deg]">
+                  <div className="absolute top-0 left-0 h-full w-full transition-all duration-300 group-hover:-top-full">
+                    <div className="top-0 left-0 absolute h-full w-full flex justify-center items-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
+                      </svg>
+                    </div>
+                    <div className="top-full left-0 absolute h-full w-full flex justify-center items-center transition-transform rotate-0">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" clipRule="evenodd" d="M11.4893 3.10496L4.29687 9.46964L4.95957 10.2185L11.3208 4.58936L11.3208 21.2959L12.3208 21.2959L12.3208 4.58766L18.6848 10.2039L19.3465 9.45408L12.1515 3.10451C11.9623 2.93752 11.6783 2.93772 11.4893 3.10496Z" fill="#FFFFFF" className="group-hover:fill-[#000000] transition duration-300 "/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+
+    <section className="py-20 px-4 lg:pt-36 lg:pb-36 overflow-hidden  text-white">
+      {/* Mobile version (hidden on desktop) */}
+      <div className="w-full block md:hidden">
+        <motion.span 
+          className="block relative"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <h1 className="text-4xl leading-[1.1] text-center font-bold bg-gradient-to-r from-blue-400 via-white to-blue-400 bg-clip-text text-transparent">
+            BLOCKCHAIN AND
+          </h1>
+        </motion.span>
+        <motion.span 
+          className="block relative"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+        >
+          <h1 className="text-4xl leading-[1.1] text-center font-bold bg-gradient-to-r from-blue-400 via-white to-blue-400 bg-clip-text text-transparent">
+            TOKENIZATION
+          </h1>
+        </motion.span>
+        <motion.span 
+          className="block relative"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <h1 className="text-4xl leading-[1.1] text-center font-bold bg-gradient-to-r from-blue-400 via-white to-blue-400 bg-clip-text text-transparent">
+            TRANSFORMING INVESTMENT
+          </h1>
+        </motion.span>
+        <motion.span 
+          className="block relative"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <h1 className="text-4xl leading-[1.1] text-center font-bold bg-gradient-to-r from-blue-400 via-white to-blue-400 bg-clip-text text-transparent">
+            AND COMMUNITY DEVELOPMENT.
+          </h1>
+        </motion.span>
+      </div>
+
+      {/* Desktop version (hidden on mobile) */}
+      <div className="w-full hidden md:block">
+        <motion.span 
+          className="block relative"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <h1 className="text-5xl lg:text-7xl leading-[1.1] text-center font-bold bg-gradient-to-r from-blue-400 via-white to-blue-400 bg-clip-text text-transparent">
+            BLOCKCHAIN AND TOKENIZATION
+          </h1>
+        </motion.span>
+        <motion.span 
+          className="block relative"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
+          <h1 className="text-5xl lg:text-7xl leading-[1.1] text-center font-bold bg-gradient-to-r from-blue-400 via-white to-blue-400 bg-clip-text text-transparent">
+            TRANSFORMING INVESTMENT AND
+          </h1>
+        </motion.span>
+        <motion.span 
+          className="block relative"
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          whileInView={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <h1 className="text-5xl lg:text-7xl leading-[1.1] text-center font-bold bg-gradient-to-r from-blue-400 via-white to-blue-400 bg-clip-text text-transparent">
+            COMMUNITY DEVELOPMENT.
+          </h1>
+        </motion.span>
+      </div>
+    </section>
+    <FeatureSections />
+    <CardSliderSection />
+
+{/* Additional ambient glowing dots */}
+
         {/* Abstract circle - Enhanced positioning */}
         <motion.div 
           className="absolute top-0 right-0 -z-5 pointer-events-none"
@@ -275,219 +483,9 @@ function LandingPage() {
           animate="visible"
         />
 
-        {/* Hero Section */}
-        <motion.div
-          className="relative"
-          variants={heroVariants}
-          initial="hidden"
-          animate="visible"
-          style={{ opacity, scale }}
-        >
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-24 lg:flex lg:items-center lg:gap-x-10 lg:px-8">
-            {/* Left content area */}
-            <motion.div 
-              className="mx-auto max-w-2xl mt-20 lg:mx-0 lg:flex-auto z-10 relative"
-              initial="initial"
-              animate="visible"
-              variants={{
-                initial: { opacity: 0 },
-                visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
-              }}
-            >
-              {/* Logo with glow effect */}
-              <motion.div 
-                variants={childVariants}
-                className="relative"
-              >
-                <motion.div
-                  className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg blur opacity-30"
-                  animate={{
-                    opacity: [0.2, 0.4, 0.2],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
-                />
-                <img 
-                  src="/logo-text.png" 
-                  alt="D&V GROUP BLOCKCHAIN" 
-                  className="relative h-12 sm:h-16 mb-6 sm:mb-8" 
-                />
-              </motion.div>
-              
-              {/* Main heading */}
-              <motion.div variants={childVariants}>
-                <h1 className="text-lg font-bold tracking-tight sm:text-2xl md:text-3xl mb-2 bg-gradient-to-r from-blue-200 via-white to-blue-200 bg-clip-text text-transparent">
-                  TRANSFORMING INVESTMENT 
-                  <br />
-                  AND COMMUNITY DEVELOPMENT WITH
-                </h1>
-                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-blue-300 to-blue-400 bg-clip-text text-transparent">
-                  BLOCKCHAIN AND
-                  <br />
-                  TOKENIZATION
-                </h2>
-              </motion.div>
-              
-              {/* Interactive Mission and Vision tabs */}
-              <motion.div 
-                variants={childVariants}
-                className="mt-8 md:mt-12"
-              >
-                <div className="flex mb-4 border-b border-blue-800/40">
-                  <button
-                    onClick={() => setActiveTab("mission")}
-                    className={`py-2 px-4 font-medium ${
-                      activeTab === "mission"
-                        ? "text-blue-400 border-b-2 border-blue-400"
-                        : "text-gray-400 hover:text-gray-300"
-                    }`}
-                  >
-                    MISSION
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("vision")}
-                    className={`py-2 px-4 font-medium ${
-                      activeTab === "vision"
-                        ? "text-blue-400 border-b-2 border-blue-400"
-                        : "text-gray-400 hover:text-gray-300"
-                    }`}
-                  >
-                    VISION
-                  </button>
-                </div>
-                
-                <AnimatePresence mode="wait">
-                  {activeTab === "mission" ? (
-                    <motion.div
-                      key="mission"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="bg-blue-900/30 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-blue-500/30 relative overflow-hidden"
-                    >
-                      <motion.div
-                        className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-blue-400/20 rounded-lg blur-xl"
-                        animate={{
-                          opacity: [0.1, 0.3, 0.1],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                        }}
-                      />
-                      <h3 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-blue-300 relative">MISSION</h3>
-                      <p className="text-xs sm:text-sm md:text-base relative">
-                        Promote sustainable community growth through responsible investment and 
-                        management practices, strengthening ourselves with the implementation
-                        of blockchain technology.
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="vision"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="bg-blue-900/30 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-blue-500/30 relative overflow-hidden"
-                    >
-                      <motion.div
-                        className="absolute -inset-1 bg-gradient-to-r from-blue-400/20 to-blue-600/20 rounded-lg blur-xl"
-                        animate={{
-                          opacity: [0.1, 0.3, 0.1],
-                        }}
-                        transition={{
-                          duration: 3,
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                        }}
-                      />
-                      <h3 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-blue-300 relative">VISION</h3>
-                      <p className="text-xs sm:text-sm md:text-base relative">
-                        To be a leading investment firm in the development of local
-                        communities, promoting sustainable and innovative projects that
-                        generate a positive impact on the economy and social well-being.
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-              
-              {/* Enhanced CTA Button */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="mt-8 md:mt-10 flex items-center gap-x-6"
-              >
-                <motion.a
-                  href="/presale"
-                  className="relative px-6 md:px-8 py-2 md:py-3 text-lg md:text-xl font-semibold text-black rounded-md overflow-hidden group"
-                  onMouseEnter={() => setIsHoveredCTA(true)}
-                  onMouseLeave={() => setIsHoveredCTA(false)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <motion.span
-                    className="absolute inset-0 bg-gradient-to-r from-blue-400 via-white to-blue-300"
-                    initial={{ x: "100%" }}
-                    animate={{ x: isHoveredCTA ? "0%" : "100%" }}
-                    transition={{ duration: 0.5 }}
-                  />
-                  <motion.span
-                    className="absolute inset-0 bg-white"
-                    animate={{ opacity: isHoveredCTA ? 0 : 1 }}
-                    transition={{ duration: 0.5 }}
-                  />
-                  <span className="relative flex items-center">
-                    Presale
-                    <motion.svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 ml-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      initial={{ x: 0 }}
-                      animate={{ x: isHoveredCTA ? 5 : 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </motion.svg>
-                  </span>
-                </motion.a>
-              </motion.div>
-            </motion.div>
-            
-            {/* Right area with enhanced animated image */}
-            <motion.div
-              initial={{ scale: 1.2, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.75 }}
-              className="mt-16 lg:mt-0 lg:flex-shrink-0 hidden lg:block z-10 relative"
-              variants={floatingAnimation}
-            >
-              <motion.div
-                className="absolute -inset-8 bg-blue-500/10 rounded-full blur-xl"
-                variants={pulseAnimation}
-                initial="hidden"
-                animate="visible"
-              />
-              <img
-                className="w-full max-w-xl mx-auto relative z-10"
-                src="/figura-1.png"
-                alt="Blockchain Visualization"
-              />
-            </motion.div>
-          </div>
-        </motion.div>
-
+   
         {/* Blockchain Integration Section - Enhanced */}
-        <section className="min-h-screen relative pt-12 pb-24 overflow-hidden">
+        <section className="min-h-screen relative pt-12 mt-20 pb-24 overflow-hidden">
           {/* Dynamic background with animated grid */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-[#070b28] opacity-90"></div>
@@ -588,60 +586,7 @@ function LandingPage() {
               />
             </motion.div>
 
-            {/* Additional Images with Parallax effect */}
-            <div className="space-y-8 mt-8">
-              <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="w-full max-w-5xl mx-auto px-4 relative"
-              >
-                <motion.div
-                  className="absolute inset-0 -z-1 bg-gradient-to-b from-blue-500/5 to-transparent rounded-xl"
-                  whileInView={{ 
-                    background: [
-                      "linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent)",
-                      "linear-gradient(to bottom, rgba(59, 130, 246, 0.1), transparent)",
-                      "linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent)"
-                    ]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  viewport={{ once: true }}
-                />
-                <img 
-                  src="/medio.png" 
-                  alt="D&V Ecosystem" 
-                  className="w-full relative z-10"
-                />
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="w-full max-w-5xl mx-auto px-4 relative"
-              >
-                <motion.div
-                  className="absolute inset-0 -z-1 bg-gradient-to-b from-blue-500/5 to-transparent rounded-xl"
-                  whileInView={{ 
-                    background: [
-                      "linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent)",
-                      "linear-gradient(to bottom, rgba(59, 130, 246, 0.1), transparent)",
-                      "linear-gradient(to bottom, rgba(59, 130, 246, 0.05), transparent)"
-                    ]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  viewport={{ once: true }}
-                />
-                <img 
-                  src="/final.png" 
-                  alt="D&V Benefits" 
-                  className="w-full relative z-10"
-                />
-              </motion.div>
-            </div>
+    
           </div>
         </section>
       </div>

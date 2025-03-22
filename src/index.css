@@ -803,8 +803,8 @@ body, html {
 
 
 @font-face {
-  font-family: 'RedThinker-Light';
-  src: url('./fonts/RedThinker-Light.ttf') format('truetype');
+  font-family: 'UntitledSans';
+  src: url('./fonts/untitled-sans-regular.woff2') format('woff2');
 }
 
 
@@ -891,13 +891,24 @@ body, html {
 }
 
 
+@font-face {
+  font-family: Youth;
+  src: url('./fonts/Youth-Regular.woff2') format('woff2');
+}
+
+
+.font-youth {
+  font-family: Youth, sans-serif;
+}
+
+
 
 
 
 body {
   overflow-x: hidden;
   overflow-y: scroll !important;
-  font-family: 'Poppins   ', -apple-system, BlinkMacSystemFont, "Segoe UI",
+  font-family: 'UntitledSans', 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI",
   "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
   "Helvetica Neue", sans-serif;
 }
