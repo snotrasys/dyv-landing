@@ -47,10 +47,10 @@ const NavbarMenu = () => {
     setIsOpen(false);
   };
 
-  // Animations variants
+  // Animations variants - Changed to open from right
   const menuVariants = {
     hidden: {
-      x: "-100%",
+      x: "100%", // Change from -100% to 100% to open from right
       opacity: 0,
       transition: {
         type: "spring",
@@ -74,7 +74,7 @@ const NavbarMenu = () => {
   const itemVariants = {
     hidden: { 
       opacity: 0, 
-      x: -20 
+      x: 20 // Changed from -20 to 20 for right-to-left animation
     },
     visible: { 
       opacity: 1, 
@@ -114,24 +114,25 @@ const NavbarMenu = () => {
         initial="hidden"
         animate="visible"
         exit="hidden"
-        className="overflow-hidden"
+        className="overflow-hidden pl-2"
       >
         {items.map((item, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: 20 }} // Changed from -20 to 20
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
           >
             <NextLink
               href={item.href}
-              className="flex items-center space-x-4 text-gray-800 p-3 pl-12 rounded-xl hover:bg-white/5 transition-all duration-300"
+              className="flex items-center space-x-5 text-gray-800 p-4 pl-8 rounded-xl hover:bg-black/5 transition-all duration-300"
               onClick={() => setIsOpen(false)}
             >
-              <div className="w-8 h-8 flex items-center justify-center">
-                <img src={item.imgSrc} alt={item.text} className="w-8 h-8" />
+              {/* Mostramos el ícono directamente sin fondo negro */}
+              <div className="w-12 h-12 flex items-center justify-center">
+                <img src={item.imgSrc} alt={item.text} className="w-11 h-11" />
               </div>
-              <span className="text-md font-medium">{item.text}</span>
+              <span className="text-lg font-medium">{item.text}</span>
             </NextLink>
           </motion.div>
         ))}
@@ -206,12 +207,12 @@ const NavbarMenu = () => {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* Sidebar - Changed position from left to right */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             style={{ backgroundImage: `url(/bg-menu.png)` }}
-            className="fixed bg-center bg-no-repeat bg-cover top-0 left-0 h-full w-full md:w-96 bg-white/80 backdrop-blur-md bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]
+            className="fixed bg-center bg-no-repeat bg-cover top-0 right-0 h-full w-full md:w-96 bg-white/90 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]
             transform z-50 overflow-y-auto"
             variants={menuVariants}
             initial="hidden"
@@ -221,7 +222,7 @@ const NavbarMenu = () => {
             {/* Close Button */}
             <motion.button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-black/5 rounded-lg transition-all duration-300"
+              className="absolute top-4 left-4 p-2 hover:bg-black/5 rounded-lg transition-all duration-300" // Changed from right to left
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -230,34 +231,31 @@ const NavbarMenu = () => {
 
             {/* Logo */}
             <motion.div 
-              className="flex justify-center pt-8 pb-6"
+              className="flex justify-center pt-8 pb-10"
               variants={itemVariants}
             >
-              <motion.div 
-                className="w-auto h-16 mt-5 p-2"
-                whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(59, 130, 246, 0.3)" }}
-              >
-                <img src="/logo-black-2.png" alt="Logo" className="w-full h-full" />
+              <motion.div className="w-auto h-16 mt-16  ">
+                <img src="/logo-black-2.png" alt="Logo" className="w-full h-full object-contain" />
               </motion.div>
             </motion.div>
 
             {/* Menu Items */}
-            <nav className="px-4 space-y-2">
+            <nav className="px-6 space-y-6">
               {/* Learn Section */}
               <motion.div variants={itemVariants}>
                 <div 
                   className="flex items-center justify-between text-gray-800 p-3 rounded-xl 
-                  hover:bg-white/5 transition-all duration-300 cursor-pointer"
+                  hover:bg-black/5 transition-all duration-300 cursor-pointer"
                   onClick={() => setLearnExpanded(!learnExpanded)}
                 >
                   <div className="flex items-center space-x-4">
-                    <span className="text-md font-bold text-xl">LEARN</span>
+                    <span className="text-xl font-bold tracking-wider">LEARN</span>
                   </div>
                   <motion.div
                     animate={{ rotate: learnExpanded ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ChevronDown className="w-5 h-5" />
+                    <ChevronDown className="w-6 h-6" />
                   </motion.div>
                 </div>
               </motion.div>
@@ -271,17 +269,17 @@ const NavbarMenu = () => {
               <motion.div variants={itemVariants}>
                 <div 
                   className="flex items-center justify-between text-gray-800 p-3 rounded-xl 
-                  hover:bg-white/5 transition-all duration-300 cursor-pointer"
+                  hover:bg-black/5 transition-all duration-300 cursor-pointer"
                   onClick={() => setEcosystemExpanded(!ecosystemExpanded)}
                 >
                   <div className="flex items-center space-x-4">
-                    <span className="text-md font-bold text-xl">ECOSYSTEM</span>
+                    <span className="text-xl font-bold tracking-wider">ECOSYSTEM</span>
                   </div>
                   <motion.div
                     animate={{ rotate: ecosystemExpanded ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ChevronDown className="w-5 h-5" />
+                    <ChevronDown className="w-6 h-6" />
                   </motion.div>
                 </div>
               </motion.div>
@@ -295,17 +293,17 @@ const NavbarMenu = () => {
               <motion.div variants={itemVariants}>
                 <div 
                   className="flex items-center justify-between text-gray-800 p-3 rounded-xl 
-                  hover:bg-white/5 transition-all duration-300 cursor-pointer"
+                  hover:bg-black/5 transition-all duration-300 cursor-pointer"
                   onClick={() => setCommunityExpanded(!communityExpanded)}
                 >
                   <div className="flex items-center space-x-4">
-                    <span className="text-md font-bold text-xl">COMMUNITY</span>
+                    <span className="text-xl font-bold tracking-wider">COMMUNITY</span>
                   </div>
                   <motion.div
                     animate={{ rotate: communityExpanded ? 180 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ChevronDown className="w-5 h-5" />
+                    <ChevronDown className="w-6 h-6" />
                   </motion.div>
                 </div>
               </motion.div>
@@ -318,38 +316,37 @@ const NavbarMenu = () => {
                     initial="hidden"
                     animate="visible"
                     exit="hidden"
-                    className="pl-8 overflow-hidden"
+                    className="overflow-hidden"
                   >
-                    <div className="grid grid-cols-2 gap-2 pt-2">
+                    <div className="flex justify-evenly pt-4">
                       {communityLinks.map((item, index) => (
                         <motion.a
                           key={index}
                           href={item.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex flex-col items-center justify-center p-2 rounded-xl
-                          hover:bg-white/5 transition-all duration-300 text-center"
+                          className="flex flex-col items-center p-3 rounded-xl
+                          hover:bg-black/5 transition-all duration-300 text-center"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          whileHover={{ scale: 1.05, backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                          whileHover={{ scale: 1.05 }}
                         >
-                          <div className="w-12 h-12 flex items-center justify-center mb-1">
+                          {/* Usar íconos directamente sin el círculo negro */}
+                          <div className="w-14 h-14 flex items-center justify-center mb-2">
                             <img src={item.imgSrc} alt={item.text} className="w-10 h-10" />
                           </div>
-                          <span className="text-xs font-medium">{item.text}</span>
+                          <span className="text-sm font-medium">{item.text}</span>
                         </motion.a>
                       ))}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-
-          
             </nav>
 
             {/* Background blur effect */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-800/30 to-gray-900/30 backdrop-blur-sm -z-10" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-800/10 to-gray-900/20 backdrop-blur-sm -z-10" />
           </motion.div>
         )}
       </AnimatePresence>
