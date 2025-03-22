@@ -57,15 +57,13 @@ function PresaleSwap() {
   }
 
   return (
-    <div className="flex justify-center p-6">
+    <div className="flex justify-center p-1">
       <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#070b28] via-[#0f1a3a] to-[#0a142f] shadow-2xl border border-blue-900/30">
         {/* Header Section */}
         <div className="px-6 py-8 text-center">
           <div className="flex items-center justify-center gap-3">
             <img src="/logo.png" alt="D&V Token" className="h-10 w-10" />
-            <h1 className="bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
-              D&V Token Presale
-            </h1>
+
           </div>
           
           <div className="mt-4 flex justify-center">
