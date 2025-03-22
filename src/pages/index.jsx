@@ -12,6 +12,7 @@ import {
 import Footer from "@/views/Footer";
 import FeatureSections from "@/views/FeaturesSection";
 import CardSliderSection from "@/views/CardSliderSection";
+import { FadeIn } from "@/components/FadeIn";
 
 function LandingPage() {
   // Detect mobile devices
@@ -581,7 +582,7 @@ function LandingPage() {
         </section>
 
         {/* Gradient Text Section with staggered reveal */}
-        <section 
+        <FadeIn 
           ref={gradientTextRef}
           className="py-20 px-4 lg:pt-36 lg:pb-36 overflow-hidden text-white"
         >
@@ -666,7 +667,7 @@ function LandingPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </section>
+          </FadeIn>
   
           {/* Feature Sections */}
           <FeatureSections />
