@@ -102,6 +102,17 @@ const totalInvested = async () => {
     const tx = contract.stop();
     return tx;
   }
+
+
+  const currentUserBalance = async () => {
+    
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    const tx = contract.currentUserBalance(accounts);
+
+    return tx;
+
+  }
   
   
 
@@ -134,6 +145,7 @@ const totalInvested = async () => {
     stop,
     starTWithDrawHandle,
     stopWithDraw,
+    currentUserBalance,
     
   };
 

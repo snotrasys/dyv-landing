@@ -18,6 +18,7 @@ const userDefaul = {
   id: 0,
   invest: 0,
   toWithdraw: 0,
+  currentUserBalance: 0,
   tokenAmount:"",
         investAmount:"",
         totalWithdrawn:"",
@@ -207,6 +208,7 @@ const SwapProvider = ({ children }) => {
       return;
     try {
       const data = await Presale.sales()
+      const currentUserBalance = await Presale.currentUserBalance(accounts);
       console.log(data.investAmount.toString(),'data');
       // address buyer;
       //   uint tokenAmount;
@@ -228,6 +230,7 @@ const SwapProvider = ({ children }) => {
         tokenAmount:ParseEther(data.tokenAmount),
         investAmount:ParseEther(data.investAmount),
         totalWithdrawn:ParseEther(data.tokenAmount),
+        currentUserBalance:ParseEther(currentUserBalance),
         // lastWithdrawn:data.lastWithdrawn.toString(),
         hasWithdrawn:data.hasWithdrawn.toString(),
         referrals:data.referrals,

@@ -168,9 +168,9 @@ function PresaleSwap() {
               
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="rounded-lg bg-blue-900/30 p-3">
-                  <div className="text-sm text-blue-300/80">Withdrawn</div>
+                  <div className="text-sm text-blue-300/80">Available for Withdrawn</div>
                   <div className="font-semibold text-blue-100">
-                    {userData?.withdrawAmount ? Number(userData.withdrawAmount).toLocaleString('en-US', {maximumFractionDigits: 0}) : '0'} D&V
+                    {userData.currentUserBalance} D&V
                   </div>
                 </div>
                 
