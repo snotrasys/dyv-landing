@@ -133,7 +133,7 @@ const SwapProvider = ({ children }) => {
     }
     try {
       // investAmt = utils.parseEther(investAmt.toString());
-      const res =await Presale.buy(investAmt);
+      const res =await Presale.buy(investAmt);      
       toast.success('Invest success');
       
       res.wait().then((value) => {
@@ -209,16 +209,16 @@ const SwapProvider = ({ children }) => {
       const data = await Presale.sales()
       console.log(data.investAmount.toString(),'data');
       // address buyer;
-      // uint tokenAmount;
-      // uint bonusToken;
-      // uint investAmount;
-      // uint toWithdraw;
-      // uint totalWithdrawn;
-      // uint lastWithdraw;
-      // bool hasWithdrawn;
-      // address referrals;
-      // uint[2] referrer;
-      // uint[2] referrerAmount;
+      //   uint tokenAmount;
+      //   uint bonusToken;
+      //   uint investAmount;
+      //   uint toWithdraw;
+      //   uint totalWithdrawn;
+      //   uint lastWithdraw;
+      //   bool hasWithdrawn;
+      //   address referrals;
+      //   uint[1] referrer;
+      //   uint[1] referrerAmount;
       
       const data_ = {
         // user: data.user,
@@ -255,7 +255,7 @@ const SwapProvider = ({ children }) => {
     )
       return;
     try {
-      const data = await Presale.totalTokenSale();
+      const data = await Presale.totalInvested();
 
       
 
