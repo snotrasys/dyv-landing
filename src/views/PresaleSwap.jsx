@@ -28,10 +28,11 @@ function PresaleSwap() {
   const [amount, setAmount] = useState(50);
   const [recaudacion, setRecaudacion] = useState(0);
   const [showTokenomics, setShowTokenomics] = useState(false);
+  const [percentage, setpercentage] = useState(0)
 
-  useEffect(() => {
-    setchangeToken(address.usdc);
-  }, []);
+  // useEffect(() => {
+  //   setchangeToken(address.busd);
+  // }, []);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -43,7 +44,11 @@ function PresaleSwap() {
     setRecaudacion(allData?.totalInvested_);
   }, [allData]);
 
-  function percentage(input) {
+  useEffect(() => {
+    setpercentage(percentage_(Number(recaudacion || 0)));
+  }, [recaudacion]);
+
+  function percentage_(input) {
     return (input * 100) / 4000000; // Hardcap is 4,000,000 USDC
   }
 
@@ -209,12 +214,12 @@ function PresaleSwap() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-blue-300/80">
                 <span>Progress</span>
-                <span>{percentage(Number(recaudacion || 0)).toFixed(2)}%</span>
+                <span>{percentage.toFixed(2)}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-[#0a1428]">
                 <motion.div
                   initial={{ width: '0%' }}
-                  animate={{ width: `${percentage(Number(recaudacion || 0))}%` }}
+                  animate={{ width: `${percentage}%` }}
                   transition={{ duration: 0.5 }}
                   className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
                 />
