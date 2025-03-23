@@ -12769,22 +12769,7 @@ export const presaleAbi = [
       },
       {
         "internalType": "address",
-        "name": "_defWallet",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_founder",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_fee2",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_fee3",
         "type": "address"
       }
     ],
@@ -13086,11 +13071,6 @@ export const presaleAbi = [
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_ref",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -13141,19 +13121,6 @@ export const presaleAbi = [
   },
   {
     "inputs": [],
-    "name": "defWallet",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "devFee",
     "outputs": [
       {
@@ -13173,32 +13140,6 @@ export const presaleAbi = [
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "fee2",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "fee3",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -13276,14 +13217,14 @@ export const presaleAbi = [
             "type": "address"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrer",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrerAmount",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           }
         ],
         "internalType": "struct IPreSaleVesting.Sale[]",
@@ -13357,14 +13298,14 @@ export const presaleAbi = [
             "type": "address"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrer",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrerAmount",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           }
         ],
         "internalType": "struct IPreSaleVesting.Sale[]",
@@ -13499,14 +13440,14 @@ export const presaleAbi = [
             "type": "address"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrer",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrerAmount",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           }
         ],
         "internalType": "struct IPreSaleVesting.Sale[]",
@@ -13520,19 +13461,6 @@ export const presaleAbi = [
   {
     "inputs": [],
     "name": "getBalance",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getBonusPercent",
     "outputs": [
       {
         "internalType": "uint256",
@@ -13573,9 +13501,9 @@ export const presaleAbi = [
     "name": "getRefArray",
     "outputs": [
       {
-        "internalType": "uint256[2]",
+        "internalType": "uint256[1]",
         "name": "",
-        "type": "uint256[2]"
+        "type": "uint256[1]"
       }
     ],
     "stateMutability": "view",
@@ -13676,14 +13604,14 @@ export const presaleAbi = [
             "type": "address"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrer",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           },
           {
-            "internalType": "uint256[2]",
+            "internalType": "uint256[1]",
             "name": "referrerAmount",
-            "type": "uint256[2]"
+            "type": "uint256[1]"
           }
         ],
         "internalType": "struct IPreSaleVesting.Sale",
@@ -13706,11 +13634,6 @@ export const presaleAbi = [
       {
         "internalType": "address",
         "name": "devFee_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "fee2_",
         "type": "address"
       },
       {
