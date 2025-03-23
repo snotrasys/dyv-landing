@@ -5,6 +5,12 @@ import { Target, Building, BarChart3, FileText, Landmark, Lightbulb, Sparkles, L
 const FeatureSections = () => {
   // Detect if we're on mobile
   const [isMobile, setIsMobile] = useState(false);
+  // Track video loading states
+  const [videosLoaded, setVideosLoaded] = useState({
+    video1: false,
+    video2: false,
+    video3: false
+  });
   
   useEffect(() => {
     const checkMobile = () => {
@@ -25,11 +31,51 @@ const FeatureSections = () => {
   const section1Ref = useRef(null);
   const section2Ref = useRef(null);
   const section3Ref = useRef(null);
+  const video1Ref = useRef(null);
+  const video2Ref = useRef(null);
+  const video3Ref = useRef(null);
   
   // Check if sections are in viewport
   const section1InView = useInView(section1Ref, { once: true, amount: 0.1 });
   const section2InView = useInView(section2Ref, { once: true, amount: 0.1 });
   const section3InView = useInView(section3Ref, { once: true, amount: 0.1 });
+
+  // Handle video loading events
+  const handleVideoLoad = (videoName) => {
+    setVideosLoaded(prev => ({...prev, [videoName]: true}));
+  };
+
+  // Handle video play errors
+  useEffect(() => {
+    const handleVideoError = (videoRef, videoName) => {
+      if (videoRef.current) {
+        videoRef.current.addEventListener('error', () => {
+          console.error(`Error loading ${videoName}`);
+          // You could set a fallback image here
+        });
+        
+        // Try to play the video with a retry mechanism
+        const attemptPlay = () => {
+          videoRef.current.play().catch(error => {
+            console.warn(`Error playing ${videoName}:`, error);
+            // Retry after a short delay (autoplay might be blocked by browser)
+            setTimeout(attemptPlay, 1000);
+          });
+        };
+        
+        // Start play attempts when the video is in view
+        if ((videoName === 'video1' && section1InView) ||
+            (videoName === 'video2' && section2InView) ||
+            (videoName === 'video3' && section3InView)) {
+          attemptPlay();
+        }
+      }
+    };
+    
+    handleVideoError(video1Ref, 'video1');
+    handleVideoError(video2Ref, 'video2');
+    handleVideoError(video3Ref, 'video3');
+  }, [section1InView, section2InView, section3InView]);
 
   // Animation variants - simplified for mobile
   const containerVariants = {
@@ -110,17 +156,32 @@ const FeatureSections = () => {
           >
             <motion.div 
               className="h-full w-full md:absolute md:top-0 md:left-0 md:h-full md:w-full lg:w-[44vw]"
-              {...floatingAnimation}
             >
               <div className="h-full w-full absolute block top-0 left-0">
-                <img 
-                  src="/figura-1.png" 
-                  alt="D&V Group Values" 
-                  className="w-full h-full object-contain"
-                  style={{ maxHeight: "100%" }}
-                />
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent lg:bg-gradient-to-l"></div>
+                {/* Video loading placeholder */}
+                {!videosLoaded.video1 && (
+                  <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                
+                <div className="video-player relative h-full w-full">
+                  <video 
+                    ref={video1Ref}
+                    src="/CE_BLOB.mp4" 
+                    className="w-full h-full object-cover"
+                    preload="auto" 
+                    muted
+                    playsInline 
+                    autoPlay 
+                    loop
+                    onLoadedData={() => handleVideoLoad('video1')}
+                  />
+
+    
+                  {/* Directional overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent lg:bg-gradient-to-l"></div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -249,14 +310,30 @@ const FeatureSections = () => {
               {...floatingAnimation}
             >
               <div className="h-full w-full absolute block top-0 left-0">
-                <img 
-                  src="/medio.png" 
-                  alt="D&V Real Estate Projects" 
-                  className="w-full h-full object-contain"
-                  style={{ maxHeight: "100%" }}
-                />
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-l from-black/60 to-transparent lg:bg-gradient-to-r"></div>
+                {/* Video loading placeholder */}
+                {!videosLoaded.video2 && (
+                  <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                
+                <div className="video-player relative h-full w-full">
+                  <video 
+                    ref={video2Ref}
+                    src="/CE_Under.mp4" 
+                    className="w-full h-full object-cover"
+                    preload="auto" 
+                    muted
+                    playsInline 
+                    autoPlay 
+                    loop
+                    onLoadedData={() => handleVideoLoad('video2')}
+                  />
+                  
+           
+                  {/* Directional overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-l from-black/80 to-transparent lg:bg-gradient-to-r"></div>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -346,14 +423,31 @@ const FeatureSections = () => {
               {...floatingAnimation}
             >
               <div className="h-full w-full absolute block top-0 left-0">
-                <img 
-                  src="/final.png" 
-                  alt="D&V Future Projects" 
-                  className="w-full h-full object-contain"
-                  style={{ maxHeight: "100%" }}
-                />
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent lg:bg-gradient-to-l"></div>
+                {/* Video loading placeholder */}
+                {!videosLoaded.video3 && (
+                  <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                
+                <div className="video-player relative h-full w-full">
+                  <video 
+                    ref={video3Ref}
+                    src="/CE_ACCESS_new.mp4" 
+                    className="w-full h-full object-cover"
+                    preload="auto" 
+                    muted
+                    playsInline 
+                    autoPlay 
+                    loop
+                    onLoadedData={() => handleVideoLoad('video3')}
+                  />
+                  
+     
+                  
+                  {/* Directional overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent lg:bg-gradient-to-l"></div>
+                </div>
               </div>
             </motion.div>
           </motion.div>

@@ -403,6 +403,25 @@ function LandingPage() {
             ref={heroRef}
             className="relative flex flex-col-reverse md:block content-center md:min-h-[70vh] lg:min-h-[90vh]"
           >
+
+<div className="relative md:absolute md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:h-full w-full md:z-0">
+              <video 
+                autoPlay 
+                loop 
+                playsInline 
+                muted
+                className="block w-full h-full md:object-cover"
+              >
+                <source src="/blockchain-desktop.mp4" type="video/mp4" media="(min-width: 1024px)" />
+                <source src="/blockchain-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
+                {/* Fallback image for browsers that don't support video */}
+                <img src="/videos/blockchain-poster.jpg" alt="D&V Group Blockchain" />
+              </video>
+              
+              {/* Overlay div to darken the video - only applied to desktop */}
+              <div className="hidden md:block absolute inset-0 bg-black bg-opacity-50 z-10"></div>
+            </div>
+      
             {/* Additional ambient glowing dots - reduced for mobile */}
             <motion.div 
               className="absolute inset-0 overflow-hidden -z-4 pointer-events-none"
