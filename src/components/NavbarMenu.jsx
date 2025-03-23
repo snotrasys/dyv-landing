@@ -16,9 +16,10 @@ const NavbarMenu = () => {
 
   // Define menu sections
   const learnSection = [
-    { imgSrc: "/icons/token.png", text: "DVV Token", href: "/token", type: "redirect" },
-    { imgSrc: "/icons/defi.png", text: "DeFi", href: "/defi", type: "redirect" },
-    { imgSrc: "/icons/tokenization.png", text: "Tokenization", href: "/tokenization", type: "redirect" },
+    { imgSrc: "/icons/token.png", text: "Presale D&V", href: "/token", type: "redirect" },
+    { imgSrc: "/icons/whitepaper.png", text: "Whitepaper", href: "/whitepaper", type: "redirect" },
+    { imgSrc: "/icons/roadmap.png", text: "Roadmap", href: "/roadmap", type: "redirect" },
+    { imgSrc: "/icons/solar.png", text: "Solar", href: "/", type: "redirect" },
   ];
 
   const ecosystemSection = [
