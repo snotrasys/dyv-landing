@@ -209,6 +209,7 @@ const SwapProvider = ({ children }) => {
     try {
       const data = await Presale.sales()
       const currentUserBalance = await Presale.currentUserBalance(accounts);
+  //    const nextDates = await Presale.nextDates();
       console.log(data);
       // address buyer;
       //   uint tokenAmount;
