@@ -12754,7 +12754,7 @@ export const  abiNew =[
   }
 ]
 
-export const presaleAbi = [
+export const presaleAbi =[
   {
     "inputs": [
       {
