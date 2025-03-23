@@ -103,6 +103,14 @@ const totalInvested = async () => {
     return tx;
   }
 
+  const nextDates = async () => {
+    
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    const tx = contract.nextDates();
+    return
+  }
+
 
   const currentUserBalance = async () => {
     
@@ -146,6 +154,7 @@ const totalInvested = async () => {
     starTWithDrawHandle,
     stopWithDraw,
     currentUserBalance,
+    nextDates,
     
   };
 
