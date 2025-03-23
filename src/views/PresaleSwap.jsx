@@ -56,6 +56,18 @@ function PresaleSwap() {
     return usdcAmount * 500000000000;
   }
 
+
+  const tokenData = [
+    { amount: "2,000,000,000,000,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
+    { amount: "3,000,000,000,000,000,000", allocation: "Ecosystem Development", percentage: "30%" },
+    { amount: "2,000,000,000,000,000,000", allocation: "Staking Rewards", percentage: "20%" },
+    { amount: "1,000,000,000,000,000,000", allocation: "DEX Liquidity", percentage: "10%" },
+    { amount: "1,000,000,000,000,000,000", allocation: "CEX Listings", percentage: "10%" },
+    { amount: "500,000,000,000,000,000", allocation: "Marketing", percentage: "5%" },
+    { amount: "500,000,000,000,000,000", allocation: "Development", percentage: "5%" }
+  ];
+  
+
   return (
     <div className="flex justify-center p-1">
       <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#070b28] via-[#0f1a3a] to-[#0a142f] shadow-2xl border border-blue-900/30">
@@ -276,64 +288,30 @@ function PresaleSwap() {
             </button>
             
             {showTokenomics && (
-              <div className="px-4 pb-4 space-y-4">
-                <div className="bg-[#0a1428] rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
-                  <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 10,000,000,000,000,000,000</p>
-                  <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
-                  
-                  <div className="space-y-2 mt-3">
-                    <div className="grid grid-cols-5 text-sm mb-1">
-                      <span className="col-span-2 text-blue-300/80">Amount</span>
-                      <span className="col-span-2 text-blue-300/80">Allocation</span>
-                      <span className="text-right text-blue-300/80">%</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-                      <span className="col-span-2 text-blue-100">2,000,000,000,000,000,000</span>
-                      <span className="col-span-2 text-blue-200">Presale (33% monthly vesting)</span>
-                      <span className="text-right text-blue-100">20%</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-                      <span className="col-span-2 text-blue-100">3,000,000,000,000,000,000</span>
-                      <span className="col-span-2 text-blue-200">Ecosystem Development</span>
-                      <span className="text-right text-blue-100">30%</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-                      <span className="col-span-2 text-blue-100">2,000,000,000,000,000,000</span>
-                      <span className="col-span-2 text-blue-200">Staking Rewards</span>
-                      <span className="text-right text-blue-100">20%</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-                      <span className="col-span-2 text-blue-100">1,000,000,000,000,000,000</span>
-                      <span className="col-span-2 text-blue-200">DEX Liquidity</span>
-                      <span className="text-right text-blue-100">10%</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-                      <span className="col-span-2 text-blue-100">1,000,000,000,000,000,000</span>
-                      <span className="col-span-2 text-blue-200">CEX Listings</span>
-                      <span className="text-right text-blue-100">10%</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-                      <span className="col-span-2 text-blue-100">500,000,000,000,000,000</span>
-                      <span className="col-span-2 text-blue-200">Marketing</span>
-                      <span className="text-right text-blue-100">5%</span>
-                    </div>
-                    
-                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-                      <span className="col-span-2 text-blue-100">500,000,000,000,000,000</span>
-                      <span className="col-span-2 text-blue-200">Development</span>
-                      <span className="text-right text-blue-100">5%</span>
-                    </div>
-                  </div>
-                </div>
+        <div className="px-4 pb-4 space-y-4">
+          <div className="bg-[#0a1428] rounded-lg p-4">
+            <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
+            <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 10,000,000,000,000,000,000</p>
+            <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
+            
+            {/* Cabecera responsiva */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm mb-1">
+              <span className="sm:col-span-2 text-blue-300/80">Amount</span>
+              <span className="sm:col-span-2 text-blue-300/80">Allocation</span>
+              <span className="text-right text-blue-300/80">%</span>
+            </div>
+            
+            {/* Filas de datos */}
+            {tokenData.map((row, index) => (
+              <div key={index} className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm py-2 border-t border-blue-900/30">
+                <span className="sm:col-span-2 text-blue-100 truncate pr-1">{row.amount}</span>
+                <span className="sm:col-span-2 text-blue-200 pr-1">{row.allocation}</span>
+                <span className="text-right text-blue-100">{row.percentage}</span>
               </div>
-            )}
+            ))}
+          </div>
+        </div>
+      )}
           </div>
         </div>
       </div>
