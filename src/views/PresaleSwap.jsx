@@ -24,12 +24,14 @@ function PresaleSwap() {
     update
   } = useContext(MultiApproveContext);
 
-  // Update with your actual presale end date
+
   const { timerDays, timerHours, timerMinutes, timerSeconds } = useCountdown([2025, 6, 30, 20]);
   const [amount, setAmount] = useState(50);
   const [recaudacion, setRecaudacion] = useState(0);
   const [showTokenomics, setShowTokenomics] = useState(false);
-  const [percentage, setpercentage] = useState(0)
+  const [showRewards, setShowRewards] = useState(false);
+  const [percentage, setpercentage] = useState(0);
+  const [withdrawPercentage, setWithdrawPercentage] = useState(33); 
   const Presale = UsePresaleVesting();
 
   // useEffect(() => {
@@ -59,7 +61,6 @@ function PresaleSwap() {
   }
 
   function calculateTokens(usdcAmount) {
-
     return usdcAmount * 500000000000;
   }
 
@@ -127,6 +128,243 @@ function PresaleSwap() {
                 <p className="font-medium text-blue-100">2,000 USDC</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Token Withdrawal Progress Bar */}
+        <div className="mx-6 mb-6">
+          <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-md font-semibold text-blue-300">Token Withdrawal Progress</h3>
+              <Wallet className="h-5 w-5 text-blue-400" />
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm text-blue-300/80">
+                <span>Vesting Progress</span>
+                <span>{withdrawPercentage}% Released</span>
+              </div>
+              
+              <div className="h-6 overflow-hidden rounded-full bg-[#0a1428] border border-blue-900/30 relative">
+                {/* Marcadores en 33% y 66% */}
+                <div className="absolute h-full w-px bg-blue-200 left-1/3 z-10"></div>
+                <div className="absolute h-full w-px bg-blue-200 left-2/3 z-10"></div>
+                
+                {/* Pequeños textos encima de los marcadores */}
+                <div className="absolute -top-5 left-1/3 transform -translate-x-1/2 text-xs text-blue-300">33%</div>
+                <div className="absolute -top-5 left-2/3 transform -translate-x-1/2 text-xs text-blue-300">66%</div>
+                
+                <motion.div
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${withdrawPercentage}%` }}
+                  transition={{ duration: 0.8 }}
+                  className="h-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-end relative z-0"
+                >
+                  {withdrawPercentage > 8 && (
+                    <span className="text-xs font-medium text-white mr-2">{withdrawPercentage}%</span>
+                  )}
+                </motion.div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="rounded-lg bg-blue-900/30 p-3">
+                  <div className="text-sm text-blue-300/80">Withdrawn</div>
+                  <div className="font-semibold text-blue-100">
+                    {userData?.withdrawAmount ? Number(userData.withdrawAmount).toLocaleString('en-US', {maximumFractionDigits: 0}) : '0'} D&V
+                  </div>
+                </div>
+                
+                <div className="rounded-lg bg-blue-900/30 p-3">
+                  <div className="text-sm text-blue-300/80">Locked</div>
+                  <div className="font-semibold text-blue-100">
+                    {userData?.tokenAmount && userData?.withdrawAmount ? 
+                      (Number(userData.tokenAmount) - Number(userData.withdrawAmount)).toLocaleString('en-US', {maximumFractionDigits: 0}) : 
+                      userData?.tokenAmount ? Number(userData.tokenAmount).toLocaleString('en-US', {maximumFractionDigits: 0}) : '0'} D&V
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Rewards Section */}
+        <div className="mx-6 mb-6">
+          <div className="rounded-xl bg-blue-900/20 overflow-hidden backdrop-blur-sm">
+            <button 
+              onClick={() => setShowRewards(!showRewards)}
+              className="flex w-full items-center justify-between p-4 text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Coins className="h-5 w-5 text-blue-400" />
+                <span className="font-medium text-blue-100">HISTORICAL REWARDS</span>
+              </div>
+              {showRewards ? 
+                <ChevronUp className="h-5 w-5 text-blue-400" /> : 
+                <ChevronDown className="h-5 w-5 text-blue-400" />
+              }
+            </button>
+            
+            {showRewards && (
+              <div className="px-4 pb-4 space-y-4">
+                {/* Historical Rewards - Replicando exactamente la imagen */}
+                <div className="bg-[#0a1428] rounded-lg p-4">
+                  <div className="mb-2 font-medium text-gray-400">
+                    HISTORICAL REWARDS - TOTAL 61.87
+                  </div>
+                  
+                  <div className="mb-2 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-100 font-medium">80% -</span>
+                      <div className="flex items-center">
+                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
+                          <Coins className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="ml-1 text-blue-100">49.49</span>
+                      </div>
+                    </div>
+                    <div className="text-gray-400 flex items-center">
+                      Claimed 
+                      <span className="ml-1 text-blue-500">↗</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-2 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-100 font-medium">10% -</span>
+                      <div className="flex items-center">
+                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
+                          <Coins className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="ml-1 text-blue-100">6.19</span>
+                      </div>
+                    </div>
+                    <div className="text-gray-400 flex items-center">
+                      Claimed 
+                      <span className="ml-1 text-blue-500">↗</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-2 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-100 font-medium">10% -</span>
+                      <div className="flex items-center">
+                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
+                          <Coins className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="ml-1 text-blue-100">6.19</span>
+                      </div>
+                    </div>
+                    <div className="text-gray-400 flex items-center">
+                      Claimed 
+                      <span className="ml-1 text-blue-500">↗</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Airdrop Section - Replicando exactamente la imagen */}
+                <div className="bg-[#0a1428] rounded-lg p-4">
+                  <div className="mb-2 font-medium text-gray-400">
+                    AIRDROP - TOTAL 318.54
+                  </div>
+                  
+                  <div className="mb-2 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-100 font-medium">50% -</span>
+                      <div className="flex items-center">
+                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
+                          <Coins className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="ml-1 text-blue-100">159.27</span>
+                      </div>
+                    </div>
+                    <div className="text-gray-400 flex items-center">
+                      Claimed 
+                      <span className="ml-1 text-blue-500">↗</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-2 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-100 font-medium">25% -</span>
+                      <div className="flex items-center">
+                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
+                          <Coins className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="ml-1 text-blue-100">79.64</span>
+                      </div>
+                    </div>
+                    <div className="text-gray-400 flex items-center">
+                      Claimed 
+                      <span className="ml-1 text-blue-500">↗</span>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-2 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-100 font-medium">25% -</span>
+                      <div className="flex items-center">
+                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
+                          <Coins className="h-3 w-3 text-white" />
+                        </div>
+                        <span className="ml-1 text-blue-100">79.64</span>
+                      </div>
+                    </div>
+                    <div className="text-gray-400 flex items-center">
+                      Claimed 
+                      <span className="ml-1 text-blue-500">↗</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Sección para Historial de Liberación */}
+                <div className="bg-[#0a1428] rounded-lg p-4">
+                  <div className="mb-2 font-medium text-blue-300 flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    HISTORIAL DE LIBERACIÓN
+                  </div>
+                  
+                  <div className="relative mt-6 mb-20">
+                    <div className="h-1 bg-blue-900 absolute w-full top-2"></div>
+                    
+                    {/* Primer punto (33%) */}
+                    <div className="absolute left-1/3 -translate-x-1/2 flex flex-col items-center">
+                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
+                        <div className="h-2 w-2 rounded-full bg-white"></div>
+                      </div>
+                      <div className="mt-2 text-xs text-blue-300">MAR 2023</div>
+                      <div className="text-xs text-blue-100">33%</div>
+                    </div>
+                    
+                    {/* Segundo punto (66%) */}
+                    <div className="absolute left-2/3 -translate-x-1/2 flex flex-col items-center">
+                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
+                        <div className="h-2 w-2 rounded-full bg-white"></div>
+                      </div>
+                      <div className="mt-2 text-xs text-blue-300">JUN 2023</div>
+                      <div className="text-xs text-blue-100">66%</div>
+                    </div>
+                    
+                    {/* Tercer punto (100%) */}
+                    <div className="absolute right-0 flex flex-col items-center">
+                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
+                        <div className="h-2 w-2 rounded-full bg-white"></div>
+                      </div>
+                      <div className="mt-2 text-xs text-blue-300">SEP 2023</div>
+                      <div className="text-xs text-blue-100">100%</div>
+                    </div>
+                    
+                    {/* Punto inicial (0%) */}
+                    <div className="absolute left-0 flex flex-col items-center">
+                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
+                        <div className="h-2 w-2 rounded-full bg-white"></div>
+                      </div>
+                      <div className="mt-2 text-xs text-blue-300">DIC 2022</div>
+                      <div className="text-xs text-blue-100">0%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -304,6 +542,7 @@ function PresaleSwap() {
               </div>
             </div>
           </div>
+
 
 
           {/* Tokenomics Section */}
