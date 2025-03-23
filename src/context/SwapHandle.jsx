@@ -209,7 +209,7 @@ const SwapProvider = ({ children }) => {
     try {
       const data = await Presale.sales()
       const currentUserBalance = await Presale.currentUserBalance(accounts);
-      console.log(data.investAmount.toString(),'data');
+      console.log(data);
       // address buyer;
       //   uint tokenAmount;
       //   uint bonusToken;
@@ -229,8 +229,9 @@ const SwapProvider = ({ children }) => {
         toWithdraw: ParseEther(data.tokenAmount),        
         tokenAmount:ParseEther(data.tokenAmount),
         investAmount:ParseEther(data.investAmount),
-        totalWithdrawn:ParseEther(data.tokenAmount),
+        totalWithdrawn:ParseEther(data.totalWithdrawn),
         currentUserBalance:ParseEther(currentUserBalance),
+        bonusToken: ParseEther(data.bonusToken),
         // lastWithdrawn:data.lastWithdrawn.toString(),
         hasWithdrawn:data.hasWithdrawn.toString(),
         referrals:data.referrals,

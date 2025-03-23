@@ -175,11 +175,9 @@ function PresaleSwap() {
                 </div>
                 
                 <div className="rounded-lg bg-blue-900/30 p-3">
-                  <div className="text-sm text-blue-300/80">Locked</div>
+                  <div className="text-sm text-blue-300/80">Total Withdraw</div>
                   <div className="font-semibold text-blue-100">
-                    {userData?.tokenAmount && userData?.withdrawAmount ? 
-                      (Number(userData.tokenAmount) - Number(userData.withdrawAmount)).toLocaleString('en-US', {maximumFractionDigits: 0}) : 
-                      userData?.tokenAmount ? Number(userData.tokenAmount).toLocaleString('en-US', {maximumFractionDigits: 0}) : '0'} D&V
+                    {userData.totalWithdrawn} D&V
                   </div>
                 </div>
               </div>
