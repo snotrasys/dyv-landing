@@ -29,8 +29,7 @@ const updateHandle = () => {
   const [update_, setupdate_] = useState(0);
   const [isApprove, setisApprove] = useState(false);
   const [currentBalance_, setbalanceOf_] = useState(0);
-  const [changeToken, setchangeToken] = useState(
-    // '0xbB21c4A6257f3306d0458E92aD0FE583AD0cE858',
+  const [changeToken, setchangeToken] = useState(    
     address.busd
   );
 
@@ -41,6 +40,7 @@ const updateHandle = () => {
     useEffect(() => {
       if(!isLoaded)
       return
+      if(changeToken == undefined ) return
       allowanceHandlePlus()
     
       return () => {
@@ -51,6 +51,7 @@ const updateHandle = () => {
     const provider = await connect();
     const signer = provider.getSigner();
     addr = addr || changeToken;
+    
     const contract = new Contract(addr, BUSD, signer);
     return contract;
   };
