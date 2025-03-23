@@ -44,7 +44,7 @@ function PresaleSwap() {
   }, [allData]);
 
   function percentage(input) {
-    return (input * 100) / 3500000; // Hardcap is 3,500,000 USDC
+    return (input * 100) / 4000000; // Hardcap is 4,000,000 USDC
   }
 
   function buyToken(amount_) {
@@ -52,8 +52,8 @@ function PresaleSwap() {
   }
 
   function calculateTokens(usdcAmount) {
-    // Price is 0.00000000175 USDC per token
-    return usdcAmount / 0.00000000175;
+
+    return usdcAmount * 500000000000;
   }
 
   return (
@@ -63,7 +63,6 @@ function PresaleSwap() {
         <div className="px-6 py-8 text-center">
           <div className="flex items-center justify-center gap-3">
             <img src="/logo.png" alt="D&V Token" className="h-10 w-10" />
-
           </div>
           
           <div className="mt-4 flex justify-center">
@@ -86,7 +85,7 @@ function PresaleSwap() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-blue-200/70">Price</p>
-                <p className="font-medium text-blue-100">0.00000000175 USDC</p>
+                <p className="font-medium text-blue-100">0.000000000002 USDC</p>
               </div>
               <div>
                 <p className="text-blue-200/70">Network</p>
@@ -94,7 +93,7 @@ function PresaleSwap() {
               </div>
               <div>
                 <p className="text-blue-200/70">Hard Cap</p>
-                <p className="font-medium text-blue-100">3,500,000 USDC</p>
+                <p className="font-medium text-blue-100">4,000,000 USDC</p>
               </div>
               <div>
                 <p className="text-blue-200/70">Soft Cap</p>
@@ -233,14 +232,21 @@ function PresaleSwap() {
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Listing Price:</span>
                 </div>
-                <div className="font-semibold text-blue-100">0.000000003 USDC</div>
+                <div className="font-semibold text-blue-100">0.0000000000033 USDC</div>
               </div>
               
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Price Increase:</span>
                 </div>
-                <div className="font-semibold text-blue-100">+71.43%</div>
+                <div className="font-semibold text-blue-100">+65%</div>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-blue-300/80">Initial Market Cap:</span>
+                </div>
+                <div className="font-semibold text-blue-100">20,000,000 USDC</div>
               </div>
               
               <div className="flex justify-between items-center">
@@ -252,24 +258,6 @@ function PresaleSwap() {
             </div>
           </div>
 
-          {/* Vesting Schedule */}
-          <div className="rounded-xl bg-blue-900/20 p-4 backdrop-blur-sm">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-md font-semibold text-blue-300">Vesting Schedule</h3>
-              <Clock className="h-5 w-5 text-blue-400" />
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-blue-400" />
-                <span className="text-blue-100">Presale tokens: 33% monthly vesting</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-blue-400" />
-                <span className="text-blue-100">Ecosystem, CEX, Marketing & Development: 5% monthly vesting</span>
-              </div>
-            </div>
-          </div>
 
           {/* Tokenomics Section */}
           <div className="rounded-xl bg-blue-900/20 overflow-hidden backdrop-blur-sm">
@@ -288,64 +276,64 @@ function PresaleSwap() {
             </button>
             
             {showTokenomics && (
-  <div className="px-4 pb-4 space-y-4">
-    <div className="bg-[#0a1428] rounded-lg p-4">
-      <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
-      <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 100,000,000,000,000,000,000</p>
-      <p className="text-xs text-blue-300/80 mb-3">6 Decimals</p>
-      
-      <div className="space-y-2 mt-3">
-        <div className="grid grid-cols-5 text-sm mb-1">
-          <span className="col-span-2 text-blue-300/80">Amount</span>
-          <span className="col-span-2 text-blue-300/80">Allocation</span>
-          <span className="text-right text-blue-300/80">%</span>
-        </div>
-        
-        <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-          <span className="col-span-2 text-blue-100">30,000,000,000,000,000</span>
-          <span className="col-span-2 text-blue-200">Ecosystem (5% monthly vesting)</span>
-          <span className="text-right text-blue-100">30%</span>
-        </div>
-        
-        <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-          <span className="col-span-2 text-blue-100">20,000,000,000,000,000</span>
-          <span className="col-span-2 text-blue-200">Presale (33% monthly vesting)</span>
-          <span className="text-right text-blue-100">20%</span>
-        </div>
-        
-        <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-          <span className="col-span-2 text-blue-100">20,000,000,000,000,000</span>
-          <span className="col-span-2 text-blue-200">Staking</span>
-          <span className="text-right text-blue-100">20%</span>
-        </div>
-        
-        <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-          <span className="col-span-2 text-blue-100">10,000,000,000,000,000</span>
-          <span className="col-span-2 text-blue-200">DEX Listing (Aerodrome & Uniswap)</span>
-          <span className="text-right text-blue-100">10%</span>
-        </div>
-        
-        <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-          <span className="col-span-2 text-blue-100">10,000,000,000,000,000</span>
-          <span className="col-span-2 text-blue-200">CEX Listing (5% monthly vesting)</span>
-          <span className="text-right text-blue-100">10%</span>
-        </div>
-        
-        <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-          <span className="col-span-2 text-blue-100">5,000,000,000,000,000</span>
-          <span className="col-span-2 text-blue-200">Marketing (5% monthly vesting)</span>
-          <span className="text-right text-blue-100">5%</span>
-        </div>
-        
-        <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
-          <span className="col-span-2 text-blue-100">5,000,000,000,000,000</span>
-          <span className="col-span-2 text-blue-200">Development (5% monthly vesting)</span>
-          <span className="text-right text-blue-100">5%</span>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+              <div className="px-4 pb-4 space-y-4">
+                <div className="bg-[#0a1428] rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
+                  <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 10,000,000,000,000,000,000</p>
+                  <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
+                  
+                  <div className="space-y-2 mt-3">
+                    <div className="grid grid-cols-5 text-sm mb-1">
+                      <span className="col-span-2 text-blue-300/80">Amount</span>
+                      <span className="col-span-2 text-blue-300/80">Allocation</span>
+                      <span className="text-right text-blue-300/80">%</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
+                      <span className="col-span-2 text-blue-100">2,000,000,000,000,000,000</span>
+                      <span className="col-span-2 text-blue-200">Presale (33% monthly vesting)</span>
+                      <span className="text-right text-blue-100">20%</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
+                      <span className="col-span-2 text-blue-100">3,000,000,000,000,000,000</span>
+                      <span className="col-span-2 text-blue-200">Ecosystem Development</span>
+                      <span className="text-right text-blue-100">30%</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
+                      <span className="col-span-2 text-blue-100">2,000,000,000,000,000,000</span>
+                      <span className="col-span-2 text-blue-200">Staking Rewards</span>
+                      <span className="text-right text-blue-100">20%</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
+                      <span className="col-span-2 text-blue-100">1,000,000,000,000,000,000</span>
+                      <span className="col-span-2 text-blue-200">DEX Liquidity</span>
+                      <span className="text-right text-blue-100">10%</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
+                      <span className="col-span-2 text-blue-100">1,000,000,000,000,000,000</span>
+                      <span className="col-span-2 text-blue-200">CEX Listings</span>
+                      <span className="text-right text-blue-100">10%</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
+                      <span className="col-span-2 text-blue-100">500,000,000,000,000,000</span>
+                      <span className="col-span-2 text-blue-200">Marketing</span>
+                      <span className="text-right text-blue-100">5%</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-5 text-sm py-2 border-t border-blue-900/30">
+                      <span className="col-span-2 text-blue-100">500,000,000,000,000,000</span>
+                      <span className="col-span-2 text-blue-200">Development</span>
+                      <span className="text-right text-blue-100">5%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
