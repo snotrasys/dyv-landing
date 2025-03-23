@@ -284,6 +284,7 @@ const SwapProvider = ({ children }) => {
     allowanceHandle,
     balanceOfConctract,
     
+    
       };
 
   return <SwapContext.Provider value={datas}>{children}</SwapContext.Provider>;
