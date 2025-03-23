@@ -4,9 +4,9 @@ import Web3Context from '../context/Web3Context'
 import {Contract,ethers} from 'ethers'
 
 export const address ={    
-  fantom:"0x3fAF91daB2f4e63cad4cd89B32D7aC57c542e426",
-  privateSale:"0x3fAF91daB2f4e63cad4cd89B32D7aC57c542e426",
-  publicSale:"0x3fAF91daB2f4e63cad4cd89B32D7aC57c542e426",  
+  fantom:"0xa9a1A42f0Ca45f76ef932192139323458b53c5cb",
+  privateSale:"0xa9a1A42f0Ca45f76ef932192139323458b53c5cb",
+  publicSale:"0xa9a1A42f0Ca45f76ef932192139323458b53c5cb",  
   masterchefv2:"0x1e511F8C570360eb06A8BE89cdD69f3b080512ae",
   stake:"0x86335E8745f59da1701af82dB688Bf4E5151d4A7",  
   vaulStake:"0xB1e87F81113807b99356454B34DD4857DbdCf395",    
