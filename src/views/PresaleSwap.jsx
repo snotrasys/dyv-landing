@@ -9,6 +9,7 @@ import MultiApproveContext from '@/context/MultiApprove';
 import { address } from '@/hooks/useContracts';
 import { Wallet, Timer, ArrowRightCircle, DollarSign, BadgeCheck, Gem, ChevronDown, ChevronUp, PieChart, Coins, CheckCircle2, Clock, Globe } from 'lucide-react';
 import CardRef from './CardRef';
+import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 
 function PresaleSwap() {
   const { userData, allData, invest, withdraw } = useSwap_();
@@ -29,6 +30,7 @@ function PresaleSwap() {
   const [recaudacion, setRecaudacion] = useState(0);
   const [showTokenomics, setShowTokenomics] = useState(false);
   const [percentage, setpercentage] = useState(0)
+  const Presale = UsePresaleVesting();
 
   // useEffect(() => {
   //   setchangeToken(address.busd);
@@ -188,6 +190,34 @@ function PresaleSwap() {
             >
               <Wallet className="h-5 w-5" />
               Claim D&V Token
+            </button>
+            <button
+              onClick={() => Presale.start()}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-900/30 p-3 font-semibold text-blue-100 transition-all hover:bg-blue-900/40"
+            >
+              <Wallet className="h-5 w-5" />
+              Start Sales
+            </button>
+            <button
+              onClick={() => Presale.stop()}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-900/30 p-3 font-semibold text-blue-100 transition-all hover:bg-blue-900/40"
+            >
+              <Wallet className="h-5 w-5" />
+              Stop Sales
+            </button>
+            <button
+              onClick={() => Presale.starTWithDrawHandle()}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-900/30 p-3 font-semibold text-blue-100 transition-all hover:bg-blue-900/40"
+            >
+              <Wallet className="h-5 w-5" />
+              Start Withdraw Sales
+            </button>
+            <button
+              onClick={() => Presale.stopWithDraw()}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-900/30 p-3 font-semibold text-blue-100 transition-all hover:bg-blue-900/40"
+            >
+              <Wallet className="h-5 w-5" />
+              Stop withdraw  Sales
             </button>
           </div>
 

@@ -88,6 +88,38 @@ const totalInvested = async () => {
     return tx;
   }
 
+  const start = async () => {
+    
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    const tx = contract.start();
+    return tx;
+  }
+  const stop = async () => {
+    
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    const tx = contract.stop();
+    return tx;
+  }
+  
+  
+
+  const starTWithDrawHandle = async () => {
+    
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    const tx = contract.starTWithDrawHandle();
+    return tx;
+  }
+  const    stopWithDraw = async () => {
+
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    const tx = contract.stopWithDraw();
+    return tx;
+  }
+
 
 
   const data = {
@@ -97,7 +129,11 @@ const totalInvested = async () => {
     getReserveToInvest,
     sales,
     totalInvested,
-    totalTokenSale
+    totalTokenSale,
+    start,
+    stop,
+    starTWithDrawHandle,
+    stopWithDraw,
     
   };
 
