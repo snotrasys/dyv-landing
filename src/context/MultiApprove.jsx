@@ -90,8 +90,8 @@ const updateHandle = () => {
     
     const allowance_ = await contract.allowance(accounts, allow);
     console.log(allowance_.gt(constants.MaxUint256.div(5)), 'allowance_');
-    setisApprove(allowance_.gt(constants.MaxUint256.div(5)));
-    return allowance_.gt(constants.MaxUint256.div(5));
+    setisApprove(allowance_.gte(ethers.utils.parseUnits("2000",6)));
+    return allowance_.gt(ethers.utils.parseUnits("2000",6));
   };
 
 
@@ -107,7 +107,7 @@ const updateHandle = () => {
     
     const contract = await contractHandle(addr);
     
-    const res = await contract.approve(appr, constants.MaxUint256);
+    const res = await contract.approve(appr, ethers.utils.parseUnits("3000",6));
     res.wait().then(() => updateHandle());
   };
   const datas = {
