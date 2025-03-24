@@ -16,13 +16,14 @@ const NavbarMenu = () => {
 
   // Define menu sections
   const learnSection = [
-    { imgSrc: "/icons/token.png", text: "Presale D&V", href: "/token", type: "redirect" },
+    { imgSrc: "/icons/token.png", text: "Presale D&V", href: "/presale", type: "redirect" },
     { imgSrc: "/icons/whitepaper.png", text: "Whitepaper", href: "/whitepaper", type: "redirect" },
     { imgSrc: "/icons/roadmap.png", text: "Roadmap", href: "/roadmap", type: "redirect" },
-    { imgSrc: "/icons/solar.png", text: "Solar", href: "/", type: "redirect" },
+  
   ];
 
   const ecosystemSection = [
+    { imgSrc: "/icons/solar.png", text: "Solar", href: "/", type: "redirect" },
     { imgSrc: "/icons/lend.png", text: "D&V Lend", href: "/lend", type: "redirect" },
     { imgSrc: "/icons/habi.png", text: "Habi", href: "/habi", type: "redirect" },
     { imgSrc: "/icons/card.png", text: "D&V Card", href: "/card", type: "redirect" },
