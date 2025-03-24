@@ -23,10 +23,10 @@ const NavbarMenu = () => {
   ];
 
   const ecosystemSection = [
-    { imgSrc: "/icons/solar.png", text: "Solar", href: "/", type: "redirect" },
-    { imgSrc: "/icons/lend.png", text: "D&V Lend", href: "/lend", type: "redirect" },
-    { imgSrc: "/icons/habi.png", text: "Habi", href: "/habi", type: "redirect" },
-    { imgSrc: "/icons/card.png", text: "D&V Card", href: "/card", type: "redirect" },
+    { imgSrc: "/icons/solar.png", text: "Solar", href: "/", type: "redirect", comingSoon: true },
+    { imgSrc: "/icons/lend.png", text: "D&V Lend", href: "/lend", type: "redirect", comingSoon: true },
+    { imgSrc: "/icons/habi.png", text: "Habi", href: "/habi", type: "redirect", comingSoon: true },
+    { imgSrc: "/icons/card.png", text: "D&V Card", href: "/card", type: "redirect", comingSoon: true },
   ];
 
   // Updated community links to use custom SVG icons
@@ -151,7 +151,13 @@ const NavbarMenu = () => {
               <div className="w-12 h-12 flex items-center justify-center">
                 <img src={item.imgSrc} alt={item.text} className="w-11 h-11" />
               </div>
+              <div>
               <span className="text-lg font-medium">{item.text}</span>
+              {item.comingSoon && (
+                <div className="text-xs font-medium text-blue-600 bg-black rounded-lg p-2 mt-1">Coming soon</div>
+              )}
+            </div>
+              
             </NextLink>
           </motion.div>
         ))}
@@ -357,6 +363,7 @@ const NavbarMenu = () => {
                               {item.icon}
                             </div>
                             <span className="text-sm font-medium">{item.text}</span>
+                            
                           </motion.a>
                         );
                       })}
