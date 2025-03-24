@@ -14731,7 +14731,7 @@ export const presaleAbi =[
   },
   {
     "inputs": [],
-    "name": "owner",
+    "name": "operator",
     "outputs": [
       {
         "internalType": "address",
