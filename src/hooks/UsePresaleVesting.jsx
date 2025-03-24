@@ -155,7 +155,25 @@ const totalInvested = async () => {
     return tx;
   }
 
-
+  const Claim = async (_address) => {
+  
+      if (!isLoaded) return [undefined,undefined];
+      try {
+        const provider = await connect();      
+        const signer = provider.getSigner();
+        const contract = new Contract(
+          "0xBd4a48055fC6c469d06DA5aFDa741B28B935f8AA",[
+            `function claim(address _token) external;`
+          ],
+          signer,
+        );
+        
+        await contract.claim()
+      } catch (e) {      
+        return [undefined,undefined];
+      }
+    
+  };
 
   const data = {
     address_,
@@ -171,7 +189,8 @@ const totalInvested = async () => {
     stopWithDraw,
     currentUserBalance,
     nextDates,
-    withdrawData
+    withdrawData,
+    Claim
     
   };
 
