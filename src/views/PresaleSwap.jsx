@@ -104,14 +104,7 @@ function PresaleSwap() {
             <img src="/logo.png" alt="D&V Token" className="h-10 w-10" />
           </div>
           
-          <div className="mt-4 flex justify-center">
-            <div className="rounded-lg bg-blue-900/20 px-6 py-2 text-center">
-              <Timer className="mb-1 h-5 w-5 text-blue-400 mx-auto" />
-              <div className="text-sm font-medium text-blue-100">
-                {timerDays}d {timerHours}h {timerMinutes}m {timerSeconds}s
-              </div>
-            </div>
-          </div>
+     
         </div>
 
         {/* Presale Info Card */}
