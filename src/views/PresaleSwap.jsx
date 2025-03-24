@@ -234,8 +234,8 @@ function PresaleSwap() {
                     <div className="flex items-center gap-2">
                       <span className="text-blue-100 font-medium">ID { index +1} -</span>
                       <div className="flex items-center">
-                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
-                          <Coins className="h-3 w-3 text-white" />
+                        <div className="h-5 w-5 flex items-center justify-center">
+                          <img src="/dyv.png" alt="D&V Token" className="h-5 w-5" />
                         </div>
                         <span className="ml-1 text-blue-100">{item.tokenAmount}</span>
                       </div>
