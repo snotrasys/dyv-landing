@@ -7,9 +7,10 @@ import { useSPresale } from '@/context/PresaleHandle';
 import { useSwap_ } from '@/context/SwapHandle';
 import MultiApproveContext from '@/context/MultiApprove';
 import { address } from '@/hooks/useContracts';
-import { Wallet, Timer, ArrowRightCircle, DollarSign, BadgeCheck, Gem, ChevronDown, ChevronUp, PieChart, Coins, CheckCircle2, Clock, Globe } from 'lucide-react';
+import { Wallet, Timer, ArrowRightCircle, DollarSign, BadgeCheck, Gem, ChevronDown, ChevronUp, PieChart, Coins, CheckCircle2, Clock, Globe, User } from 'lucide-react';
 import CardRef from './CardRef';
 import UsePresaleVesting from '@/hooks/UsePresaleVesting';
+import clsx from 'clsx';
 
 function PresaleSwap() {
   const { userData, allData, invest, withdraw } = useSwap_();
@@ -31,7 +32,7 @@ function PresaleSwap() {
   const [showTokenomics, setShowTokenomics] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
   const [percentage, setpercentage] = useState(0);
-  const [withdrawPercentage, setWithdrawPercentage] = useState(33); 
+  const [withdrawPercentage, setWithdrawPercentage] = useState(0); 
   const Presale = UsePresaleVesting();
 
   // useEffect(() => {
@@ -47,6 +48,14 @@ function PresaleSwap() {
   useEffect(() => {
     setRecaudacion(allData?.totalInvested_);
   }, [allData]);
+  useEffect(() => {
+    if(!isLoaded) return;
+    if(userData.tokenAmount==0);
+    const percentage = (userData.totalWithdrawn/ Number(userData.tokenAmount) ) * 100 ;
+    console.log(percentage, 'percentage');
+    setWithdrawPercentage(percentage);
+    // setpercentage(percentage);
+  }, [userData]);
 
   useEffect(() => {
     setpercentage(percentage_(Number(recaudacion || 0)));
@@ -217,115 +226,39 @@ function PresaleSwap() {
                 {/* Historical Rewards - Replicando exactamente la imagen */}
                 <div className="bg-[#0a1428] rounded-lg p-4">
                   <div className="mb-2 font-medium text-gray-400">
-                    HISTORICAL REWARDS - TOTAL 61.87
+                    HISTORICAL REWARDS - TOTAL {userData.totalWithdrawn} D&V
                   </div>
-                  
+                 {userData.data.length > 0 && userData.data.map((item, index) => (
+                    
                   <div className="mb-2 flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <span className="text-blue-100 font-medium">80% -</span>
+                      <span className="text-blue-100 font-medium">ID { index +1} -</span>
                       <div className="flex items-center">
                         <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
                           <Coins className="h-3 w-3 text-white" />
                         </div>
-                        <span className="ml-1 text-blue-100">49.49</span>
+                        <span className="ml-1 text-blue-100">{item.tokenAmount}</span>
                       </div>
                     </div>
                     <div className="text-gray-400 flex items-center">
-                      Claimed 
+                      {item.date}
                       <span className="ml-1 text-blue-500">↗</span>
                     </div>
-                  </div>
+                  </div>)
+
+                )}
                   
-                  <div className="mb-2 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-100 font-medium">10% -</span>
-                      <div className="flex items-center">
-                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
-                          <Coins className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="ml-1 text-blue-100">6.19</span>
-                      </div>
-                    </div>
-                    <div className="text-gray-400 flex items-center">
-                      Claimed 
-                      <span className="ml-1 text-blue-500">↗</span>
-                    </div>
-                  </div>
+                 
                   
-                  <div className="mb-2 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-100 font-medium">10% -</span>
-                      <div className="flex items-center">
-                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
-                          <Coins className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="ml-1 text-blue-100">6.19</span>
-                      </div>
-                    </div>
-                    <div className="text-gray-400 flex items-center">
-                      Claimed 
-                      <span className="ml-1 text-blue-500">↗</span>
-                    </div>
-                  </div>
+                  
                 </div>
                 
-                {/* Airdrop Section - Replicando exactamente la imagen */}
-                <div className="bg-[#0a1428] rounded-lg p-4">
-                  <div className="mb-2 font-medium text-gray-400">
-                    AIRDROP - TOTAL 318.54
-                  </div>
-                  
-                  <div className="mb-2 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-100 font-medium">50% -</span>
-                      <div className="flex items-center">
-                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
-                          <Coins className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="ml-1 text-blue-100">159.27</span>
-                      </div>
-                    </div>
-                    <div className="text-gray-400 flex items-center">
-                      Claimed 
-                      <span className="ml-1 text-blue-500">↗</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-2 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-100 font-medium">25% -</span>
-                      <div className="flex items-center">
-                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
-                          <Coins className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="ml-1 text-blue-100">79.64</span>
-                      </div>
-                    </div>
-                    <div className="text-gray-400 flex items-center">
-                      Claimed 
-                      <span className="ml-1 text-blue-500">↗</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-2 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-100 font-medium">25% -</span>
-                      <div className="flex items-center">
-                        <div className="bg-blue-600 rounded-full h-5 w-5 flex items-center justify-center">
-                          <Coins className="h-3 w-3 text-white" />
-                        </div>
-                        <span className="ml-1 text-blue-100">79.64</span>
-                      </div>
-                    </div>
-                    <div className="text-gray-400 flex items-center">
-                      Claimed 
-                      <span className="ml-1 text-blue-500">↗</span>
-                    </div>
-                  </div>
-                </div>
+                
                 
                 {/* Sección para Historial de Liberación */}
-                <div className="bg-[#0a1428] rounded-lg p-4">
+                <div className={clsx(userData?.nextDates.length==0?"hidden":"bg-[#0a1428] rounded-lg p-4",
+                )
+                }>
                   <div className="mb-2 font-medium text-blue-300 flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     HISTORIAL DE LIBERACIÓN
@@ -335,29 +268,22 @@ function PresaleSwap() {
                     <div className="h-1 bg-blue-900 absolute w-full top-2"></div>
                     
                     {/* Primer punto (33%) */}
-                    <div className="absolute left-1/3 -translate-x-1/2 flex flex-col items-center">
+                    <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
                       <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
                         <div className="h-2 w-2 rounded-full bg-white"></div>
                       </div>
-                      <div className="mt-2 text-xs text-blue-300">MAR 2023</div>
-                      <div className="text-xs text-blue-100">33%</div>
-                    </div>
-                    
-                    {/* Segundo punto (66%) */}
-                    <div className="absolute left-2/3 -translate-x-1/2 flex flex-col items-center">
-                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
-                        <div className="h-2 w-2 rounded-full bg-white"></div>
-                      </div>
-                      <div className="mt-2 text-xs text-blue-300">JUN 2023</div>
+                      <div className="mt-2 text-xs text-blue-300">{userData?.nextDates[1]}</div>
                       <div className="text-xs text-blue-100">66%</div>
                     </div>
+                    
+                  
                     
                     {/* Tercer punto (100%) */}
                     <div className="absolute right-0 flex flex-col items-center">
                       <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
                         <div className="h-2 w-2 rounded-full bg-white"></div>
                       </div>
-                      <div className="mt-2 text-xs text-blue-300">SEP 2023</div>
+                      <div className="mt-2 text-xs text-blue-300">[{userData?.nextDates[2]}]</div>
                       <div className="text-xs text-blue-100">100%</div>
                     </div>
                     
@@ -366,8 +292,8 @@ function PresaleSwap() {
                       <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
                         <div className="h-2 w-2 rounded-full bg-white"></div>
                       </div>
-                      <div className="mt-2 text-xs text-blue-300">DIC 2022</div>
-                      <div className="text-xs text-blue-100">0%</div>
+                      <div className="mt-2 text-xs text-blue-300">{userData?.nextDates[0]}</div>
+                      <div className="text-xs text-blue-100">33%</div>
                     </div>
                   </div>
                 </div>

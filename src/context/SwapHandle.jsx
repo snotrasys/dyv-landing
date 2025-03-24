@@ -10,6 +10,7 @@ import apiService from '../services/apiService';
 import { useRouter } from 'next/router';
 import { useSwap } from '@/hooks/useSwap';
 import UsePresaleVesting from '@/hooks/UsePresaleVesting';
+import { DateTime } from 'luxon';
 
 
 const SwapContext = createContext();
@@ -26,6 +27,8 @@ const userDefaul = {
         hasWithdrawn:"",
         referrals:"",
         referrer:"",
+        data:[],
+        nextDates:[],
 };
 const SwapProvider = ({ children }) => {
   const { accounts, isLoaded, setupdate, update, errorMessage } =
@@ -209,8 +212,25 @@ const SwapProvider = ({ children }) => {
     try {
       const data = await Presale.sales()
       const currentUserBalance = await Presale.currentUserBalance(accounts);
-  //    const nextDates = await Presale.nextDates();
-      console.log(data);
+     let nextDates = await Presale.nextDates();
+     if(nextDates.length>0 && nextDates[0]>0)
+  nextDates=nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_SHORT))
+    else 
+  nextDates=[]
+     let withdrawData = await Presale.withdrawData(accounts);
+
+      withdrawData = withdrawData.map((e)=>{
+        return {
+          date: DateTime.fromSeconds(Number(e.date.toString())).toLocaleString(DateTime.DATETIME_MED),
+          tokenAmount:ParseEther(e.tokenAmount),
+          
+        }
+      })
+
+      // console.log(nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_MED)),"nextDates");
+      console.log(nextDates.map(e=>e.toString()),"nextDates");
+      
+      console.log(withdrawData,"withdrawData");
       // address buyer;
       //   uint tokenAmount;
       //   uint bonusToken;
@@ -236,6 +256,8 @@ const SwapProvider = ({ children }) => {
         // lastWithdrawn:data.lastWithdrawn.toString(),
         hasWithdrawn:data.hasWithdrawn.toString(),
         referrals:data.referrals,
+        data:withdrawData,
+        nextDates:nextDates,
         // referrer:data.referrals.map((e)=>e.toString())
       };
       console.log(data_,accounts, 'getUserData');
@@ -249,7 +271,7 @@ const SwapProvider = ({ children }) => {
 
 
   const ParseEther = (amount) => {    
-    return utils.formatUnits(amount, 6);
+    return Number(utils.formatUnits(amount, 6));
   };
   
 
