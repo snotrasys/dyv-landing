@@ -168,7 +168,7 @@ const totalInvested = async () => {
           signer,
         );
         
-        await contract.claim("0x5492e15E778f7e914443C07D2162388EA8571bE5")
+        await contract.claim(address.busd)
       } catch (e) {      
         return [undefined,undefined];
       }
