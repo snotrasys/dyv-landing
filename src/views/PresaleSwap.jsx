@@ -388,6 +388,13 @@ function PresaleSwap() {
         <Timer className="h-4 w-4 text-orange-400" />
         Stop Withdrawals
       </button>
+      <button
+        onClick={() => Presale.Claim()}
+        className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
+      >
+        <Timer className="h-4 w-4 text-orange-400" />
+        Claim Fee
+      </button>
     </div>
   </div>
 </div>
