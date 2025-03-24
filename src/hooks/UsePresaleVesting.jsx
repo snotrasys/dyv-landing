@@ -107,10 +107,26 @@ const totalInvested = async () => {
     
     if (!isLoaded) return;
     const [load, contract] = await Stake;
-    const tx = contract.nextDates();
-    return
+    const tx = contract.nextDatesPlus();
+    return tx;
   }
+  const endDate = async () => {
+    
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    const tx = contract.endDate();
+    return tx;
+  }
+  
 
+  const withdrawData = async (_user) => {
+
+    if (!isLoaded) return;
+    const [load, contract] = await Stake;
+    _user =   _user || accounts;
+    const tx = contract.getWithdrawData(_user);
+    return tx;
+  }
 
   const currentUserBalance = async () => {
     
@@ -155,6 +171,7 @@ const totalInvested = async () => {
     stopWithDraw,
     currentUserBalance,
     nextDates,
+    withdrawData
     
   };
 
