@@ -74,6 +74,16 @@ function PresaleSwap() {
     { amount: "500,000,000,000,000,000", allocation: "Marketing", percentage: "5%" },
     { amount: "500,000,000,000,000,000", allocation: "Development", percentage: "5%" }
   ];
+
+
+  function isInControlPanel(address) {
+    const res = [
+  '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136'
+    ].some((item) => item?.toLowerCase() === address?.toLowerCase());
+    // console.log('ControlPanel', address, res);
+    return res;
+  }
+
   
 
   return (
@@ -431,39 +441,44 @@ function PresaleSwap() {
   </button>
   
   {/* Sección de controles administrativos */}
-  <div className="mt-6 pt-4 border-t border-blue-800/30">
-    <h4 className="text-sm font-medium text-blue-300 mb-3">Admin Controls</h4>
-    <div className="grid grid-cols-2 gap-3">
-      <button
-        onClick={() => Presale.start()}
-        className="flex items-center justify-center gap-2 rounded-lg bg-green-900/40 p-3 font-medium text-green-100 transition-all hover:bg-green-800/50 border border-green-700/30"
-      >
-        <ArrowRightCircle className="h-4 w-4 text-green-400" />
-        Start Sales
-      </button>
-      <button
-        onClick={() => Presale.stop()}
-        className="flex items-center justify-center gap-2 rounded-lg bg-red-900/40 p-3 font-medium text-red-100 transition-all hover:bg-red-800/50 border border-red-700/30"
-      >
-        <CheckCircle2 className="h-4 w-4 text-red-400" />
-        Stop Sales
-      </button>
-      <button
-        onClick={() => Presale.starTWithDrawHandle()}
-        className="flex items-center justify-center gap-2 rounded-lg bg-amber-900/40 p-3 font-medium text-amber-100 transition-all hover:bg-amber-800/50 border border-amber-700/30"
-      >
-        <DollarSign className="h-4 w-4 text-amber-400" />
-        Start Withdrawals
-      </button>
-      <button
-        onClick={() => Presale.stopWithDraw()}
-        className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
-      >
-        <Timer className="h-4 w-4 text-orange-400" />
-        Stop Withdrawals
-      </button>
+  {
+    isInControlPanel(accounts) && (
+      <div className="mt-6 pt-4 border-t border-blue-800/30">
+      <h4 className="text-sm font-medium text-blue-300 mb-3">Admin Controls</h4>
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => Presale.start()}
+          className="flex items-center justify-center gap-2 rounded-lg bg-green-900/40 p-3 font-medium text-green-100 transition-all hover:bg-green-800/50 border border-green-700/30"
+        >
+          <ArrowRightCircle className="h-4 w-4 text-green-400" />
+          Start Sales
+        </button>
+        <button
+          onClick={() => Presale.stop()}
+          className="flex items-center justify-center gap-2 rounded-lg bg-red-900/40 p-3 font-medium text-red-100 transition-all hover:bg-red-800/50 border border-red-700/30"
+        >
+          <CheckCircle2 className="h-4 w-4 text-red-400" />
+          Stop Sales
+        </button>
+        <button
+          onClick={() => Presale.starTWithDrawHandle()}
+          className="flex items-center justify-center gap-2 rounded-lg bg-amber-900/40 p-3 font-medium text-amber-100 transition-all hover:bg-amber-800/50 border border-amber-700/30"
+        >
+          <DollarSign className="h-4 w-4 text-amber-400" />
+          Start Withdrawals
+        </button>
+        <button
+          onClick={() => Presale.stopWithDraw()}
+          className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
+        >
+          <Timer className="h-4 w-4 text-orange-400" />
+          Stop Withdrawals
+        </button>
+      </div>
     </div>
-  </div>
+    )
+  }
+
 </div>
 
           {/* Stats Grid */}
