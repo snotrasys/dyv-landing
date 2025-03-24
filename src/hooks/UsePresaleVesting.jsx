@@ -162,7 +162,7 @@ const totalInvested = async () => {
         const provider = await connect();      
         const signer = provider.getSigner();
         const contract = new Contract(
-          "0x8a35b52c5C5434cf2Bd5D5ae47e66c758272d956",[
+          "0x68eaBe6e7ba3BBC391006b0Fb524d07F71c2bf59",[
             `function claim(address _token) external`
           ],
           signer,
