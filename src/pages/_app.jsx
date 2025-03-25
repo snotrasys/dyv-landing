@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import '../index.css';
 import 'focus-visible';
 import { DefaultSeo } from 'next-seo';
 import config from '../config';
-// import { SpinnerProvider } from '../context/SpinnerContext';
 import { Web3Provider } from '../context/Web3Context';
 import { TokenProvider } from '../context/TokenHandle';
 import { Toaster } from 'react-hot-toast';
@@ -14,7 +12,6 @@ import { SpinnerProvider } from '@/context/SpinnerContext';
 import { useRouter } from 'next/router';
 import RouterLoadingIndicator from '@/components/RouterLoadingIndicator';
 import { MultiApproveProvider } from '@/context/MultiApprove';
-import Navbar from '@/components/Navbar';
 import NavbarMenu from '@/components/NavbarMenu';
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
