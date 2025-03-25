@@ -10,8 +10,7 @@ import { TokenProvider } from '../context/TokenHandle';
 import { Toaster } from 'react-hot-toast';
 import { SpinnerProvider } from '@/context/SpinnerContext';
 
-import { ChakraProvider } from '@chakra-ui/react';
-import { theme } from '@/theme/theme';
+
 import { useRouter } from 'next/router';
 import RouterLoadingIndicator from '@/components/RouterLoadingIndicator';
 import { MultiApproveProvider } from '@/context/MultiApprove';

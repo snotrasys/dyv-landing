@@ -1,9 +1,8 @@
 import { NextSeo } from 'next-seo';
 import { useEffect, useState } from 'react';
-import Menu from '../Menu';
 import { useSpinner } from '@/context/SpinnerContext';
 import LoadingSpinner from '@/utils/LoadingSpinner';
-import Sidebar from '../Sidebar';
+
 
 export function Layout({
   children,

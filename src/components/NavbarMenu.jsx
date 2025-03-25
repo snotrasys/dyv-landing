@@ -6,7 +6,7 @@ import NextLink from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 const NavbarMenu = () => {
-  const { accounts, isLoaded, connectWallet, disconnectWallet } = useContext(Web3Context);
+  const { accounts, isLoaded, connectWallet } = useContext(Web3Context);
   const [isOpen, setIsOpen] = useState(false);
   const [account, setAccount] = useState("0x");
   const [isHovered, setIsHovered] = useState(false);
@@ -60,9 +60,7 @@ const NavbarMenu = () => {
   }, [accounts]);
 
   const handleLogout = () => {
-    if (disconnectWallet) {
-      disconnectWallet();
-    }
+
     setIsOpen(false);
   };
 
@@ -182,13 +180,16 @@ const NavbarMenu = () => {
           </motion.button>
 
           {/* Connect Wallet Button */}
-          {isLoaded ? (
+          {accounts !== null ? (
             <motion.div
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium shadow-md border border-blue-500/50"
               whileHover={{ scale: 1.05, boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)" }}
               whileTap={{ scale: 0.98 }}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
+              onClick={() => {
+                connectWallet();
+              }}
             >
               <Wallet className="h-4 w-4" />
               <span className="text-sm">{account}</span>
@@ -206,7 +207,9 @@ const NavbarMenu = () => {
             </motion.div>
           ) : (
             <motion.button
-              onClick={connectWallet}
+            onClick={() => {
+              connectWallet();
+            }}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium shadow-md border border-blue-500/50"
               whileHover={{ scale: 1.05, boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)" }}
               whileTap={{ scale: 0.98 }}

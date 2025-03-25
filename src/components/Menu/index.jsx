@@ -6,7 +6,7 @@ import Link from 'next/link';
 import ImgS3 from '../ImgS3';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import PriceBIOTIC from '../PriceBIOTIC';
-import PriceXimbia from '../PriceXimbia';
+
 import { useToken } from '@/hooks/UseToken';
 import { address } from '@/hooks/useContracts';
 import { ethers } from 'ethers';

@@ -1,4 +1,4 @@
-import ImgS3 from '@/components/ImgS3';
+
 import { Layout } from '@/components/app/Layout';
 import PresaleSwap from '@/views/PresaleSwap';
 import React, { useEffect } from 'react';

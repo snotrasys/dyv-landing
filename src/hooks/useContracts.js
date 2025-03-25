@@ -2,6 +2,8 @@ import { useMemo,useContext,useState} from 'react';
 import {abi,BUSD, saleAbi,masterchefv2Abi,StakeAbi}  from './abiHelpers'
 import Web3Context from '../context/Web3Context'
 import {Contract,ethers} from 'ethers'
+import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+
 
 export const address ={    
   fantom:"0xe203a113579AaCf5CF6A7e4A3E4B81412d1BF6df",
@@ -25,12 +27,13 @@ export const address ={
 }
 
 export const  usePrivateSale = ()=>{
-  const {accounts, isLoaded,connect} = useContext(Web3Context)        
+  const { walletProvider } = useWeb3ModalProvider();
+  const { accounts, isLoaded, connect } = useContext(Web3Context);   
   return useMemo(async() => {
     if(!isLoaded)
     return [false,null]
     try{
-    const provider =await connect()
+      const provider = new ethers.providers.Web3Provider(walletProvider);
     const signer = provider.getSigner()    
     const contract = new Contract(address.privateSale ,saleAbi,signer)          
     return [true, contract]
@@ -41,12 +44,13 @@ export const  usePrivateSale = ()=>{
     },[accounts,isLoaded])
 }
 export const usePublicSale = ()=>{
+  const { walletProvider } = useWeb3ModalProvider();
   const {accounts, isLoaded,connect} = useContext(Web3Context)        
   return useMemo(async() => {
     if(!isLoaded)
     return [false,null]
     try{
-    const provider =await connect()
+      const provider = new ethers.providers.Web3Provider(walletProvider);
     const signer = provider.getSigner()    
     const contract = new Contract(address.publicSale ,saleAbi,signer)          
     return [true, contract]
@@ -60,12 +64,13 @@ export const usePublicSale = ()=>{
 
 
 export const useBUSD = ()=>{    
+  const { walletProvider } = useWeb3ModalProvider();
   const {accounts, isLoaded,connect} = useContext(Web3Context)        
   return useMemo(async() => {
     if(!isLoaded)
     return [false,null]
     try{
-    const provider =await connect()
+      const provider = new ethers.providers.Web3Provider(walletProvider);
     const signer = provider.getSigner()    
     const contract = new Contract(address.busd,BUSD,signer)          
     return [true, contract]
@@ -77,12 +82,13 @@ export const useBUSD = ()=>{
 }
 
 export const useContract = ()=>{    
+  const { walletProvider } = useWeb3ModalProvider();
   const {accounts, isLoaded,connect} = useContext(Web3Context)        
   return useMemo(async() => {
     if(!isLoaded)
     return [false,null]
     try{    
-    const provider =await connect()
+      const provider = new ethers.providers.Web3Provider(walletProvider);
     const signer = provider.getSigner()    
     const contract = new Contract(address.fantom,abi,signer)          
     return [true, contract]
@@ -102,12 +108,13 @@ const etherJSProvider =async () => {
 
 
   export const useToken = (address_)=>{    
+    const { walletProvider } = useWeb3ModalProvider();
     const {accounts, isLoaded,connect} = useContext(Web3Context)        
     return useMemo(async() => {
       if(!isLoaded)
       return [false,null]
       try{    
-      const provider =await connect()
+        const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner()    
       const contract = new Contract(address.ximbia2,BUSD,signer)          
       return [true, contract]
@@ -119,12 +126,13 @@ const etherJSProvider =async () => {
   }
 
   export const useMasterChef= ()=>{    
+    const { walletProvider } = useWeb3ModalProvider();
     const {accounts, isLoaded,connect} = useContext(Web3Context)        
     return useMemo(async() => {
       if(!isLoaded)
       return [false,null]
       try{    
-      const provider =await connect()
+        const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner()    
       const contract = new Contract(address.masterchefv2,masterchefv2Abi,signer)          
       return [true, contract]
@@ -136,14 +144,15 @@ const etherJSProvider =async () => {
   }
 
 
-  export const useStake = (address_)=>{    
+  export const useStake = (address_)=>{   
+    const { walletProvider } = useWeb3ModalProvider(); 
     const {accounts, isLoaded,connect} = useContext(Web3Context)        
     return useMemo(async() => {
       if(!isLoaded)
       return [false,null]
       try{    
         const _address = address_ || address.stake
-      const provider =await connect()
+        const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner()    
       const contract = new Contract(_address,StakeAbi,signer)          
       return [true, contract]

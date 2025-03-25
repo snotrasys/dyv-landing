@@ -2,15 +2,17 @@ import { useMemo, useContext, useState } from 'react';
 import { swapABI } from './abiHelpers';
 import Web3Context from '../context/Web3Context';
 import { BigNumber, Contract, ethers } from 'ethers';
+import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 export const useSwap = () => {
   const { accounts, isLoaded, connect } = useContext(Web3Context);
+      const { walletProvider } = useWeb3ModalProvider(); 
   // const address_ = '0x11caa40Fb970dd322f7116fAD7d37B6AeA536EDB';
   const address_ = '0x1a8db8Dd16c5858a492e0a641BABB5C50ab17933';
   
   const contract = async () => {
     if (!isLoaded) return null;
-    const provider = await connect();
+    const provider = new ethers.providers.Web3Provider(walletProvider);
     const signer = provider.getSigner();
     const contract = new Contract(address_, swapABI, signer);
     return contract;

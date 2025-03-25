@@ -10,13 +10,14 @@ import apiService from '../services/apiService';
 import { useRouter } from 'next/router';
 import UseStake from '@/hooks/UseStake';
 import { BUSD } from '@/hooks/abiHelpers';
+import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 const MultiApproveContext = createContext();
 const MultiApproveProvider = ({ children }) => {
   // const { addToast } = useToasts();
   const { accounts, isLoaded, connect } =
     useContext(Web3Context);
-
+    const { walletProvider } = useWeb3ModalProvider(); 
 const [update, setupdate] = useState(0)
 
 const updateHandle = () => {
@@ -48,7 +49,7 @@ const updateHandle = () => {
       }
     }, [isLoaded,accounts,changeToken,update])
   const contractHandle = async (addr) => {
-    const provider = await connect();
+    const provider = new ethers.providers.Web3Provider(walletProvider);
     const signer = provider.getSigner();
     addr = addr || changeToken;
     

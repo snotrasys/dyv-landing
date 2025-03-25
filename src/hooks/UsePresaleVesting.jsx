@@ -4,12 +4,16 @@ import { Contract, ethers } from 'ethers';
 import refHandler from './utils';
 import { address } from './useContracts';
 import { presaleAbi } from './abiHelpers';
+import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+
+
 const useContract = (_address) => {
+    const { walletProvider } = useWeb3ModalProvider(); 
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   return useMemo(async () => {
     if (!isLoaded) return [undefined,undefined];
     try {
-      const provider = await connect();      
+      const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner();
       const contract = new Contract(
         _address,presaleAbi,
