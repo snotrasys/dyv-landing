@@ -17,7 +17,7 @@ const NavbarMenu = () => {
   // Define menu sections
   const learnSection = [
     { imgSrc: "/icons/token.png", text: "Presale D&V", href: "/presale", type: "redirect" },
-    { imgSrc: "/icons/whitepaper.png", text: "Whitepaper", href: "/whitepaper", type: "redirect" },
+    { imgSrc: "/icons/whitepaper.png", text: "Whitepaper", href: "https://Docs.dyvgroup.io" , type: "redirect" },
     { imgSrc: "/icons/roadmap.png", text: "Roadmap", href: "/roadmap", type: "redirect" },
   
   ];
