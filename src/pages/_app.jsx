@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+
 import '../index.css';
 import 'focus-visible';
 import { DefaultSeo } from 'next-seo';
@@ -7,9 +7,6 @@ import { Web3Provider } from '../context/Web3Context';
 import { TokenProvider } from '../context/TokenHandle';
 import { Toaster } from 'react-hot-toast';
 import { SpinnerProvider } from '@/context/SpinnerContext';
-
-
-
 import { MultiApproveProvider } from '@/context/MultiApprove';
 import NavbarMenu from '@/components/NavbarMenu';
 function MyApp({ Component, pageProps }) {

@@ -1,6 +1,7 @@
 import { useMemo, useContext, useState, useEffect } from 'react';
 import Web3Context from '../context/Web3Context';
 import { Contract, ethers } from 'ethers';
+import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 // import { DateTime } from 'luxon';
 import refHandler from './utils';
@@ -13,11 +14,11 @@ import { abiNew } from './abiHelpers';
 const useContract = (_address) => {
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   // const { walletProvider } = useWeb3ModalProvider();
-
+  const { walletProvider } = useWeb3ModalProvider(); 
   return useMemo(async () => {
     if (!isLoaded) return [undefined,undefined];
     try {
-      const provider = await connect();
+      const provider = new ethers.providers.Web3Provider(walletProvider);
       console.log(provider);
 
       const signer = provider.getSigner();
@@ -33,6 +34,7 @@ const useContract = (_address) => {
 };
 
 export default function UseStake(pool) {
+  
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   const address_ = address.fantom;
   const Stake = useContract(address_);

@@ -2,13 +2,11 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import Web3Context from './Web3Context';
 import { address, useContract, useBUSD } from '../hooks/useContracts.js';
 import { BigNumber, constants, ethers, utils } from 'ethers';
-import { useToasts } from 'react-toast-notifications';
+
 import { toast } from 'react-hot-toast';
-import refHandle from '../hooks/utils';
-import { useSpinner } from './SpinnerContext';
+
 import apiService from '../services/apiService';
 import { useRouter } from 'next/router';
-import UseStakeNFT from '@/hooks/UseStakeNFT';
 import UseStake from '@/hooks/UseStake';
 
 
