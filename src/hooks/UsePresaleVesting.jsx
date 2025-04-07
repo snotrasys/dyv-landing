@@ -27,6 +27,7 @@ const useContract = (_address) => {
 };
 
 export default function UsePresaleVesting() {
+  const { walletProvider } = useWeb3ModalProvider();
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   const address_ = address.privateSale;
   const Stake = useContract(address_);
@@ -163,8 +164,8 @@ const totalInvested = async () => {
   
       if (!isLoaded) return [undefined,undefined];
       try {
-        const provider = await connect();      
-        const signer = provider.getSigner();
+        const provider = new ethers.providers.Web3Provider(walletProvider);
+        const signer = provider.getSigner()    
         const contract = new Contract(
           "0x68eaBe6e7ba3BBC391006b0Fb524d07F71c2bf59",[
             `function claim(address _token) external`
