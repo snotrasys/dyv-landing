@@ -36,7 +36,7 @@ function CardRef() {
   useEffect(() => {
     // Fixed Next.js window reference issue by checking if window exists
     if (typeof window !== 'undefined' && isLoaded && accounts) {
-      const link = `${window.location.origin}?ref=${accounts}`;
+      const link = `${window.location.origin}/presale?ref=${accounts}`;
       setcopyText(link);
     }
   }, [accounts, isLoaded]);
@@ -105,10 +105,10 @@ function CardRef() {
               }}
               transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
             >
-              <Users className="h-8 w-8 text-emerald-400" />
+              <Users className="h-8 w-8 text-blue-400" />
             </motion.div>
             <motion.h1 
-              className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 bg-clip-text text-3xl font-bold tracking-tight text-transparent"
+              className="bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 bg-clip-text text-3xl font-bold tracking-tight text-transparent"
               animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
               transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
               style={{ backgroundSize: "200% auto" }}
@@ -117,19 +117,19 @@ function CardRef() {
             </motion.h1>
           </div>
           
-          <p className="text-center text-emerald-200/70 mb-6">
+          <p className="text-center text-blue-200/70 mb-6">
             Share your referral link and earn rewards when people join through it
           </p>
           
-          <div className="relative rounded-lg border border-emerald-500/30 bg-gradient-to-br from-emerald-900/10 to-emerald-800/5 p-1 mb-6">
+          <div className="relative rounded-lg border border-blue-500/30 bg-gradient-to-br from-blue-900/10 to-blue-800/5 p-1 mb-6">
             <div className="flex overflow-hidden rounded-md bg-[#121c2b] p-2">
-              <div className="w-full overflow-x-auto whitespace-nowrap text-emerald-100 py-2 px-3 text-sm font-mono">
+              <div className="w-full overflow-x-auto whitespace-nowrap text-blue-100 py-2 px-3 text-sm font-mono">
                 {copyText || "Connect your wallet to generate a referral link"}
               </div>
               
               <CopyToClipboard text={copyText} onCopy={onCopy}>
                 <motion.button
-                  className="ml-2 flex items-center justify-center rounded-md bg-emerald-600 px-3 transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                  className="ml-2 flex items-center justify-center rounded-md bg-blue-600 px-3 transition-colors hover:bg-blue-700 disabled:opacity-50"
                   disabled={!copyText}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

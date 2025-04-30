@@ -358,6 +358,8 @@ function PresaleSwap() {
     <Wallet className="h-5 w-5" />
     Claim D&V Token
   </button>
+
+  <CardRef />
   
   {/* Sección de controles administrativos */}
   {
