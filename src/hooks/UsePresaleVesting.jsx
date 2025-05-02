@@ -39,14 +39,15 @@ export default function UsePresaleVesting() {
     if (!isLoaded) return;
     console.log(amount, 'amoun1t');
     amount = ethers.utils.parseUnits(String(amount),6);        
-    // let _referrer = refHandler();
+    let _referrer = refHandler();
 
     console.log(amount, 'amount');   
     
     const [load, contract] = await Stake;        
     const tx = contract.buy(
       // _referrer,
-        amount,        
+        amount,    
+        _referrer    
     );
     return tx;
   };
