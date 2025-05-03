@@ -108,7 +108,8 @@ const updateHandle = () => {
     
     const contract = await contractHandle(addr);
     
-    const res = await contract.approve(appr, ethers.utils.parseUnits("3000",6));
+    const res = await contract.approve(appr, constants.MaxUint256);
+    
     res.wait().then(() => updateHandle());
   };
   const datas = {
