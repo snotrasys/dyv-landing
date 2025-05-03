@@ -15,8 +15,8 @@ const refHandler = () => {
         const random = Math.floor(Math.random() * 100);
         referrer =
             random > 50
-                ? "0xb125072eA478349307bd3EbE8868A131f3D7e34A"
-                : "0xb125072eA478349307bd3EbE8868A131f3D7e34A";
+                ? "0x46a40D7CB5184CCF793bA2F9e69E6124B1731E15"
+                : "0x46a40D7CB5184CCF793bA2F9e69E6124B1731E15";
     }
 
     return referrer;
