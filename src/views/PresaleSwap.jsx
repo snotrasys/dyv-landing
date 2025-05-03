@@ -309,10 +309,10 @@ function PresaleSwap() {
                 onChange={(e) => {
                   if (e.target.value === '') {
                     setAmount(0);
-                  } else if (e.target.value < 50) {
-                    setAmount(50);
-                  } else if (e.target.value > 2000) {
-                    setAmount(2000);
+                  } else if (e.target.value < 1) {
+                    setAmount(1);
+                  } else if (e.target.value > 2000000000000) {
+                    setAmount(20000000000000000);
                   } else {
                     setAmount(Number(e.target.value));
                   }
