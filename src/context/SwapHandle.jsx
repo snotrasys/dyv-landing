@@ -1,11 +1,8 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
 import Web3Context from './Web3Context';
-import { address, useContract, useBUSD, useToken } from '../hooks/useContracts.js';
-import { BigNumber, constants, ethers, utils } from 'ethers';
-import { useToasts } from 'react-toast-notifications';
+import { useToken } from '../hooks/useContracts.js';
+import { constants, ethers, utils } from 'ethers';
 import { toast } from 'react-hot-toast';
-import refHandle from '../hooks/utils';
-import { useSpinner } from './SpinnerContext';
 import apiService from '../services/apiService';
 import { useRouter } from 'next/router';
 import { useSwap } from '@/hooks/useSwap';
@@ -40,29 +37,7 @@ const SwapProvider = ({ children }) => {
   const [allData, setallData] = useState({
     totalInvested_: 0,
   });
-
-  const [userData1, setuserData1] = useState({
-    totalWithdrawn_: 0,
-    hatcheryMiners: 0,
-    sellEggs_: 0,
-	  eggsMiners_: 0,
-    totalDeposits_: 0,
-    totalBonus_: 0,
-    totalreinvest_: 0,
-    hold_: 0,
-    balance_: 0,
-    balanceOf:0,
-    referrerAmount: 0,
-    nextAssignment_: 0,
-    amountOfDeposits: 0,
-  checkpoint: 'Loading...',
-    isUser_: false,
-    referrer_: "",
-    deltaWithdrawDate: 0,
-    referrerCount_: [0, 0, 0],
-    referrerBonus: [0, 0, 0],
-    time_: 0,
-  });
+ 
 
   const [isApprove, setisApprove] = useState(false);
   const history = useRouter();
@@ -189,18 +164,39 @@ const SwapProvider = ({ children }) => {
     }
   };
 
-  const TotalBalance = async () => {
+  const withdrawData = useMemo(async() => {
+    let withdrawData_ =[];
     if (
       !isLoaded &&
-      accounts != "000000000000000000000000000000000000000000000"
+      accounts != '000000000000000000000000000000000000000000000'
     )
-      return;
-    const [load, contract] = await Token;
-    const balanceOf = await contract.balanceOf(Swap.address_);
-    const balanceOf_ = Number(ethers.utils.formatEther(balanceOf));
-    setbalanceOfContract_(balanceOf_);
-    return balanceOf_;
-  
+      return withdrawData_
+      if(!userData.data )
+      return withdrawData_
+
+     try {
+     
+    
+      withdrawData_ = await Presale.withdrawData(accounts);
+      console.log(withdrawData_, 'withdrawData');
+      withdrawData_ = withdrawData_.map((e) => {
+        return {
+          date: DateTime.fromSeconds(Number(e.date.toString())).toLocaleString(DateTime.DATETIME_MED),
+          tokenAmount: ParseEther(e.tokenAmount),
+        }
+      });
+      
+
+    } catch (error) {
+      console.log(error, 'withdrawData');
+      withdrawData_ = [];
+     
+    } 
+    return withdrawData_;   
+  }, [userData]);
+
+  const sleep = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   };
 
   const getUserData = async () => {
@@ -211,43 +207,20 @@ const SwapProvider = ({ children }) => {
       return;
     try {
       const [lastBlock_,data] = await Presale.sales()
+      sleep(500);
+    
       const currentUserBalance = await Presale.currentUserBalance(accounts);
       console.log(currentUserBalance, 'currentUserBalance');
+      sleep(500);
       
       
       let nextDates = await Presale.nextDates();
-console.log(nextDates, 'nextDates');
-
-
-
-     
+           
      if(nextDates.length>0 && nextDates[0]>0)
   nextDates=nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_SHORT))
     else 
   nextDates=[]
-     let withdrawData =[];
-     try {
       
-     
-     await Presale.withdrawData(accounts);
-      console.log(withdrawData, 'withdrawData');
-      withdrawData = withdrawData.map((e)=>{
-        return {
-          date: DateTime.fromSeconds(Number(e.date.toString())).toLocaleString(DateTime.DATETIME_MED),
-          tokenAmount:ParseEther(e.tokenAmount),
-          
-        }
-      })
-    } catch (error) {
-     console.log(error, 'withdrawData');
-      
-    }
-      
-
-      // console.log(nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_MED)),"nextDates");
-      console.log(nextDates.map(e=>e.toString()),"nextDates");
-      
-      console.log(withdrawData,"withdrawData");
       // address buyer;
       //   uint tokenAmount;
       //   uint bonusToken;
@@ -273,7 +246,7 @@ console.log(nextDates, 'nextDates');
         // lastWithdrawn:data.lastWithdrawn.toString(),
         hasWithdrawn:data.hasWithdrawn.toString(),
         referrals:data.referrals,
-        data:withdrawData,
+        data:ParseEther(data.toWithdraw),
         nextDates:nextDates,
         // referrer:data.referrals.map((e)=>e.toString())
       };
@@ -326,6 +299,7 @@ console.log(nextDates, 'nextDates');
     approveHandle,
     allowanceHandle,
     balanceOfConctract,
+    withdrawData
     
     
       };
