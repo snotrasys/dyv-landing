@@ -74,7 +74,7 @@ const sales = async () => {
   if (!isLoaded) return;
   const [load, contract] = await Stake;
   console.log(accounts, 'accounts');
-  const tx = contract.sales(accounts);
+  const tx = contract.getUserData(accounts);
   return tx;
 };
 

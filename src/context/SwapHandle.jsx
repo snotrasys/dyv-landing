@@ -210,15 +210,27 @@ const SwapProvider = ({ children }) => {
     )
       return;
     try {
-      const data = await Presale.sales()
+      const [lastBlock_,data] = await Presale.sales()
       const currentUserBalance = await Presale.currentUserBalance(accounts);
-     let nextDates = await Presale.nextDates();
+      console.log(currentUserBalance, 'currentUserBalance');
+      
+      
+      let nextDates = await Presale.nextDates();
+console.log(nextDates, 'nextDates');
+
+
+
+     
      if(nextDates.length>0 && nextDates[0]>0)
   nextDates=nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_SHORT))
     else 
   nextDates=[]
-     let withdrawData = await Presale.withdrawData(accounts);
-
+     let withdrawData =[];
+     try {
+      
+     
+     await Presale.withdrawData(accounts);
+      console.log(withdrawData, 'withdrawData');
       withdrawData = withdrawData.map((e)=>{
         return {
           date: DateTime.fromSeconds(Number(e.date.toString())).toLocaleString(DateTime.DATETIME_MED),
@@ -226,6 +238,11 @@ const SwapProvider = ({ children }) => {
           
         }
       })
+    } catch (error) {
+     console.log(error, 'withdrawData');
+      
+    }
+      
 
       // console.log(nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_MED)),"nextDates");
       console.log(nextDates.map(e=>e.toString()),"nextDates");
@@ -284,12 +301,11 @@ const SwapProvider = ({ children }) => {
     try {
       const data = await Presale.totalInvested();
 
-      
 
       const data_ = {
         totalInvested_: ParseEther(data),
       };
-
+      
       setallData(data_);
     } catch (error) {
       console.log('Errr public', error);
