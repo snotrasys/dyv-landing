@@ -13,7 +13,7 @@ import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 import clsx from 'clsx';
 
 function PresaleSwap() {
-  const { userData, allData, invest, withdraw } = useSwap_();
+  const { userData, allData, invest, withdraw,withdrawData } = useSwap_();
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   const { 
     isApprove,
@@ -221,7 +221,7 @@ function PresaleSwap() {
                   <div className="mb-2 font-medium text-gray-400">
                     HISTORICAL REWARDS - TOTAL {userData.totalWithdrawn} D&V
                   </div>
-                 {userData.data.length > 0 && userData.data.map((item, index) => (
+                 {withdrawData.length > 0 && withdrawData.map((item, index) => (
                     
                   <div className="mb-2 flex justify-between items-center">
                     <div className="flex items-center gap-2">
