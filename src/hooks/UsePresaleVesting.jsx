@@ -205,7 +205,7 @@ const totalInvested = async () => {
       if (!isLoaded) throw new Error('Web3 is not loaded');
       return data;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       return data;
     }
   }, [accounts, isLoaded, Stake]);
