@@ -276,7 +276,7 @@ const SwapProvider = ({ children }) => {
 
 
       const data_ = {
-        totalInvested_: ParseEther(data),
+        totalInvested_: ParseEther(data) + Number(11770),
       };
       
       setallData(data_);
