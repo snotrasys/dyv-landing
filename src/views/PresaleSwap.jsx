@@ -13,7 +13,7 @@ import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 import clsx from 'clsx';
 
 function PresaleSwap() {
-  const { userData, allData, invest, withdraw } = useSwap_();
+  const { userData, allData, invest, withdraw,withdrawData } = useSwap_();
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   const { 
     isApprove,
@@ -221,7 +221,7 @@ function PresaleSwap() {
                   <div className="mb-2 font-medium text-gray-400">
                     HISTORICAL REWARDS - TOTAL {userData.totalWithdrawn} D&V
                   </div>
-                 {userData.data.length > 0 && userData.data.map((item, index) => (
+                 {withdrawData.length > 0 && withdrawData.map((item, index) => (
                     
                   <div className="mb-2 flex justify-between items-center">
                     <div className="flex items-center gap-2">
@@ -309,10 +309,10 @@ function PresaleSwap() {
                 onChange={(e) => {
                   if (e.target.value === '') {
                     setAmount(0);
-                  } else if (e.target.value < 50) {
-                    setAmount(50);
-                  } else if (e.target.value > 2000) {
-                    setAmount(2000);
+                  } else if (e.target.value < 1) {
+                    setAmount(1);
+                  } else if (e.target.value > 2000000000000) {
+                    setAmount(20000000000000000);
                   } else {
                     setAmount(Number(e.target.value));
                   }
@@ -358,6 +358,8 @@ function PresaleSwap() {
     <Wallet className="h-5 w-5" />
     Claim D&V Token
   </button>
+
+  <CardRef />
   
   {/* Sección de controles administrativos */}
   {

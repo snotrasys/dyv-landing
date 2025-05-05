@@ -39,6 +39,7 @@ const Web3Provider = ({ children }) => {
   const [update, setupdate] = useState(0);
 
 
+
   const connectWallet = async () => {
     try {
       open();

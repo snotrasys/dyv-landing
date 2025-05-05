@@ -13538,6 +13538,11 @@ export const presaleAbi =[
         "internalType": "address",
         "name": "_founder",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_presale",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -13795,32 +13800,6 @@ export const presaleAbi =[
   },
   {
     "inputs": [],
-    "name": "HARDCAP",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MAX_INVEST_AMOUNT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "MIN_INVEST_AMOUNT",
     "outputs": [
       {
@@ -13922,6 +13901,11 @@ export const presaleAbi =[
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_ref",
+        "type": "address"
       }
     ],
     "name": "buy",
@@ -14358,19 +14342,6 @@ export const presaleAbi =[
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getReserveToInvest",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -14724,6 +14695,19 @@ export const presaleAbi =[
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "oldPresale",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

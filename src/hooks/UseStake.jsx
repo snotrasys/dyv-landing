@@ -5,9 +5,6 @@ import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 // import { DateTime } from 'luxon';
 import refHandler from './utils';
-import { throws } from 'assert';
-import { toast } from 'react-hot-toast';
-import { formatEther } from 'ethers/lib/utils.js';
 // import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { address } from './useContracts';
 import { abiNew } from './abiHelpers';
