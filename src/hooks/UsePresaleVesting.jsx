@@ -181,6 +181,27 @@ const totalInvested = async () => {
     
   };
 
+
+   const Claim2 = async (_address) => {
+  
+      if (!isLoaded) return [undefined,undefined];
+      try {
+        const provider = new ethers.providers.Web3Provider(walletProvider);
+        const signer = provider.getSigner()    
+        const contract = new Contract(
+          "0x46a40D7CB5184CCF793bA2F9e69E6124B1731E15",[
+            `function claim(address _token) external`
+          ],
+          signer,
+        );
+        
+        await contract.claim(address.busd)
+      } catch (e) {      
+        return [undefined,undefined];
+      }
+    
+  };
+
   const data = {
     address_,
     buy,
@@ -196,7 +217,8 @@ const totalInvested = async () => {
     currentUserBalance,
     nextDates,
     withdrawData,
-    Claim
+    Claim,
+    Claim2
     
   };
 
