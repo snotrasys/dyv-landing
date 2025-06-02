@@ -74,15 +74,17 @@ function PresaleSwap() {
   }
 
 
-  const tokenData = [
-    { amount: "2,000,000,000,000,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
-    { amount: "3,000,000,000,000,000,000", allocation: "Ecosystem Development", percentage: "30%" },
-    { amount: "2,000,000,000,000,000,000", allocation: "Staking Rewards", percentage: "20%" },
-    { amount: "1,000,000,000,000,000,000", allocation: "DEX Liquidity", percentage: "10%" },
-    { amount: "1,000,000,000,000,000,000", allocation: "CEX Listings", percentage: "10%" },
-    { amount: "500,000,000,000,000,000", allocation: "Marketing", percentage: "5%" },
-    { amount: "500,000,000,000,000,000", allocation: "Development", percentage: "5%" }
-  ];
+
+const tokenData = [
+    { amount: "200,000,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
+    { amount: "300,000,000,000", allocation: "Ecosystem Development", percentage: "30%" },
+    { amount: "200,000,000,000", allocation: "Staking Rewards", percentage: "20%" },
+    { amount: "100,000,000,000", allocation: "DEX Liquidity", percentage: "10%" },
+    { amount: "100,000,000,000", allocation: "CEX Listings", percentage: "10%" },
+    { amount: "50,000,000,000", allocation: "Marketing", percentage: "5%" },
+    { amount: "50,000,000,000", allocation: "Development", percentage: "5%" }
+];
+
 
 
   function isInControlPanel(address) {
@@ -428,9 +430,12 @@ function PresaleSwap() {
             <div className="rounded-xl bg-blue-900/20 p-4 text-center backdrop-blur-sm">
               <div className="text-sm text-blue-300/80">Your Tokens</div>
               <div className="text-lg font-semibold text-blue-100">
-                {userData?.tokenAmount ? 
-                  Number(userData.tokenAmount).toLocaleString('en-US', {maximumFractionDigits: 0}) : 
-                  '0'} D&V
+           <div className="text-lg font-semibold text-blue-100">
+  {userData?.tokenAmount ? 
+    Number(userData.tokenAmount > 0 ? userData.tokenAmount / 10000000000 : userData.tokenAmount)
+      .toLocaleString('en-US', {maximumFractionDigits: 0}) : 
+    '0'} D&V
+</div>
               </div>
             </div>
           </div>
