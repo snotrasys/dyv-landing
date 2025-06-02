@@ -70,7 +70,7 @@ function PresaleSwap() {
   }
 
   function calculateTokens(usdcAmount) {
-    return usdcAmount * 500000000000;
+    return usdcAmount * 50;
   }
 
 
@@ -523,7 +523,7 @@ function PresaleSwap() {
         <div className="px-4 pb-4 space-y-4">
           <div className="bg-[#0a1428] rounded-lg p-4">
             <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
-            <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 10,000,000,000,000,000,000</p>
+            <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 1.000.000.000</p>
             <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
             
             {/* Cabecera responsiva */}
