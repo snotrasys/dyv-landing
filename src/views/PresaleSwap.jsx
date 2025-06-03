@@ -76,13 +76,13 @@ function PresaleSwap() {
 
 
 const tokenData = [
-    { amount: "200,000,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
-    { amount: "300,000,000,000", allocation: "Ecosystem Development", percentage: "30%" },
-    { amount: "200,000,000,000", allocation: "Staking Rewards", percentage: "20%" },
-    { amount: "100,000,000,000", allocation: "DEX Liquidity", percentage: "10%" },
-    { amount: "100,000,000,000", allocation: "CEX Listings", percentage: "10%" },
-    { amount: "50,000,000,000", allocation: "Marketing", percentage: "5%" },
-    { amount: "50,000,000,000", allocation: "Development", percentage: "5%" }
+    { amount: "200,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
+    { amount: "300,000,000", allocation: "Ecosystem Development", percentage: "30%" },
+    { amount: "200,000,000", allocation: "Staking Rewards", percentage: "20%" },
+    { amount: "100,000,000", allocation: "DEX Liquidity", percentage: "10%" },
+    { amount: "100,000,000", allocation: "CEX Listings", percentage: "10%" },
+    { amount: "50,000,000", allocation: "Marketing", percentage: "5%" },
+    { amount: "50,000,000", allocation: "Development", percentage: "5%" }
 ];
 
 
