@@ -119,7 +119,7 @@ const tokenData = [
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-blue-200/70">Price</p>
-                <p className="font-medium text-blue-100">0.000000000002 USDC</p>
+                <p className="font-medium text-blue-100">0.02 USDC</p>
               </div>
               <div>
                 <p className="text-blue-200/70">Network</p>
@@ -480,7 +480,7 @@ const tokenData = [
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Listing Price:</span>
                 </div>
-                <div className="font-semibold text-blue-100">0.0000000000033 USDC</div>
+                <div className="font-semibold text-blue-100">0.033 USDC</div>
               </div>
               
               <div className="flex justify-between items-center">
