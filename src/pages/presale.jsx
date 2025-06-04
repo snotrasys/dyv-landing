@@ -9,7 +9,7 @@ function Private() {
   return (
     <Layout>
       <SwapProvider>
-        <div className="mx-auto pt-12 px-4 grid max-w-7xl items-center lg:pt-16 lg:grid-cols-2">
+        <div className="mx-auto pt-12 px-4 lg:grid max-w-7xl items-center lg:pt-16 lg:grid-cols-2">
           <div className="relative flex flex-col items-center lg:mt-0 mt-20">
             {/* Logo and title with animations */}
             <motion.div 
