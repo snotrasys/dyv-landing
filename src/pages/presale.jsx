@@ -155,7 +155,7 @@ function Private() {
           
           {/* Swap component */}
           <motion.div 
-            className="mb-16 mt-8 sm:mt-10"
+            className="pb-16 mt-8 sm:pt-10"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
