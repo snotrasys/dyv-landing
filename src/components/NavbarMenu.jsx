@@ -25,7 +25,7 @@ const NavbarMenu = () => {
   const ecosystemSection = [
     { imgSrc: "/icons/card.png", text: "D&V Card", href: "https://card.dyvgroup.io/", type: "redirect" },
     { imgSrc: "/icons/habi.png", text: "Habi", href: "https://habi.dyvgroup.io/", type: "redirect" },
-    { imgSrc: "/icons/solar.png", text: "Solar", href: "/", type: "redirect", comingSoon: true },
+    { imgSrc: "/icons/solar.png", text: "Solar", href: "https://solar.dyvgroup.io/", type: "redirect", },
     { imgSrc: "/icons/lend.png", text: "D&V Lend", href: "/lend", type: "redirect", comingSoon: true },
   ];
 
