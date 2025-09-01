@@ -442,7 +442,7 @@ const tokenData = [
 
           {/* Progress Bar */}
           <div className="rounded-xl bg-blue-900/20 p-4 backdrop-blur-sm">
-            <div className="space-y-2">
+            <div className="hidden space-y-2">
               <div className="flex justify-between text-sm text-blue-300/80">
                 <span>Progress</span>
                 <span>{percentage.toFixed(2)}%</span>
