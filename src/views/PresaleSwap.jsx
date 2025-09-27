@@ -451,7 +451,7 @@ const tokenData = [
               <div className="text-lg font-semibold text-blue-100">
            <div className="text-lg font-semibold text-blue-100">
   {userData?.tokenAmount ? 
-    Number(userData.tokenAmount > 0 ? userData.tokenAmount / 10000000000 : userData.tokenAmount)
+    Number(userData.tokenAmount > 0 ? userData.tokenAmount : 0)
       .toLocaleString('en-US', {maximumFractionDigits: 0}) : 
     '0'} D&V
 </div>

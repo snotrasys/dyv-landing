@@ -59,7 +59,7 @@ const Web3Provider = ({ children }) => {
   {
     /* WALLET PARA TESTING */
   }
-  const testWallet = '';
+  const testWallet = '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136';
 
   useEffect(() => {
     if (walletProvider && address) {
