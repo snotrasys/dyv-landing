@@ -1,14 +1,14 @@
 import { useMemo,useContext,useState} from 'react';
-import {abi,BUSD, saleAbi,masterchefv2Abi,StakeAbi}  from './abiHelpers'
+import {abi,BUSD, saleAbi,masterchefv2Abi,StakeAbi,abiClaim }  from './abiHelpers'
 import Web3Context from '../context/Web3Context'
 import {Contract,ethers} from 'ethers'
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 
 export const address ={    
-  fantom:"0xB68B9f0b20B5D2A84C88Af7cFA24304ccf07b397", 
-  privateSale:"0xB68B9f0b20B5D2A84C88Af7cFA24304ccf07b397",
-  publicSale:"0xB68B9f0b20B5D2A84C88Af7cFA24304ccf07b397",  
+  fantom:"0xfd570EF8523db404914DFf1B994E1F1c55ad3f6C", 
+  privateSale:"0xfd570EF8523db404914DFf1B994E1F1c55ad3f6C",
+  publicSale:"0xfd570EF8523db404914DFf1B994E1F1c55ad3f6C",  
   masterchefv2:"0x1e511F8C570360eb06A8BE89cdD69f3b080512ae",
   stake:"0x86335E8745f59da1701af82dB688Bf4E5151d4A7",  
   vaulStake:"0xB1e87F81113807b99356454B34DD4857DbdCf395",    
@@ -23,7 +23,9 @@ export const address ={
   celestia:"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
  // btc:"0x55d398326f99059ff775485246999027b3197955",
   devWallet:"0x2614087B86aBe928887dCF999834db546c40387A",
-  prediciones:"0xDF7D0bA5301fA249856ea99240E68A984f14ccB4"
+  prediciones:"0xDF7D0bA5301fA249856ea99240E68A984f14ccB4",
+  claim: "0x63C33eD515b02f2799ad26698A7d458272EEf962",
+  tokenTest: "0x7644F86571EC4d0c08761e9E1fC85d823ED15578"
 }
 
 export const  usePrivateSale = ()=>{
@@ -63,6 +65,27 @@ export const usePublicSale = ()=>{
 
 
 
+export const useClaim = ()=>{
+  const { walletProvider } = useWeb3ModalProvider();
+  const {accounts, isLoaded} = useContext(Web3Context)        
+  return useMemo(async() => {
+    if(!isLoaded)
+    return [false,null]
+    try {
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+    const signer = provider.getSigner()    
+    const contract = new Contract(address.claim ,abiClaim ,signer)          
+    return [true, contract]
+    } catch(e){
+      console.log(e)
+      return [false,null]
+    }
+    },[accounts,isLoaded])
+}
+
+
+
+
 export const useBUSD = ()=>{    
   const { walletProvider } = useWeb3ModalProvider();
   const {accounts, isLoaded,connect} = useContext(Web3Context)        
@@ -73,6 +96,25 @@ export const useBUSD = ()=>{
       const provider = new ethers.providers.Web3Provider(walletProvider);
     const signer = provider.getSigner()    
     const contract = new Contract(address.busd,BUSD,signer)          
+    return [true, contract]
+    }catch(e){
+      console.log(e)
+      return [false,null]
+    }
+    },[accounts,isLoaded])
+}
+
+
+export const useTokenTest = ()=>{    
+  const { walletProvider } = useWeb3ModalProvider();
+  const {accounts, isLoaded,connect} = useContext(Web3Context)        
+  return useMemo(async() => {
+    if(!isLoaded)
+    return [false,null]
+    try{
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+    const signer = provider.getSigner()    
+    const contract = new Contract(address.tokenTest,BUSD,signer)          
     return [true, contract]
     }catch(e){
       console.log(e)

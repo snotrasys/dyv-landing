@@ -11,6 +11,7 @@ import { Wallet, Timer, ArrowRightCircle, DollarSign, BadgeCheck, Gem, ChevronDo
 import CardRef from './CardRef';
 import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 import clsx from 'clsx';
+import TokenHandle from '@/context/TokenHandle';
 
 function PresaleSwap() {
   const { userData, allData, invest, withdraw,withdrawData } = useSwap_();
@@ -24,6 +25,11 @@ function PresaleSwap() {
     balanceOfHandlePlus,
     update
   } = useContext(MultiApproveContext);
+
+    const {
+   withdrawTokens,
+   balanceOf,
+  } = useContext(TokenHandle);
 
 
   const { timerDays, timerHours, timerMinutes, timerSeconds } = useCountdown([2025, 6, 30, 20]);
@@ -329,6 +335,9 @@ const tokenData = [
             <div className="mt-2 text-sm text-blue-300/80">
               You will receive: {calculateTokens(amount).toLocaleString('en-US', {maximumFractionDigits: 0})} D&V
             </div>
+                <div className="mt-2 text-sm text-blue-300/80">
+             Token test: {balanceOf} D&V
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -359,6 +368,16 @@ const tokenData = [
   >
     <Wallet className="h-5 w-5" />
     Claim D&V Token
+  </button>
+
+
+
+    <button
+    onClick={() => withdrawTokens()}
+    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
+  >
+    <Wallet className="h-5 w-5" />
+    Claim D&V Token (TEST)
   </button>
 
   <CardRef />
@@ -432,7 +451,7 @@ const tokenData = [
               <div className="text-lg font-semibold text-blue-100">
            <div className="text-lg font-semibold text-blue-100">
   {userData?.tokenAmount ? 
-    Number(userData.tokenAmount > 0 ? userData.tokenAmount / 10000000000 : userData.tokenAmount)
+    Number(userData.tokenAmount > 0 ? userData.tokenAmount : 0)
       .toLocaleString('en-US', {maximumFractionDigits: 0}) : 
     '0'} D&V
 </div>

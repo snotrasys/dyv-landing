@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import Web3Context from './Web3Context';
-import { address, useContract, useBUSD } from '../hooks/useContracts.js';
+import { address, useContract, useBUSD, useClaim, useTokenTest } from '../hooks/useContracts.js';
 import { BigNumber, constants, ethers, utils } from 'ethers';
 
 import { toast } from 'react-hot-toast';
@@ -85,6 +85,8 @@ const TokenProvider = ({ children }) => {
   const fANTOM = useContract();
   const Token = useBUSD();
   const Stake = UseStake();
+  const useClaimVesting = useClaim()
+  const TokenClaim = useTokenTest()
 
   useEffect(() => {
     // fetch('https://api.coingecko.com/api/v3/coins/polkadot')
@@ -110,6 +112,49 @@ const TokenProvider = ({ children }) => {
     }
   };
 
+
+  const balanceOfHandle = async () => {
+    if (
+      !isLoaded &&
+      accounts != '000000000000000000000000000000000000000000000'
+    )
+      return;
+    const [load, contract] = await TokenClaim;
+    if (!load) return;
+
+    let balance_ = await contract.balanceOf(accounts);
+    balance_ = Number(ethers.utils.formatEther(balance_)).toFixed(3);
+    setbalanceOf_(balance_);
+  };
+
+
+ const withdrawTokens = async () => {
+  if (
+    !isLoaded &&
+    accounts != '000000000000000000000000000000000000000000000'
+  )
+    return;
+
+  try { 
+    const [load, contract] = await useClaimVesting; 
+    if (!load) return;
+
+    const res = await contract.withdrawTokens();
+    toast.success('withdrawTokens successfully');
+
+    res.wait().then((value) => {
+      updateHandle();
+    });
+  } catch (err) {
+    console.log(err, 'setWhitelist error');
+
+    if (err?.error?.data != undefined) toast.error(err.error.data.message);
+    else toast.error(err.message);
+  }
+};
+
+
+
   useEffect(() => {
     if (!isLoaded) return;
     // getPublicData();
@@ -117,7 +162,7 @@ const TokenProvider = ({ children }) => {
     // // balanceOfETH()
     // getUserWalletData();
 
-    // balanceOfHandle();
+    balanceOfHandle();
     // // getUserDataDeposit();
     // allowanceHandle();
     return () => {};
@@ -132,19 +177,7 @@ const TokenProvider = ({ children }) => {
     setid(id_);
   };
 
-  const balanceOfHandle = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    const [load, contract] = await Token;
-    if (!load) return;
 
-    let balance_ = await contract.balanceOf(accounts);
-    balance_ = Number(ethers.utils.formatEther(balance_)).toFixed(3);
-    setbalanceOf_(balance_);
-  };
 
   const balanceOfETH = async () => {
     if (
@@ -532,7 +565,8 @@ const TokenProvider = ({ children }) => {
     harvest,
     setpool_,
     pool_,
-    payBonus
+    payBonus,
+    withdrawTokens,
   };
 
   return (
