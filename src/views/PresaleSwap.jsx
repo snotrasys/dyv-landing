@@ -374,7 +374,7 @@ const tokenData = [
 
     <button
     onClick={() => withdrawTokens()}
-    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
+    className="hidden flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
   >
     <Wallet className="h-5 w-5" />
     Claim D&V Token (TEST)
