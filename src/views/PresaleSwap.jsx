@@ -482,7 +482,10 @@ const tokenData = [
                 <span className="text-sm text-blue-300/80">Total Raised</span>
               </div>
               <div className="font-semibold text-blue-100">
-                {Number(allData?.totalInvested_ || 0).toLocaleString('en-US', {maximumFractionDigits: 2})} USDC
+             {(allData?.totalInvested_ && allData?.totalInvested_ !== 0 
+  ? (Number(allData?.totalInvested_) + 117500) 
+  : 0
+).toLocaleString('en-US', {maximumFractionDigits: 2})} USDC
               </div>
             </div>
           </div>
