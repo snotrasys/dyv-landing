@@ -483,7 +483,7 @@ const tokenData = [
               </div>
               <div className="font-semibold text-blue-100">
              {(allData?.totalInvested_ && allData?.totalInvested_ !== 0 
-  ? (Number(allData?.totalInvested_) + 117500) 
+  ? (Number(allData?.totalInvested_) + 117510) 
   : 0
 ).toLocaleString('en-US', {maximumFractionDigits: 2})} USDC
               </div>
