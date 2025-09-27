@@ -335,9 +335,7 @@ const tokenData = [
             <div className="mt-2 text-sm text-blue-300/80">
               You will receive: {calculateTokens(amount).toLocaleString('en-US', {maximumFractionDigits: 0})} D&V
             </div>
-                <div className="mt-2 text-sm text-blue-300/80">
-             Token test: {balanceOf} D&V
-            </div>
+                
           </div>
 
           {/* Action Buttons */}
