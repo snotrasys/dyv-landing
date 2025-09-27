@@ -56,7 +56,7 @@ const updateHandle = () => {
     
     let balance_ = await contract.balanceOf(accounts);
     let decimals = await contract.decimals();
-    balance_ = Number(ethers.utils.formatUnits(balance_,decimals)).toFixed(3);
+    balance_ = Number(ethers.utils.formatUnits(balance_,decimals)).toFixed(2);
     // console.log(balance_, 'balance_');
     setbalanceOf_(balance_);
   };
