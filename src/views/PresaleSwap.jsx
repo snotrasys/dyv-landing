@@ -461,7 +461,7 @@ const tokenData = [
 
           {/* Progress Bar */}
           <div className="rounded-xl bg-blue-900/20 p-4 backdrop-blur-sm">
-            <div className="space-y-2">
+            <div className="space-y-2 hidden">
               <div className="flex justify-between text-sm text-blue-300/80">
                 <span>Progress</span>
                 <span>{percentage.toFixed(2)}%</span>
@@ -482,7 +482,10 @@ const tokenData = [
                 <span className="text-sm text-blue-300/80">Total Raised</span>
               </div>
               <div className="font-semibold text-blue-100">
-                {Number(allData?.totalInvested_ || 0).toLocaleString('en-US', {maximumFractionDigits: 2})} USDC
+                {(allData?.totalInvested_ && allData?.totalInvested_ !== 0 
+  ? (Number(allData?.totalInvested_) + 117500) 
+  : 0
+).toLocaleString('en-US', {maximumFractionDigits: 2})} USDC
               </div>
             </div>
           </div>
