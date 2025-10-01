@@ -1,5 +1,5 @@
 import { useMemo,useContext,useState} from 'react';
-import {abi,BUSD, saleAbi,masterchefv2Abi,StakeAbi,abiClaim }  from './abiHelpers'
+import {abi,BUSD, saleAbi,masterchefv2Abi,StakeAbi,abiClaim, abiStake }  from './abiHelpers'
 import Web3Context from '../context/Web3Context'
 import {Contract,ethers} from 'ethers'
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
@@ -15,6 +15,8 @@ export const address ={
   Biotic:"0xdBC66111bC6721C3409Bda429496e37aaC6ef273",
   ximbia:"0xdBC66111bC6721C3409Bda429496e37aaC6ef273",
   ximbia2:"0xdBC66111bC6721C3409Bda429496e37aaC6ef273",
+  tokenTest: "0xCF57BFA1d506DcC4e68621cBF9a235D5b1B94e0c",
+  stakeRoi: "0x178fDf6C30cF488f244d3580236302d944514330",
   
   busd:"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   btc:"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -82,6 +84,25 @@ export const useClaim = ()=>{
     }
     },[accounts,isLoaded])
 }
+
+export const useStakeRoi = ()=>{
+  const { walletProvider } = useWeb3ModalProvider();
+  const {accounts, isLoaded} = useContext(Web3Context)        
+  return useMemo(async() => {
+    if(!isLoaded)
+    return [false,null]
+    try {
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+    const signer = provider.getSigner()    
+    const contract = new Contract(address.stakeRoi ,abiStake ,signer)          
+    return [true, contract]
+    } catch(e){
+      console.log(e)
+      return [false,null]
+    }
+    },[accounts,isLoaded])
+}
+
 
 
 

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import Web3Context from './Web3Context';
-import { address, useContract, useBUSD, useClaim, useTokenTest } from '../hooks/useContracts.js';
+import { address, useContract, useBUSD, useClaim, useTokenTest, useStakeRoi } from '../hooks/useContracts.js';
 import { BigNumber, constants, ethers, utils } from 'ethers';
 
 import { toast } from 'react-hot-toast';
@@ -67,6 +67,7 @@ const TokenProvider = ({ children }) => {
   const [isApprove, setisApprove] = useState(false);
   const [userWalletData, setuserWalletData] = useState([]);
   const history = useRouter();
+    const [rewards, setRewards] = useState(0);
   // const { isSpinnerShown, spinnerMessage, showSpinner, hideSpinner } =
   // useSpinner();
 
@@ -87,6 +88,8 @@ const TokenProvider = ({ children }) => {
   const Stake = UseStake();
   const useClaimVesting = useClaim()
   const TokenClaim = useTokenTest()
+  const StakeRoi = useStakeRoi();
+  
 
   useEffect(() => {
     // fetch('https://api.coingecko.com/api/v3/coins/polkadot')
@@ -97,20 +100,51 @@ const TokenProvider = ({ children }) => {
     //   });
   }, []);
 
-  const getUserWalletData = async () => {
+  const getRewardByWallet = async () => {
     if (!isLoaded) return;
     try {
-      const [load, contract] = await fANTOM;
+      const [load, contract] = await StakeRoi;
       if (!load) {
         return;
       }
 
-      const data = await contract.getUserWithdrawData();
-      setuserWalletData(data);
+      const data = await contract.getRewardByWallet(accounts);
+     const rewards_ = parse6Decimals(data)
+     setRewards(rewards_)
+
+      console.log(rewards_ ,"getRewardByWallet")
     } catch (error) {
       console.log(error);
     }
   };
+
+
+
+ const withdrawRewards = async () => {
+  if (
+    !isLoaded &&
+    accounts != '000000000000000000000000000000000000000000000'
+  )
+    return;
+
+  try { 
+    const [load, contract] = await StakeRoi; 
+    if (!load) return;
+
+    const res = await contract.withdrawRewards();
+    toast.success('withdrawTokens successfully');
+
+    res.wait().then((value) => {
+      updateHandle();
+    });
+  } catch (err) {
+    console.log(err, 'withdrawRewards error');
+
+    if (err?.error?.data != undefined) toast.error(err.error.data.message);
+    else toast.error(err.message);
+  }
+};
+
 
 
   const balanceOfHandle = async () => {
@@ -567,6 +601,9 @@ const TokenProvider = ({ children }) => {
     pool_,
     payBonus,
     withdrawTokens,
+    getRewardByWallet,
+    withdrawRewards,
+    rewards,
   };
 
   return (
@@ -576,3 +613,8 @@ const TokenProvider = ({ children }) => {
 
 export { TokenProvider };
 export default TonkenContext;
+
+
+const parse6Decimals = (value) => {
+  return Number(ethers.utils.formatUnits(value, 6)).toFixed(2);
+};
