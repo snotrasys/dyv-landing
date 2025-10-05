@@ -61,7 +61,7 @@ function StakingComponent() {
           <div className="flex items-center justify-center gap-3 mb-2">
             <img src="/logo.png" alt="D&V Token" className="h-10 w-10" />
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-200">
-              D&V Stake
+              D&V Blessing
             </h1>
           </div>
           <p className="text-blue-300/70 text-sm">Earn rewards by holding D&V tokens</p>
@@ -109,8 +109,12 @@ function StakingComponent() {
                 <p className="font-medium text-blue-100 text-xl">1%</p>
               </div>
               <div>
+                <p className="text-blue-200/70">Total Blessing</p>
+                <p className="font-medium text-blue-100">15.000 DYV</p>
+              </div>
+                <div>
                 <p className="text-blue-200/70">Total Claim</p>
-                <p className="font-medium text-blue-100">{userRoi.withdrawn_}</p>
+                <p className="font-medium text-blue-100">{userRoi.withdrawn_} DYV</p>
               </div>
             </div>
           </div>
