@@ -108,10 +108,12 @@ function StakingComponent() {
                 <p className="text-blue-200/70">Daily ROI</p>
                 <p className="font-medium text-blue-100 text-xl">1%</p>
               </div>
+              {(rewards > 0 || userRoi.withdrawn_ > 0) && (
               <div>
                 <p className="text-blue-200/70">Total Blessing</p>
                 <p className="font-medium text-blue-100">15.000 DYV</p>
               </div>
+              )}
                 <div>
                 <p className="text-blue-200/70">Total Claim</p>
                 <p className="font-medium text-blue-100">{userRoi.withdrawn_} DYV</p>
