@@ -66,6 +66,9 @@ const TokenProvider = ({ children }) => {
   const [balanceOf, setbalanceOf_] = useState(0);
   const [isApprove, setisApprove] = useState(false);
   const [userWalletData, setuserWalletData] = useState([]);
+    const [userRoi, setuserRoi] = useState({
+      withdrawn_: 0,
+    });
   const history = useRouter();
     const [rewards, setRewards] = useState(0);
   // const { isSpinnerShown, spinnerMessage, showSpinner, hideSpinner } =
@@ -92,13 +95,9 @@ const TokenProvider = ({ children }) => {
   
 
   useEffect(() => {
-    // fetch('https://api.coingecko.com/api/v3/coins/polkadot')
-    //   .then((res) => res.json())
-    //   .then((res) => {
-    //     // console.log(res.tickers[0].last.toFixed(2),"priocesss");
-    //     setBtcPrice(res.tickers[0].last.toFixed(2));
-    //   });
-  }, []);
+    getUser()
+ 
+  }, [accounts]);
 
   const getRewardByWallet = async () => {
     if (!isLoaded) return;
@@ -112,11 +111,30 @@ const TokenProvider = ({ children }) => {
      const rewards_ = parse6Decimals(data)
      setRewards(rewards_)
 
-      console.log(rewards_ ,"getRewardByWallet")
+    
     } catch (error) {
       console.log(error);
     }
   };
+
+
+const getUser = async () => {
+  if (!isLoaded) return;
+  try {
+    const [load, contract] = await StakeRoi;
+    if (!load) return;
+
+    const data = await contract.users(accounts);
+    
+    // No uses Object.assign con userData aquí
+    setuserRoi({
+      withdrawn_: parse6Decimals(data.withdraw)
+    });
+
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
 
@@ -604,6 +622,7 @@ const TokenProvider = ({ children }) => {
     getRewardByWallet,
     withdrawRewards,
     rewards,
+    userRoi,
   };
 
   return (

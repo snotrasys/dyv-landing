@@ -14,10 +14,11 @@ function StakingComponent() {
    getRewardByWallet,
    rewards,
    withdrawRewards,
+   userRoi,
   } = useContext(TokenHandle);
 
 
-  console.log(rewards,"rewards")
+
   useEffect(() => {
     if (isLoaded && accounts) {
       fetchRewards();
@@ -73,7 +74,7 @@ function StakingComponent() {
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-blue-300 flex items-center gap-2">
                 <Award className="h-5 w-5" />
-                Your Rewards
+                Your Blessings
               </h3>
               <TrendingUp className="h-5 w-5 text-green-400" />
             </div>
@@ -108,8 +109,8 @@ function StakingComponent() {
                 <p className="font-medium text-blue-100 text-xl">1%</p>
               </div>
               <div>
-                <p className="text-blue-200/70">Claim</p>
-                <p className="font-medium text-blue-100">Anytime</p>
+                <p className="text-blue-200/70">Total Claim</p>
+                <p className="font-medium text-blue-100">{userRoi.withdrawn_}</p>
               </div>
             </div>
           </div>
