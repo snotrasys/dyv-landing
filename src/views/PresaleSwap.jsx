@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import Web3Context from '@/context/Web3Context';
 import { motion } from 'framer-motion';
 import { BigNumber } from 'ethers';
-import { useCountdown } from '@/hooks/useCountdown';
+import { useCountdown, useCountdownV2 } from '@/hooks/useCountdown';
 import { useSPresale } from '@/context/PresaleHandle';
 import { useSwap_ } from '@/context/SwapHandle';
 import MultiApproveContext from '@/context/MultiApprove';
@@ -14,9 +14,9 @@ import clsx from 'clsx';
 import TokenHandle from '@/context/TokenHandle';
 
 function PresaleSwap() {
-  const { userData, allData, invest, withdraw,withdrawData } = useSwap_();
+  const { userData, allData, invest, withdraw, withdrawData } = useSwap_();
   const { accounts, isLoaded, connect } = useContext(Web3Context);
-  const { 
+  const {
     isApprove,
     currentBalance_,
     setchangeToken,
@@ -26,9 +26,9 @@ function PresaleSwap() {
     update
   } = useContext(MultiApproveContext);
 
-    const {
-   withdrawTokens,
-   balanceOf,
+  const {
+    withdrawTokens,
+    balanceOf,
   } = useContext(TokenHandle);
 
 
@@ -38,7 +38,8 @@ function PresaleSwap() {
   const [showTokenomics, setShowTokenomics] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
   const [percentage, setpercentage] = useState(0);
-  const [withdrawPercentage, setWithdrawPercentage] = useState(0); 
+  const [withdrawPercentage, setWithdrawPercentage] = useState(0);
+  const [isApproving, setIsApproving] = useState(false);
   const Presale = UsePresaleVesting();
 
   // useEffect(() => {
@@ -54,13 +55,19 @@ function PresaleSwap() {
   useEffect(() => {
     setRecaudacion(allData?.totalInvested_);
   }, [allData]);
+  const withdrawDataContext = useCountdownV2();
+
   useEffect(() => {
-    if(!isLoaded) return;
-    if(userData.tokenAmount==0);
-    const percentage = (userData.totalWithdrawn/ Number(userData.tokenAmount) ) * 100 ;
+    if (!isLoaded) return;
+    if (userData.tokenAmount == 0);
+    const percentage = (userData.totalWithdrawn / Number(userData.tokenAmount)) * 100;
     console.log(percentage, 'percentage');
     setWithdrawPercentage(percentage);
     // setpercentage(percentage);
+
+    if (userData.nextDatesRaw) {
+      withdrawDataContext.setDate(userData.nextDatesRaw);
+    }
   }, [userData]);
 
   useEffect(() => {
@@ -75,13 +82,28 @@ function PresaleSwap() {
     invest(amount_);
   }
 
+  async function handleApproveAndInvest() {
+    try {
+      setIsApproving(true);
+      const approved = await approveHandlePlus(undefined, address.privateSale);
+      if (approved) {
+        // Automatically invest once approved
+        buyToken(amount);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsApproving(false);
+    }
+  }
+
   function calculateTokens(usdcAmount) {
     return usdcAmount * 50;
   }
 
 
 
-const tokenData = [
+  const tokenData = [
     { amount: "200,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
     { amount: "300,000,000", allocation: "Ecosystem Development", percentage: "30%" },
     { amount: "200,000,000", allocation: "Staking Rewards", percentage: "20%" },
@@ -89,19 +111,19 @@ const tokenData = [
     { amount: "100,000,000", allocation: "CEX Listings", percentage: "10%" },
     { amount: "50,000,000", allocation: "Marketing", percentage: "5%" },
     { amount: "50,000,000", allocation: "Development", percentage: "5%" }
-];
+  ];
 
 
 
   function isInControlPanel(address) {
     const res = [
-  '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136'
+      '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136'
     ].some((item) => item?.toLowerCase() === address?.toLowerCase());
     // console.log('ControlPanel', address, res);
     return res;
   }
 
-  
+
 
   return (
     <div className="flex justify-center p-1">
@@ -111,8 +133,8 @@ const tokenData = [
           <div className="flex items-center justify-center gap-3">
             <img src="/logo.png" alt="D&V Token" className="h-10 w-10" />
           </div>
-          
-     
+
+
         </div>
 
         {/* Presale Info Card */}
@@ -158,22 +180,22 @@ const tokenData = [
               <h3 className="text-md font-semibold text-blue-300">Token Withdrawal Progress</h3>
               <Wallet className="h-5 w-5 text-blue-400" />
             </div>
-            
+
             <div className="space-y-3">
               <div className="flex justify-between text-sm text-blue-300/80">
                 <span>Vesting Progress</span>
                 <span>{withdrawPercentage}% Released</span>
               </div>
-              
+
               <div className="h-6 overflow-hidden rounded-full bg-[#0a1428] border border-blue-900/30 relative">
                 {/* Marcadores en 33% y 66% */}
                 <div className="absolute h-full w-px bg-blue-200 left-1/3 z-10"></div>
                 <div className="absolute h-full w-px bg-blue-200 left-2/3 z-10"></div>
-                
+
                 {/* Pequeños textos encima de los marcadores */}
                 <div className="absolute -top-5 left-1/3 transform -translate-x-1/2 text-xs text-blue-300">33%</div>
                 <div className="absolute -top-5 left-2/3 transform -translate-x-1/2 text-xs text-blue-300">66%</div>
-                
+
                 <motion.div
                   initial={{ width: '0%' }}
                   animate={{ width: `${withdrawPercentage}%` }}
@@ -185,7 +207,7 @@ const tokenData = [
                   )}
                 </motion.div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="rounded-lg bg-blue-900/30 p-3">
                   <div className="text-sm text-blue-300/80">Available for Withdrawn</div>
@@ -193,7 +215,7 @@ const tokenData = [
                     {userData.currentUserBalance} D&V
                   </div>
                 </div>
-                
+
                 <div className="rounded-lg bg-blue-900/30 p-3">
                   <div className="text-sm text-blue-300/80">Total Withdraw</div>
                   <div className="font-semibold text-blue-100">
@@ -208,7 +230,7 @@ const tokenData = [
         {/* Rewards Section */}
         <div className="mx-6 mb-6">
           <div className="rounded-xl bg-blue-900/20 overflow-hidden backdrop-blur-sm">
-            <button 
+            <button
               onClick={() => setShowRewards(!showRewards)}
               className="flex w-full items-center justify-between p-4 text-left"
             >
@@ -216,12 +238,12 @@ const tokenData = [
                 <Coins className="h-5 w-5 text-blue-400" />
                 <span className="font-medium text-blue-100">HISTORICAL REWARDS</span>
               </div>
-              {showRewards ? 
-                <ChevronUp className="h-5 w-5 text-blue-400" /> : 
+              {showRewards ?
+                <ChevronUp className="h-5 w-5 text-blue-400" /> :
                 <ChevronDown className="h-5 w-5 text-blue-400" />
               }
             </button>
-            
+
             {showRewards && (
               <div className="px-4 pb-4 space-y-4">
                 {/* Historical Rewards - Replicando exactamente la imagen */}
@@ -229,45 +251,45 @@ const tokenData = [
                   <div className="mb-2 font-medium text-gray-400">
                     HISTORICAL REWARDS - TOTAL {userData.totalWithdrawn} D&V
                   </div>
-                 {withdrawData.length > 0 && withdrawData.map((item, index) => (
-                    
-                  <div className="mb-2 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-100 font-medium">ID { index +1} -</span>
-                      <div className="flex items-center">
-                        <div className="h-5 w-5 flex items-center justify-center">
-                          <img src="/dyv.png" alt="D&V Token" className="h-5 w-5" />
-                        </div>
-                        <span className="ml-1 text-blue-100">{item.tokenAmount}</span>
-                      </div>
-                    </div>
-                    <div className="text-gray-400 flex items-center">
-                      {item.date}
-                      <span className="ml-1 text-blue-500">↗</span>
-                    </div>
-                  </div>)
+                  {withdrawData.length > 0 && withdrawData.map((item, index) => (
 
-                )}
-                  
-                 
-                  
-                  
+                    <div className="mb-2 flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-blue-100 font-medium">ID {index + 1} -</span>
+                        <div className="flex items-center">
+                          <div className="h-5 w-5 flex items-center justify-center">
+                            <img src="/dyv.png" alt="D&V Token" className="h-5 w-5" />
+                          </div>
+                          <span className="ml-1 text-blue-100">{item.tokenAmount}</span>
+                        </div>
+                      </div>
+                      <div className="text-gray-400 flex items-center">
+                        {item.date}
+                        <span className="ml-1 text-blue-500">↗</span>
+                      </div>
+                    </div>)
+
+                  )}
+
+
+
+
                 </div>
-                
-                
-                
+
+
+
                 {/* Sección para Historial de Liberación */}
-                <div className={clsx(userData?.nextDates.length==0?"hidden":"bg-[#0a1428] rounded-lg p-4",
+                <div className={clsx(userData?.nextDates.length == 0 ? "hidden" : "bg-[#0a1428] rounded-lg p-4",
                 )
                 }>
                   <div className="mb-2 font-medium text-blue-300 flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     HISTORIAL DE LIBERACIÓN
                   </div>
-                  
+
                   <div className="relative mt-6 mb-20">
                     <div className="h-1 bg-blue-900 absolute w-full top-2"></div>
-                    
+
                     {/* Primer punto (33%) */}
                     <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
                       <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
@@ -276,9 +298,9 @@ const tokenData = [
                       <div className="mt-2 text-xs text-blue-300">{userData?.nextDates[1]}</div>
                       <div className="text-xs text-blue-100">66%</div>
                     </div>
-                    
-                  
-                    
+
+
+
                     {/* Tercer punto (100%) */}
                     <div className="absolute right-0 flex flex-col items-center">
                       <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
@@ -287,7 +309,7 @@ const tokenData = [
                       <div className="mt-2 text-xs text-blue-300">[{userData?.nextDates[2]}]</div>
                       <div className="text-xs text-blue-100">100%</div>
                     </div>
-                    
+
                     {/* Punto inicial (0%) */}
                     <div className="absolute left-0 flex flex-col items-center">
                       <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
@@ -333,108 +355,120 @@ const tokenData = [
               Balance: {currentBalance_ || '0'} USDC
             </div>
             <div className="mt-2 text-sm text-blue-300/80">
-              You will receive: {calculateTokens(amount).toLocaleString('en-US', {maximumFractionDigits: 0})} D&V
+              You will receive: {calculateTokens(amount).toLocaleString('en-US', { maximumFractionDigits: 0 })} D&V
             </div>
-                
+
           </div>
 
           {/* Action Buttons */}
           <div className="space-y-4">
-  {/* Botón principal de compra/aprobación */}
-  {isApprove ? (
-    <button
-      onClick={() => buyToken(amount)}
-      className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 p-3 font-semibold text-white transition-all hover:from-indigo-700 hover:to-blue-600 shadow-lg"
-    >
-      <ArrowRightCircle className="h-5 w-5" />
-      Buy D&V Token
-    </button>
-  ) : (
-    <button
-      onClick={() => approveHandlePlus(undefined, address.privateSale)}
-      className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 p-3 font-semibold text-white transition-all hover:from-purple-600 hover:to-indigo-600 shadow-lg"
-    >
-      <BadgeCheck className="h-5 w-5" />
-      Approve USDC
-    </button>
-  )}
-  
-  {/* Botón de reclamación (destacado) */}
-  <button
-    onClick={() => withdraw()}
-    className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
-  >
-    <Wallet className="h-5 w-5" />
-    Claim D&V Token
-  </button>
+            {/* Botón principal de compra/aprobación */}
+            {isApprove ? (
+              <button
+                onClick={() => buyToken(amount)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 p-3 font-semibold text-white transition-all hover:from-indigo-700 hover:to-blue-600 shadow-lg"
+              >
+                <ArrowRightCircle className="h-5 w-5" />
+                Buy D&V Token
+              </button>
+            ) : (
+              <button
+                onClick={handleApproveAndInvest}
+                disabled={isApproving}
+                className={clsx(
+                  "flex w-full items-center justify-center gap-2 rounded-lg p-3 font-semibold text-white transition-all shadow-lg",
+                  !isApproving ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600" : "bg-gray-600 cursor-wait opacity-80"
+                )}
+              >
+                {isApproving ? (
+                  <Clock className="h-5 w-5 animate-pulse" />
+                ) : (
+                  <BadgeCheck className="h-5 w-5" />
+                )}
+                {isApproving ? "Approving USDC..." : "Approve USDC"}
+              </button>
+            )}
+
+            {/* Botón de reclamación (destacado) */}
+            <button
+              onClick={() => withdraw()}
+              disabled={!withdrawDataContext.isNotActive}
+              className={clsx(
+                "flex w-full items-center justify-center gap-2 rounded-lg p-3 font-semibold text-white transition-all shadow-md",
+                !withdrawDataContext.isNotActive ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600" : "bg-gray-600 cursor-not-allowed opacity-70"
+              )}
+            >
+              <Wallet className="h-5 w-5" />
+              {!withdrawDataContext.isNotActive ? "Claim D&V Token" : `Claim available in ${withdrawDataContext.timeShow}`}
+            </button>
 
 
 
-    <button
-    onClick={() => withdrawTokens()}
-    className="hidden flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
-  >
-    <Wallet className="h-5 w-5" />
-    Claim D&V Token (TEST)
-  </button>
+            <button
+              onClick={() => withdrawTokens()}
+              className="hidden flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
+            >
+              <Wallet className="h-5 w-5" />
+              Claim D&V Token (TEST)
+            </button>
 
-  <CardRef />
-  
-  {/* Sección de controles administrativos */}
-  {
-    isInControlPanel(accounts) && (
-      <div className="mt-6 pt-4 border-t border-blue-800/30">
-      <h4 className="text-sm font-medium text-blue-300 mb-3">Admin Controls</h4>
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={() => Presale.start()}
-          className="flex items-center justify-center gap-2 rounded-lg bg-green-900/40 p-3 font-medium text-green-100 transition-all hover:bg-green-800/50 border border-green-700/30"
-        >
-          <ArrowRightCircle className="h-4 w-4 text-green-400" />
-          Start Sales
-        </button>
-        <button
-          onClick={() => Presale.stop()}
-          className="flex items-center justify-center gap-2 rounded-lg bg-red-900/40 p-3 font-medium text-red-100 transition-all hover:bg-red-800/50 border border-red-700/30"
-        >
-          <CheckCircle2 className="h-4 w-4 text-red-400" />
-          Stop Sales
-        </button>
-        <button
-          onClick={() => Presale.starTWithDrawHandle()}
-          className="flex items-center justify-center gap-2 rounded-lg bg-amber-900/40 p-3 font-medium text-amber-100 transition-all hover:bg-amber-800/50 border border-amber-700/30"
-        >
-          <DollarSign className="h-4 w-4 text-amber-400" />
-          Start Withdrawals
-        </button>
-        <button
-          onClick={() => Presale.stopWithDraw()}
-          className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
-        >
-          <Timer className="h-4 w-4 text-orange-400" />
-          Stop Withdrawals
-        </button>
-        <button
-        onClick={() => Presale.Claim()}
-        className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
-      >
-        <Timer className="h-4 w-4 text-orange-400" />
-        Claim Fee
-      </button>
+            <CardRef />
 
-       <button
-        onClick={() => Presale.Claim2()}
-        className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
-      >
-        <Timer className="h-4 w-4 text-orange-400" />
-        Claim Fee 2
-      </button>
-      </div>
-    </div>
-    )
-  }
+            {/* Sección de controles administrativos */}
+            {
+              isInControlPanel(accounts) && (
+                <div className="mt-6 pt-4 border-t border-blue-800/30">
+                  <h4 className="text-sm font-medium text-blue-300 mb-3">Admin Controls</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => Presale.start()}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-green-900/40 p-3 font-medium text-green-100 transition-all hover:bg-green-800/50 border border-green-700/30"
+                    >
+                      <ArrowRightCircle className="h-4 w-4 text-green-400" />
+                      Start Sales
+                    </button>
+                    <button
+                      onClick={() => Presale.stop()}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-red-900/40 p-3 font-medium text-red-100 transition-all hover:bg-red-800/50 border border-red-700/30"
+                    >
+                      <CheckCircle2 className="h-4 w-4 text-red-400" />
+                      Stop Sales
+                    </button>
+                    <button
+                      onClick={() => Presale.starTWithDrawHandle()}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-amber-900/40 p-3 font-medium text-amber-100 transition-all hover:bg-amber-800/50 border border-amber-700/30"
+                    >
+                      <DollarSign className="h-4 w-4 text-amber-400" />
+                      Start Withdrawals
+                    </button>
+                    <button
+                      onClick={() => Presale.stopWithDraw()}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
+                    >
+                      <Timer className="h-4 w-4 text-orange-400" />
+                      Stop Withdrawals
+                    </button>
+                    <button
+                      onClick={() => Presale.Claim()}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
+                    >
+                      <Timer className="h-4 w-4 text-orange-400" />
+                      Claim Fee
+                    </button>
 
-</div>
+                    <button
+                      onClick={() => Presale.Claim2()}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
+                    >
+                      <Timer className="h-4 w-4 text-orange-400" />
+                      Claim Fee 2
+                    </button>
+                  </div>
+                </div>
+              )
+            }
+
+          </div>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
@@ -447,12 +481,12 @@ const tokenData = [
             <div className="rounded-xl bg-blue-900/20 p-4 text-center backdrop-blur-sm">
               <div className="text-sm text-blue-300/80">Your Tokens</div>
               <div className="text-lg font-semibold text-blue-100">
-           <div className="text-lg font-semibold text-blue-100">
-  {userData?.tokenAmount ? 
-    Number(userData.tokenAmount > 0 ? userData.tokenAmount : 0)
-      .toLocaleString('en-US', {maximumFractionDigits: 0}) : 
-    '0'} D&V
-</div>
+                <div className="text-lg font-semibold text-blue-100">
+                  {userData?.tokenAmount ?
+                    Number(userData.tokenAmount > 0 ? userData.tokenAmount : 0)
+                      .toLocaleString('en-US', { maximumFractionDigits: 0 }) :
+                    '0'} D&V
+                </div>
               </div>
             </div>
           </div>
@@ -480,10 +514,10 @@ const tokenData = [
                 <span className="text-sm text-blue-300/80">Total Raised</span>
               </div>
               <div className="font-semibold text-blue-100">
-     {(allData?.totalInvested_ && allData?.totalInvested_ !== 0 
-  ? (Number(allData?.totalInvested_) + 105740) 
-  : 0
-).toLocaleString('en-US', {maximumFractionDigits: 2})} USDC
+                {(allData?.totalInvested_ && allData?.totalInvested_ !== 0
+                  ? (Number(allData?.totalInvested_) + 105740)
+                  : 0
+                ).toLocaleString('en-US', { maximumFractionDigits: 2 })} USDC
               </div>
             </div>
           </div>
@@ -494,7 +528,7 @@ const tokenData = [
               <h3 className="text-md font-semibold text-blue-300">Listing Information</h3>
               <Globe className="h-5 w-5 text-blue-400" />
             </div>
-            
+
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
@@ -502,21 +536,21 @@ const tokenData = [
                 </div>
                 <div className="font-semibold text-blue-100">0.033 USDC</div>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Price Increase:</span>
                 </div>
                 <div className="font-semibold text-blue-100">+65%</div>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Initial Market Cap:</span>
                 </div>
                 <div className="font-semibold text-blue-100">20,000,000 USDC</div>
               </div>
-              
+
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">DEX:</span>
@@ -530,7 +564,7 @@ const tokenData = [
 
           {/* Tokenomics Section */}
           <div className="rounded-xl bg-blue-900/20 overflow-hidden backdrop-blur-sm">
-            <button 
+            <button
               onClick={() => setShowTokenomics(!showTokenomics)}
               className="flex w-full items-center justify-between p-4 text-left"
             >
@@ -538,37 +572,37 @@ const tokenData = [
                 <PieChart className="h-5 w-5 text-blue-400" />
                 <span className="font-medium text-blue-100">TOKENOMICS</span>
               </div>
-              {showTokenomics ? 
-                <ChevronUp className="h-5 w-5 text-blue-400" /> : 
+              {showTokenomics ?
+                <ChevronUp className="h-5 w-5 text-blue-400" /> :
                 <ChevronDown className="h-5 w-5 text-blue-400" />
               }
             </button>
-            
+
             {showTokenomics && (
-        <div className="px-4 pb-4 space-y-4">
-          <div className="bg-[#0a1428] rounded-lg p-4">
-            <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
-            <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 1.000.000.000</p>
-            <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
-            
-            {/* Cabecera responsiva */}
-            <div className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm mb-1">
-              <span className="sm:col-span-2 text-blue-300/80">Amount</span>
-              <span className="sm:col-span-2 text-blue-300/80">Allocation</span>
-              <span className="text-right text-blue-300/80">%</span>
-            </div>
-            
-            {/* Filas de datos */}
-            {tokenData.map((row, index) => (
-              <div key={index} className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm py-2 border-t border-blue-900/30">
-                <span className="sm:col-span-2 text-blue-100 truncate pr-1">{row.amount}</span>
-                <span className="sm:col-span-2 text-blue-200 pr-1">{row.allocation}</span>
-                <span className="text-right text-blue-100">{row.percentage}</span>
+              <div className="px-4 pb-4 space-y-4">
+                <div className="bg-[#0a1428] rounded-lg p-4">
+                  <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
+                  <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 1.000.000.000</p>
+                  <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
+
+                  {/* Cabecera responsiva */}
+                  <div className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm mb-1">
+                    <span className="sm:col-span-2 text-blue-300/80">Amount</span>
+                    <span className="sm:col-span-2 text-blue-300/80">Allocation</span>
+                    <span className="text-right text-blue-300/80">%</span>
+                  </div>
+
+                  {/* Filas de datos */}
+                  {tokenData.map((row, index) => (
+                    <div key={index} className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm py-2 border-t border-blue-900/30">
+                      <span className="sm:col-span-2 text-blue-100 truncate pr-1">{row.amount}</span>
+                      <span className="sm:col-span-2 text-blue-200 pr-1">{row.allocation}</span>
+                      <span className="text-right text-blue-100">{row.percentage}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            )}
           </div>
         </div>
       </div>
