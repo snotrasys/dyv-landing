@@ -1,50 +1,60 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Web3Context from '@/context/Web3Context';
-import { motion } from 'framer-motion';
-import { BigNumber } from 'ethers';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCountdown, useCountdownV2 } from '@/hooks/useCountdown';
-import { useSPresale } from '@/context/PresaleHandle';
 import { useSwap_ } from '@/context/SwapHandle';
 import MultiApproveContext from '@/context/MultiApprove';
 import { address } from '@/hooks/useContracts';
-import { Wallet, Timer, ArrowRightCircle, DollarSign, BadgeCheck, Gem, ChevronDown, ChevronUp, PieChart, Coins, CheckCircle2, Clock, Globe, User } from 'lucide-react';
+import {
+  Wallet, ArrowRightCircle, BadgeCheck, Coins, Clock,
+  ChevronDown, DollarSign, Timer, CheckCircle2,
+  RefreshCw, TrendingUp, Zap
+} from 'lucide-react';
 import CardRef from './CardRef';
 import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 import clsx from 'clsx';
 import TokenHandle from '@/context/TokenHandle';
 
-function PresaleSwap() {
+const DAILY_RATE = 1.5;
+const MIN_USD = 50;
+const MAX_USD = 2000;
+
+function fmt(n, dec = 2) {
+  return Number(n ?? 0).toLocaleString('en-US', { maximumFractionDigits: dec });
+}
+
+export default function PresaleSwap() {
   const { userData, allData, invest, withdraw, withdrawData } = useSwap_();
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   const {
     isApprove,
     currentBalance_,
-    setchangeToken,
     approveHandlePlus,
     allowanceHandlePlus,
     balanceOfHandlePlus,
     update
   } = useContext(MultiApproveContext);
+  const { withdrawTokens } = useContext(TokenHandle);
 
-  const {
-    withdrawTokens,
-    balanceOf,
-  } = useContext(TokenHandle);
-
-
-  const { timerDays, timerHours, timerMinutes, timerSeconds } = useCountdown([2025, 6, 30, 20]);
-  const [amount, setAmount] = useState(50);
-  const [recaudacion, setRecaudacion] = useState(0);
-  const [showTokenomics, setShowTokenomics] = useState(false);
-  const [showRewards, setShowRewards] = useState(false);
-  const [percentage, setpercentage] = useState(0);
-  const [withdrawPercentage, setWithdrawPercentage] = useState(0);
-  const [isApproving, setIsApproving] = useState(false);
+  const withdrawDataContext = useCountdownV2();
   const Presale = UsePresaleVesting();
 
-  // useEffect(() => {
-  //   setchangeToken(address.busd);
-  // }, []);
+  const [amount, setAmount] = useState(50);
+  const [isApproving, setIsApproving] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  // Oracle price — reemplazar con hook real: const { dyvPrice, refreshPrice } = useOraclePrice();
+  const [dyvPrice, setDyvPrice] = useState(0.021);
+  const [oracleRefreshing, setOracleRefreshing] = useState(false);
+
+  const dyvForAmount = amount > 0 ? (amount / dyvPrice) : 0;
+  const dailyReturn  = amount * (DAILY_RATE / 100);
+
+  const totalRaised = allData?.totalInvested_
+    ? Number(allData.totalInvested_) + 105740
+    : 0;
+  const raisedPct = Math.min((totalRaised / 4_000_000) * 100, 100);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -53,43 +63,15 @@ function PresaleSwap() {
   }, [isLoaded, update]);
 
   useEffect(() => {
-    setRecaudacion(allData?.totalInvested_);
-  }, [allData]);
-  const withdrawDataContext = useCountdownV2();
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (userData.tokenAmount == 0);
-    const percentage = (userData.totalWithdrawn / Number(userData.tokenAmount)) * 100;
-    console.log(percentage, 'percentage');
-    setWithdrawPercentage(percentage);
-    // setpercentage(percentage);
-
-    if (userData.nextDatesRaw) {
-      withdrawDataContext.setDate(userData.nextDatesRaw);
-    }
-  }, [userData]);
-
-  useEffect(() => {
-    setpercentage(percentage_(Number(recaudacion || 0)));
-  }, [recaudacion]);
-
-  function percentage_(input) {
-    return (input * 100) / 4000000; // Hardcap is 4,000,000 USDC
-  }
-
-  function buyToken(amount_) {
-    invest(amount_);
-  }
+    if (!isLoaded || !userData?.nextDatesRaw) return;
+    withdrawDataContext.setDate(userData.nextDatesRaw);
+  }, [userData, isLoaded]);
 
   async function handleApproveAndInvest() {
     try {
       setIsApproving(true);
       const approved = await approveHandlePlus(undefined, address.privateSale);
-      if (approved) {
-        // Automatically invest once approved
-        buyToken(amount);
-      }
+      if (approved) invest(amount);
     } catch (e) {
       console.error(e);
     } finally {
@@ -97,517 +79,343 @@ function PresaleSwap() {
     }
   }
 
-  function calculateTokens(usdcAmount) {
-    return usdcAmount * 50;
+  async function refreshOracle() {
+    setOracleRefreshing(true);
+    // const price = await getOraclePrice(); setDyvPrice(price);
+    await new Promise(r => setTimeout(r, 700));
+    setOracleRefreshing(false);
   }
 
-
-
-  const tokenData = [
-    { amount: "200,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
-    { amount: "300,000,000", allocation: "Ecosystem Development", percentage: "30%" },
-    { amount: "200,000,000", allocation: "Staking Rewards", percentage: "20%" },
-    { amount: "100,000,000", allocation: "DEX Liquidity", percentage: "10%" },
-    { amount: "100,000,000", allocation: "CEX Listings", percentage: "10%" },
-    { amount: "50,000,000", allocation: "Marketing", percentage: "5%" },
-    { amount: "50,000,000", allocation: "Development", percentage: "5%" }
-  ];
-
-
-
-  function isInControlPanel(address) {
-    const res = [
-      '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136'
-    ].some((item) => item?.toLowerCase() === address?.toLowerCase());
-    // console.log('ControlPanel', address, res);
-    return res;
+  function isAdmin(addr) {
+    return ['0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136']
+      .some(a => a.toLowerCase() === addr?.toLowerCase());
   }
 
-
+  const canClaim = !withdrawDataContext.isNotActive;
 
   return (
-    <div className="flex justify-center p-1">
-      <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#070b28] via-[#0f1a3a] to-[#0a142f] shadow-2xl border border-blue-900/30">
-        {/* Header Section */}
-        <div className="px-6 py-8 text-center">
-          <div className="flex items-center justify-center gap-3">
-            <img src="/logo.png" alt="D&V Token" className="h-10 w-10" />
+    <div className="flex justify-center p-2">
+      <div
+        className="w-full max-w-md overflow-hidden rounded-2xl"
+        style={{
+          background: 'linear-gradient(160deg, #060c20 0%, #0c1730 55%, #060e1e 100%)',
+          border: '1px solid rgba(30,60,160,0.25)',
+          boxShadow: '0 0 80px rgba(10,40,140,0.2), 0 0 0 1px rgba(255,255,255,0.03)'
+        }}
+      >
+
+        {/* HEADER */}
+        <div className="px-6 pt-6 pb-5 border-b border-white/[0.05]">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600/30 to-blue-900/60 border border-blue-500/20 flex items-center justify-center">
+                <img src="/logo.png" alt="DYV" className="h-5 w-5" onError={e => { e.target.style.display = 'none'; }} />
+              </div>
+              <div>
+                <p className="text-[11px] font-semibold tracking-[0.15em] text-blue-400/80 uppercase">D&V Token</p>
+                <h1 className="text-base font-bold text-white leading-none mt-0.5">Presale</h1>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-semibold text-emerald-400 tracking-wide">LIVE</span>
+            </div>
           </div>
 
-
-        </div>
-
-        {/* Presale Info Card */}
-        <div className="mx-6 mb-6">
-          <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-semibold text-blue-300">Presale Details</h3>
-              <Coins className="h-5 w-5 text-blue-400" />
+          {/* Oracle strip */}
+          <div className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-2.5">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5 text-cyan-400" />
+              <span className="text-xs text-slate-400 font-mono tracking-wide">DYV / USD</span>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-blue-200/70">Price</p>
-                <p className="font-medium text-blue-100">0.02 USDC</p>
-              </div>
-              <div>
-                <p className="text-blue-200/70">Network</p>
-                <p className="font-medium text-blue-100">BASE</p>
-              </div>
-              <div>
-                <p className="text-blue-200/70">Hard Cap</p>
-                <p className="font-medium text-blue-100">4,000,000 USDC</p>
-              </div>
-              <div>
-                <p className="text-blue-200/70">Soft Cap</p>
-                <p className="font-medium text-blue-100">100,000 USDC</p>
-              </div>
-              <div>
-                <p className="text-blue-200/70">Min Purchase</p>
-                <p className="font-medium text-blue-100">50 USDC</p>
-              </div>
-              <div>
-                <p className="text-blue-200/70">Max Purchase</p>
-                <p className="font-medium text-blue-100">2,000 USDC</p>
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-cyan-300 font-mono">${dyvPrice.toFixed(5)}</span>
+              <button onClick={refreshOracle} className="text-slate-600 hover:text-cyan-400 transition-colors">
+                <RefreshCw className={clsx("h-3 w-3", oracleRefreshing && "animate-spin")} />
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Token Withdrawal Progress Bar */}
-        <div className="mx-6 mb-6">
-          <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-md font-semibold text-blue-300">Token Withdrawal Progress</h3>
-              <Wallet className="h-5 w-5 text-blue-400" />
+        {/* PRESALE PROGRESS */}
+        <div className="px-6 py-4 border-b border-white/[0.05]">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">Presale Progress</span>
+            <span className="text-xs font-mono text-slate-400">{raisedPct.toFixed(1)}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-white/[0.04] border border-white/[0.06] overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${raisedPct}%` }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
+              className="h-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-400"
+            />
+          </div>
+          <div className="flex justify-between mt-1.5 text-[11px] text-slate-600 font-mono">
+            <span>${fmt(totalRaised, 0)}</span>
+            <span>$4,000,000</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {[
+              { label: 'Price',     value: '$0.02' },
+              { label: 'Daily ROI', value: '1.5%'  },
+              { label: 'Max ROI',   value: '500%'  },
+            ].map(({ label, value }) => (
+              <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] px-3 py-2.5 text-center">
+                <div className="text-[10px] text-slate-500 uppercase tracking-wide">{label}</div>
+                <div className="text-sm font-bold text-white mt-0.5">{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* MY STATS */}
+        <div className="px-6 py-4 border-b border-white/[0.05]">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-blue-500/[0.06] border border-blue-500/15 p-4">
+              <div className="flex items-center gap-1.5 mb-2">
+                <DollarSign className="h-3.5 w-3.5 text-blue-400" />
+                <span className="text-[10px] font-semibold tracking-widest text-blue-400/70 uppercase">Invested</span>
+              </div>
+              <div className="text-xl font-bold text-white leading-none">
+                {fmt(userData?.invest ?? 0)} <span className="text-xs font-normal text-slate-500">USDC</span>
+              </div>
+              <div className="text-[11px] text-slate-600 mt-1 font-mono">
+                ≈ {fmt((userData?.invest ?? 0) / dyvPrice, 0)} DYV
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm text-blue-300/80">
-                <span>Vesting Progress</span>
-                <span>{withdrawPercentage}% Released</span>
+            <div className="rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 p-4">
+              <div className="flex items-center gap-1.5 mb-2">
+                <Coins className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="text-[10px] font-semibold tracking-widest text-emerald-400/70 uppercase">Total Claimed</span>
               </div>
-
-              <div className="h-6 overflow-hidden rounded-full bg-[#0a1428] border border-blue-900/30 relative">
-                {/* Marcadores en 33% y 66% */}
-                <div className="absolute h-full w-px bg-blue-200 left-1/3 z-10"></div>
-                <div className="absolute h-full w-px bg-blue-200 left-2/3 z-10"></div>
-
-                {/* Pequeños textos encima de los marcadores */}
-                <div className="absolute -top-5 left-1/3 transform -translate-x-1/2 text-xs text-blue-300">33%</div>
-                <div className="absolute -top-5 left-2/3 transform -translate-x-1/2 text-xs text-blue-300">66%</div>
-
-                <motion.div
-                  initial={{ width: '0%' }}
-                  animate={{ width: `${withdrawPercentage}%` }}
-                  transition={{ duration: 0.8 }}
-                  className="h-full bg-gradient-to-r from-blue-600 to-blue-400 flex items-center justify-end relative z-0"
-                >
-                  {withdrawPercentage > 8 && (
-                    <span className="text-xs font-medium text-white mr-2">{withdrawPercentage}%</span>
-                  )}
-                </motion.div>
+              <div className="text-xl font-bold text-white leading-none">
+                {fmt(userData?.totalWithdrawn ?? 0, 4)} <span className="text-xs font-normal text-slate-500">DYV</span>
               </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="rounded-lg bg-blue-900/30 p-3">
-                  <div className="text-sm text-blue-300/80">Available for Withdrawn</div>
-                  <div className="font-semibold text-blue-100">
-                    {userData.currentUserBalance} D&V
-                  </div>
-                </div>
-
-                <div className="rounded-lg bg-blue-900/30 p-3">
-                  <div className="text-sm text-blue-300/80">Total Withdraw</div>
-                  <div className="font-semibold text-blue-100">
-                    {userData.totalWithdrawn} D&V
-                  </div>
-                </div>
+              <div className="text-[11px] text-slate-600 mt-1 font-mono">
+                ≈ ${fmt((userData?.totalWithdrawn ?? 0) * dyvPrice)}
               </div>
+            </div>
+          </div>
+
+          {/* Available to claim */}
+          <div className="mt-3 rounded-xl bg-white/[0.02] border border-white/[0.06] px-4 py-3 flex items-center justify-between">
+            <div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-wide">Available to Claim</div>
+              <div className="text-base font-bold text-cyan-300 mt-0.5">
+                {fmt(userData?.currentUserBalance ?? 0, 4)} DYV
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] text-slate-500">Daily return</div>
+              <div className="text-sm font-semibold text-cyan-400/80">{DAILY_RATE}% / day</div>
             </div>
           </div>
         </div>
 
-        {/* Rewards Section */}
-        <div className="mx-6 mb-6">
-          <div className="rounded-xl bg-blue-900/20 overflow-hidden backdrop-blur-sm">
+        {/* INVEST INPUT */}
+        <div className="px-6 py-4 border-b border-white/[0.05]">
+          <label className="text-[10px] font-semibold tracking-[0.15em] text-slate-500 uppercase block mb-3">
+            Investment Amount
+          </label>
+
+          <div className="relative mb-2">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-sm">$</span>
+            <input
+              type="number"
+              min={MIN_USD}
+              max={MAX_USD}
+              value={amount}
+              onChange={e => {
+                const v = e.target.value === '' ? 0 : Math.min(Math.max(Number(e.target.value), 0), MAX_USD);
+                setAmount(v);
+              }}
+              className="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 pl-8 pr-4 py-3 text-xl font-bold text-white font-mono outline-none transition-all placeholder-slate-700"
+              placeholder="50"
+            />
+          </div>
+
+          <div className="flex gap-1.5 mb-3">
+            {[50, 100, 500, 1000, 2000].map(v => (
+              <button
+                key={v}
+                onClick={() => setAmount(v)}
+                className={clsx(
+                  "flex-1 rounded-lg py-1.5 text-[11px] font-semibold transition-all",
+                  amount === v
+                    ? "bg-blue-500/20 border border-blue-500/40 text-blue-300"
+                    : "bg-white/[0.03] border border-white/[0.06] text-slate-600 hover:text-slate-400"
+                )}
+              >
+                ${v}
+              </button>
+            ))}
+          </div>
+
+          <div className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-4 py-3 space-y-2">
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">You send</span>
+              <span className="text-white font-mono font-semibold">{fmt(dyvForAmount, 2)} DYV</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-slate-500">Daily return</span>
+              <span className="text-cyan-400 font-mono">≈ ${fmt(dailyReturn)} / day</span>
+            </div>
+            <div className="flex justify-between text-xs border-t border-white/[0.05] pt-2">
+              <span className="text-slate-500">Balance</span>
+              <span className="text-slate-400 font-mono">{currentBalance_ || '0'} DYV</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ACTION BUTTONS */}
+        <div className="px-6 py-4 space-y-2.5 border-b border-white/[0.05]">
+          {isApprove ? (
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => invest(amount)}
+              className="flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white"
+              style={{ background: 'linear-gradient(135deg, #1d4ed8, #0891b2)' }}
+            >
+              <ArrowRightCircle className="h-4 w-4" />
+              Invest {fmt(dyvForAmount, 2)} DYV
+              <span className="text-blue-300/70 font-normal text-xs">(≈ ${fmt(amount)})</span>
+            </motion.button>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleApproveAndInvest}
+              disabled={isApproving}
+              className={clsx(
+                "flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white transition-all",
+                isApproving ? "opacity-60 cursor-wait bg-slate-700" : ""
+              )}
+              style={!isApproving ? { background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' } : {}}
+            >
+              {isApproving ? <Clock className="h-4 w-4 animate-pulse" /> : <BadgeCheck className="h-4 w-4" />}
+              {isApproving ? 'Approving...' : 'Approve DYV'}
+            </motion.button>
+          )}
+
+          <motion.button
+            whileHover={canClaim ? { scale: 1.01 } : {}}
+            whileTap={canClaim ? { scale: 0.98 } : {}}
+            onClick={() => canClaim && withdraw()}
+            className={clsx(
+              "flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white transition-all",
+              !canClaim && "opacity-50 cursor-not-allowed bg-slate-800 border border-slate-700/40"
+            )}
+            style={canClaim ? { background: 'linear-gradient(135deg, #059669, #0d9488)' } : {}}
+          >
+            <Zap className="h-4 w-4" />
+            {canClaim
+              ? `Claim ${fmt(userData?.currentUserBalance ?? 0, 4)} DYV`
+              : `Next claim in ${withdrawDataContext.timeShow}`}
+          </motion.button>
+
+          <CardRef />
+        </div>
+
+        {/* CLAIM HISTORY */}
+        {withdrawData?.length > 0 && (
+          <div className="px-6 py-3 border-b border-white/[0.05]">
             <button
-              onClick={() => setShowRewards(!showRewards)}
-              className="flex w-full items-center justify-between p-4 text-left"
+              onClick={() => setShowHistory(h => !h)}
+              className="flex w-full items-center justify-between py-1"
             >
               <div className="flex items-center gap-2">
-                <Coins className="h-5 w-5 text-blue-400" />
-                <span className="font-medium text-blue-100">HISTORICAL REWARDS</span>
+                <Clock className="h-3.5 w-3.5 text-slate-500" />
+                <span className="text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
+                  Claim History ({withdrawData.length})
+                </span>
               </div>
-              {showRewards ?
-                <ChevronUp className="h-5 w-5 text-blue-400" /> :
-                <ChevronDown className="h-5 w-5 text-blue-400" />
-              }
+              <motion.div animate={{ rotate: showHistory ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronDown className="h-4 w-4 text-slate-600" />
+              </motion.div>
             </button>
 
-            {showRewards && (
-              <div className="px-4 pb-4 space-y-4">
-                {/* Historical Rewards - Replicando exactamente la imagen */}
-                <div className="bg-[#0a1428] rounded-lg p-4">
-                  <div className="mb-2 font-medium text-gray-400">
-                    HISTORICAL REWARDS - TOTAL {userData.totalWithdrawn} D&V
-                  </div>
-                  {withdrawData.length > 0 && withdrawData.map((item, index) => (
-
-                    <div className="mb-2 flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <span className="text-blue-100 font-medium">ID {index + 1} -</span>
-                        <div className="flex items-center">
-                          <div className="h-5 w-5 flex items-center justify-center">
-                            <img src="/dyv.png" alt="D&V Token" className="h-5 w-5" />
+            <AnimatePresence initial={false}>
+              {showHistory && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.22 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-3 space-y-2">
+                    {withdrawData.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/[0.05] px-3 py-2.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-5 w-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                            <span className="text-[10px] text-emerald-400 font-bold">{i + 1}</span>
                           </div>
-                          <span className="ml-1 text-blue-100">{item.tokenAmount}</span>
+                          <div>
+                            <div className="text-sm font-semibold text-white">{fmt(item.tokenAmount, 4)} DYV</div>
+                            <div className="text-[11px] text-slate-600">≈ ${fmt(item.tokenAmount * dyvPrice)}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-slate-500 font-mono">{item.date}</div>
+                          <div className="flex items-center gap-1 justify-end mt-0.5">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                            <span className="text-[10px] text-emerald-500">claimed</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="text-gray-400 flex items-center">
-                        {item.date}
-                        <span className="ml-1 text-blue-500">↗</span>
-                      </div>
-                    </div>)
-
-                  )}
-
-
-
-
-                </div>
-
-
-
-                {/* Sección para Historial de Liberación */}
-                <div className={clsx(userData?.nextDates.length == 0 ? "hidden" : "bg-[#0a1428] rounded-lg p-4",
-                )
-                }>
-                  <div className="mb-2 font-medium text-blue-300 flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    HISTORIAL DE LIBERACIÓN
+                    ))}
                   </div>
-
-                  <div className="relative mt-6 mb-20">
-                    <div className="h-1 bg-blue-900 absolute w-full top-2"></div>
-
-                    {/* Primer punto (33%) */}
-                    <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center">
-                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
-                        <div className="h-2 w-2 rounded-full bg-white"></div>
-                      </div>
-                      <div className="mt-2 text-xs text-blue-300">{userData?.nextDates[1]}</div>
-                      <div className="text-xs text-blue-100">66%</div>
-                    </div>
-
-
-
-                    {/* Tercer punto (100%) */}
-                    <div className="absolute right-0 flex flex-col items-center">
-                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
-                        <div className="h-2 w-2 rounded-full bg-white"></div>
-                      </div>
-                      <div className="mt-2 text-xs text-blue-300">[{userData?.nextDates[2]}]</div>
-                      <div className="text-xs text-blue-100">100%</div>
-                    </div>
-
-                    {/* Punto inicial (0%) */}
-                    <div className="absolute left-0 flex flex-col items-center">
-                      <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center z-10">
-                        <div className="h-2 w-2 rounded-full bg-white"></div>
-                      </div>
-                      <div className="mt-2 text-xs text-blue-300">{userData?.nextDates[0]}</div>
-                      <div className="text-xs text-blue-100">33%</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="space-y-6 p-6">
-          {/* Investment Input */}
-          <div className="rounded-xl bg-blue-900/20 p-4 backdrop-blur-sm">
-            <label className="mb-2 block text-sm font-medium text-blue-200">
-              Investment Amount
-            </label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-blue-400" />
-              <input
-                type="number"
-                onChange={(e) => {
-                  if (e.target.value === '') {
-                    setAmount(0);
-                  } else if (e.target.value < 1) {
-                    setAmount(1);
-                  } else if (e.target.value > 2000000000000) {
-                    setAmount(20000000000000000);
-                  } else {
-                    setAmount(Number(e.target.value));
-                  }
-                }}
-                className="w-full rounded-lg border border-blue-800/50 bg-[#0a1428] p-3 pl-10 text-xl text-blue-100 placeholder-blue-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Enter USDC amount"
-              />
-            </div>
-            <div className="mt-2 text-sm text-blue-300/80">
-              Balance: {currentBalance_ || '0'} USDC
-            </div>
-            <div className="mt-2 text-sm text-blue-300/80">
-              You will receive: {calculateTokens(amount).toLocaleString('en-US', { maximumFractionDigits: 0 })} D&V
-            </div>
-
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-4">
-            {/* Botón principal de compra/aprobación */}
-            {isApprove ? (
-              <button
-                onClick={() => buyToken(amount)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 p-3 font-semibold text-white transition-all hover:from-indigo-700 hover:to-blue-600 shadow-lg"
-              >
-                <ArrowRightCircle className="h-5 w-5" />
-                Buy D&V Token
-              </button>
-            ) : (
-              <button
-                onClick={handleApproveAndInvest}
-                disabled={isApproving}
-                className={clsx(
-                  "flex w-full items-center justify-center gap-2 rounded-lg p-3 font-semibold text-white transition-all shadow-lg",
-                  !isApproving ? "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600" : "bg-gray-600 cursor-wait opacity-80"
-                )}
-              >
-                {isApproving ? (
-                  <Clock className="h-5 w-5 animate-pulse" />
-                ) : (
-                  <BadgeCheck className="h-5 w-5" />
-                )}
-                {isApproving ? "Approving USDC..." : "Approve USDC"}
-              </button>
-            )}
-
-            {/* Botón de reclamación (destacado) */}
-            <button
-              onClick={() => withdraw()}
-              disabled={!withdrawDataContext.isNotActive}
-              className={clsx(
-                "flex w-full items-center justify-center gap-2 rounded-lg p-3 font-semibold text-white transition-all shadow-md",
-                !withdrawDataContext.isNotActive ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600" : "bg-gray-600 cursor-not-allowed opacity-70"
+                </motion.div>
               )}
-            >
-              <Wallet className="h-5 w-5" />
-              {!withdrawDataContext.isNotActive ? "Claim D&V Token" : `Claim available in ${withdrawDataContext.timeShow}`}
-            </button>
-
-
-
-            <button
-              onClick={() => withdrawTokens()}
-              className="hidden flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
-            >
-              <Wallet className="h-5 w-5" />
-              Claim D&V Token (TEST)
-            </button>
-
-            <CardRef />
-
-            {/* Sección de controles administrativos */}
-            {
-              isInControlPanel(accounts) && (
-                <div className="mt-6 pt-4 border-t border-blue-800/30">
-                  <h4 className="text-sm font-medium text-blue-300 mb-3">Admin Controls</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => Presale.start()}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-green-900/40 p-3 font-medium text-green-100 transition-all hover:bg-green-800/50 border border-green-700/30"
-                    >
-                      <ArrowRightCircle className="h-4 w-4 text-green-400" />
-                      Start Sales
-                    </button>
-                    <button
-                      onClick={() => Presale.stop()}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-red-900/40 p-3 font-medium text-red-100 transition-all hover:bg-red-800/50 border border-red-700/30"
-                    >
-                      <CheckCircle2 className="h-4 w-4 text-red-400" />
-                      Stop Sales
-                    </button>
-                    <button
-                      onClick={() => Presale.starTWithDrawHandle()}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-amber-900/40 p-3 font-medium text-amber-100 transition-all hover:bg-amber-800/50 border border-amber-700/30"
-                    >
-                      <DollarSign className="h-4 w-4 text-amber-400" />
-                      Start Withdrawals
-                    </button>
-                    <button
-                      onClick={() => Presale.stopWithDraw()}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
-                    >
-                      <Timer className="h-4 w-4 text-orange-400" />
-                      Stop Withdrawals
-                    </button>
-                    <button
-                      onClick={() => Presale.Claim()}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
-                    >
-                      <Timer className="h-4 w-4 text-orange-400" />
-                      Claim Fee
-                    </button>
-
-                    <button
-                      onClick={() => Presale.Claim2()}
-                      className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
-                    >
-                      <Timer className="h-4 w-4 text-orange-400" />
-                      Claim Fee 2
-                    </button>
-                  </div>
-                </div>
-              )
-            }
-
+            </AnimatePresence>
           </div>
+        )}
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-blue-900/20 p-4 text-center backdrop-blur-sm">
-              <div className="text-sm text-blue-300/80">Your Investment</div>
-              <div className="text-lg font-semibold text-blue-100">
-                {userData?.invest || '0'} USDC
-              </div>
-            </div>
-            <div className="rounded-xl bg-blue-900/20 p-4 text-center backdrop-blur-sm">
-              <div className="text-sm text-blue-300/80">Your Tokens</div>
-              <div className="text-lg font-semibold text-blue-100">
-                <div className="text-lg font-semibold text-blue-100">
-                  {userData?.tokenAmount ?
-                    Number(userData.tokenAmount > 0 ? userData.tokenAmount : 0)
-                      .toLocaleString('en-US', { maximumFractionDigits: 0 }) :
-                    '0'} D&V
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="rounded-xl bg-blue-900/20 p-4 backdrop-blur-sm">
-            <div className="hidden space-y-2">
-              <div className="flex justify-between text-sm text-blue-300/80">
-                <span>Progress</span>
-                <span>{percentage.toFixed(2)}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-[#0a1428]">
+        {/* ADMIN PANEL */}
+        {isAdmin(accounts) && (
+          <div className="px-6 py-3 border-b border-white/[0.05]">
+            <button onClick={() => setShowAdmin(a => !a)} className="flex w-full items-center justify-between py-1">
+              <span className="text-[11px] font-semibold tracking-[0.12em] text-red-500/50 uppercase">Admin Controls</span>
+              <motion.div animate={{ rotate: showAdmin ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronDown className="h-4 w-4 text-red-500/40" />
+              </motion.div>
+            </button>
+            <AnimatePresence initial={false}>
+              {showAdmin && (
                 <motion.div
-                  initial={{ width: '0%' }}
-                  animate={{ width: `${percentage}%` }}
-                  transition={{ duration: 0.5 }}
-                  className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
-                />
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between rounded-lg bg-blue-900/30 p-3">
-              <div className="flex items-center gap-2">
-                <Coins className="h-5 w-5 text-blue-400" />
-                <span className="text-sm text-blue-300/80">Total Raised</span>
-              </div>
-              <div className="font-semibold text-blue-100">
-                {(allData?.totalInvested_ && allData?.totalInvested_ !== 0
-                  ? (Number(allData?.totalInvested_) + 105740)
-                  : 0
-                ).toLocaleString('en-US', { maximumFractionDigits: 2 })} USDC
-              </div>
-            </div>
-          </div>
-
-          {/* Listing Info */}
-          <div className="rounded-xl bg-blue-900/20 p-4 backdrop-blur-sm">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-md font-semibold text-blue-300">Listing Information</h3>
-              <Globe className="h-5 w-5 text-blue-400" />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-blue-300/80">Listing Price:</span>
-                </div>
-                <div className="font-semibold text-blue-100">0.033 USDC</div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-blue-300/80">Price Increase:</span>
-                </div>
-                <div className="font-semibold text-blue-100">+65%</div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-blue-300/80">Initial Market Cap:</span>
-                </div>
-                <div className="font-semibold text-blue-100">20,000,000 USDC</div>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-blue-300/80">DEX:</span>
-                </div>
-                <div className="font-semibold text-blue-100">Aerodrome & Uniswap</div>
-              </div>
-            </div>
-          </div>
-
-
-
-          {/* Tokenomics Section */}
-          <div className="rounded-xl bg-blue-900/20 overflow-hidden backdrop-blur-sm">
-            <button
-              onClick={() => setShowTokenomics(!showTokenomics)}
-              className="flex w-full items-center justify-between p-4 text-left"
-            >
-              <div className="flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-blue-400" />
-                <span className="font-medium text-blue-100">TOKENOMICS</span>
-              </div>
-              {showTokenomics ?
-                <ChevronUp className="h-5 w-5 text-blue-400" /> :
-                <ChevronDown className="h-5 w-5 text-blue-400" />
-              }
-            </button>
-
-            {showTokenomics && (
-              <div className="px-4 pb-4 space-y-4">
-                <div className="bg-[#0a1428] rounded-lg p-4">
-                  <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
-                  <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 1.000.000.000</p>
-                  <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
-
-                  {/* Cabecera responsiva */}
-                  <div className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm mb-1">
-                    <span className="sm:col-span-2 text-blue-300/80">Amount</span>
-                    <span className="sm:col-span-2 text-blue-300/80">Allocation</span>
-                    <span className="text-right text-blue-300/80">%</span>
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.22 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-3 grid grid-cols-2 gap-2">
+                    <button onClick={() => Presale.start()}               className="rounded-lg py-2.5 px-3 text-xs font-semibold text-green-200 bg-green-900/30 border border-green-700/20 hover:bg-green-800/40 transition-colors">Start Sales</button>
+                    <button onClick={() => Presale.stop()}                className="rounded-lg py-2.5 px-3 text-xs font-semibold text-red-200 bg-red-900/30 border border-red-700/20 hover:bg-red-800/40 transition-colors">Stop Sales</button>
+                    <button onClick={() => Presale.starTWithDrawHandle()} className="rounded-lg py-2.5 px-3 text-xs font-semibold text-amber-200 bg-amber-900/30 border border-amber-700/20 hover:bg-amber-800/40 transition-colors">Start Withdrawals</button>
+                    <button onClick={() => Presale.stopWithDraw()}        className="rounded-lg py-2.5 px-3 text-xs font-semibold text-orange-200 bg-orange-900/30 border border-orange-700/20 hover:bg-orange-800/40 transition-colors">Stop Withdrawals</button>
+                    <button onClick={() => Presale.Claim()}               className="rounded-lg py-2.5 px-3 text-xs font-semibold text-orange-200 bg-orange-900/30 border border-orange-700/20 hover:bg-orange-800/40 transition-colors">Claim Fee</button>
+                    <button onClick={() => Presale.Claim2()}              className="rounded-lg py-2.5 px-3 text-xs font-semibold text-orange-200 bg-orange-900/30 border border-orange-700/20 hover:bg-orange-800/40 transition-colors">Claim Fee 2</button>
                   </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
-                  {/* Filas de datos */}
-                  {tokenData.map((row, index) => (
-                    <div key={index} className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm py-2 border-t border-blue-900/30">
-                      <span className="sm:col-span-2 text-blue-100 truncate pr-1">{row.amount}</span>
-                      <span className="sm:col-span-2 text-blue-200 pr-1">{row.allocation}</span>
-                      <span className="text-right text-blue-100">{row.percentage}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+        {/* FOOTER */}
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between text-[11px] text-slate-600">
+            <span>BASE Network · Smart Contract</span>
+            <span className="font-mono">Min ${MIN_USD} — Max ${MAX_USD}</span>
           </div>
         </div>
+
       </div>
     </div>
   );
 }
-
-export default PresaleSwap;
