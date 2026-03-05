@@ -17,15 +17,15 @@ const userDefaul = {
   invest: 0,
   toWithdraw: 0,
   currentUserBalance: 0,
-  tokenAmount: "",
-  investAmount: "",
-  totalWithdrawn: "",
-  lastWithdrawn: "",
-  hasWithdrawn: "",
-  referrals: "",
-  referrer: "",
-  data: [],
-  nextDates: [],
+  tokenAmount:"",
+        investAmount:"",
+        totalWithdrawn:"",
+        lastWithdrawn:"",
+        hasWithdrawn:"",
+        referrals:"",
+        referrer:"",
+        data:[],
+        nextDates:[],
 };
 const SwapProvider = ({ children }) => {
   const { accounts, isLoaded, setupdate, update, errorMessage } =
@@ -37,7 +37,7 @@ const SwapProvider = ({ children }) => {
   const [allData, setallData] = useState({
     totalInvested_: 0,
   });
-
+ 
 
   const [isApprove, setisApprove] = useState(false);
   const history = useRouter();
@@ -54,7 +54,7 @@ const SwapProvider = ({ children }) => {
     getUserData();
     // TotalBalance();
 
-    return () => { };
+    return () => {};
   }, [accounts, isLoaded, update_]);
 
   const updateHandle = () => {
@@ -83,10 +83,10 @@ const SwapProvider = ({ children }) => {
       return;
     const [load, contract] = await Token;
     if (!load) return;
-
+    
     const addr = Swap.address_;
-    // console.log(addr,'addr');
-    //     return
+// console.log(addr,'addr');
+//     return
     const res = await contract.approve(addr, constants.MaxUint256);
     res.wait().then(() => updateHandle());
   };
@@ -98,7 +98,7 @@ const SwapProvider = ({ children }) => {
     )
       return;
     const [load, contract] = await Token;
-    if (!load) return;
+    if (!load) return;     
     const addr = Presale.address_;
     const allowance_ = await contract.allowance(accounts, addr);
     console.log(allowance_.gt(constants.MaxUint256.div(5)), 'allowance_');
@@ -112,13 +112,13 @@ const SwapProvider = ({ children }) => {
     }
     try {
       // investAmt = utils.parseEther(investAmt.toString());
-      const res = await Presale.buy(investAmt);
+      const res =await Presale.buy(investAmt);      
       toast.success('Invest success');
-
+      
       res.wait().then((value) => {
         updateHandle();
       });
-
+            
     } catch (err) {
       if (err.data != undefined) toast.error(err.data.message);
       else toast.error(err.message);
@@ -152,6 +152,9 @@ const SwapProvider = ({ children }) => {
     try {
       const res = await Presale.withdrawTokens();
       toast.success('withdraw success');
+      // if (!utils.isAddress(accounts) === false) {
+      //   verifyRegister();
+      // }
       res.wait().then((value) => {
         updateHandle();
       });
@@ -161,19 +164,19 @@ const SwapProvider = ({ children }) => {
     }
   };
 
-  const withdrawData = useMemo(async () => {
-    let withdrawData_ = [];
+  const withdrawData = useMemo(async() => {
+    let withdrawData_ =[];
     if (
       !isLoaded &&
       accounts != '000000000000000000000000000000000000000000000'
     )
       return withdrawData_
-    if (!userData.data)
+      if(!userData.data )
       return withdrawData_
 
-    try {
-
-
+     try {
+     
+    
       withdrawData_ = await Presale.withdrawData(accounts);
       console.log(withdrawData_, 'withdrawData');
       withdrawData_ = withdrawData_.map((e) => {
@@ -182,14 +185,14 @@ const SwapProvider = ({ children }) => {
           tokenAmount: ParseEther(e.tokenAmount),
         }
       });
-
+      
 
     } catch (error) {
       console.log(error, 'withdrawData');
       withdrawData_ = [];
-
-    }
-    return withdrawData_;
+     
+    } 
+    return withdrawData_;   
   }, [userData]);
 
   const sleep = (ms) => {
@@ -203,43 +206,51 @@ const SwapProvider = ({ children }) => {
     )
       return;
     try {
-      const data = await Presale.sales()
+      const [lastBlock_,data] = await Presale.sales()
       sleep(500);
-
-      const currentUserBalance = await Presale.currentUserBalance();
-      // data fields according to DYV_V2:
-      // data[0] totalWithdrawn_
-      // data[1] totalRewards
-      // data[2] depositBalance (mapped to currentUserBalance)
-      // data[3] totalDeposits_ (mapped to investAmount)
-      // data[4] nextAssignment_
-      // data[5] amountOfDeposits
-      // data[6] checkpoint
-      // data[7] maxWithdraw
-      // data[8] referrer_
-      // data[9] referrerCount_
-
-      let nextDates = [];
-      let nextDatesRaw = 0;
-      if (data[4] && data[4].gt(0)) {
-        nextDates = [DateTime.fromSeconds(Number(data[4].toString())).toLocaleString(DateTime.DATETIME_SHORT)];
-        nextDatesRaw = Number(data[4].toString());
-      }
-
+    
+      const currentUserBalance = await Presale.currentUserBalance(accounts);
+      console.log(currentUserBalance, 'currentUserBalance');
+      sleep(500);
+      
+      
+      let nextDates = await Presale.nextDates();
+           
+     if(nextDates.length>0 && nextDates[0]>0)
+  nextDates=nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_SHORT))
+    else 
+  nextDates=[]
+      
+      // address buyer;
+      //   uint tokenAmount;
+      //   uint bonusToken;
+      //   uint investAmount;
+      //   uint toWithdraw;
+      //   uint totalWithdrawn;
+      //   uint lastWithdraw;
+      //   bool hasWithdrawn;
+      //   address referrals;
+      //   uint[1] referrer;
+      //   uint[1] referrerAmount;
+      
       const data_ = {
-        invest: ParseEther(data[3] || 0),
-        investAmount: ParseEther(data[3] || 0),
-        tokenAmount: ParseEther(data[7] || 0), // Use maxWithdraw to calculate limit progress
-        totalWithdrawn: ParseEther(data[0] || 0),
-        currentUserBalance: ParseEther(currentUserBalance || data[2]),
-        totalRewards: ParseEther(data[1] || 0),
-        hasWithdrawn: "false", // We don't have this boolean natively now
-        referrals: data[8],
-        data: ParseEther(data[2] || 0),
-        nextDates: nextDates,
-        nextDatesRaw: nextDatesRaw,
+        // user: data.user,
+        // id: data.id.toString(),
+        invest: ParseEther(data.investAmount),
+        toWithdraw: ParseEther(data.tokenAmount),        
+        tokenAmount:ParseEther(data.tokenAmount),
+        investAmount:ParseEther(data.investAmount),
+        totalWithdrawn:ParseEther(data.totalWithdrawn),
+        currentUserBalance:ParseEther(currentUserBalance),
+        bonusToken: ParseEther(data.bonusToken),
+        // lastWithdrawn:data.lastWithdrawn.toString(),
+        hasWithdrawn:data.hasWithdrawn.toString(),
+        referrals:data.referrals,
+        data:ParseEther(data.toWithdraw),
+        nextDates:nextDates,
+        // referrer:data.referrals.map((e)=>e.toString())
       };
-      console.log(data_, accounts, 'getUserData');
+      console.log(data_,accounts, 'getUserData');
       const res = Object.assign({}, userData, data_);
       setuserData(res);
     } catch (error) {
@@ -249,10 +260,10 @@ const SwapProvider = ({ children }) => {
   };
 
 
-  const ParseEther = (amount) => {
+  const ParseEther = (amount) => {    
     return Number(utils.formatUnits(amount, 6));
   };
-
+  
 
   const getPublicData = async () => {
     if (
@@ -261,26 +272,26 @@ const SwapProvider = ({ children }) => {
     )
       return;
     try {
-      // Returns [totalUsers_, totalInvested_, totalWithdrawn_, totalDeposits_, balance_]
       const data = await Presale.totalInvested();
 
-      const data_ = {
-        totalInvested_: ParseEther(data[1] || 0),
-      };
 
+      const data_ = {
+        totalInvested_: ParseEther(data) + Number(11770),
+      };
+      
       setallData(data_);
     } catch (error) {
       console.log('Errr public', error);
     }
   };
-
+  
 
   const datas = {
     userData,
     allData,
     balanceOf,
     invest,
-    withdraw,
+    withdraw, 
     updateHandle,
     getUserData,
     isApprove,
@@ -289,9 +300,9 @@ const SwapProvider = ({ children }) => {
     allowanceHandle,
     balanceOfConctract,
     withdrawData
-
-
-  };
+    
+    
+      };
 
   return <SwapContext.Provider value={datas}>{children}</SwapContext.Provider>;
 };
@@ -299,4 +310,4 @@ const SwapProvider = ({ children }) => {
 export { SwapProvider };
 export default SwapContext;
 
-export const useSwap_ = () => useContext(SwapContext); 
+export const useSwap_ = ()=>useContext(SwapContext); 
