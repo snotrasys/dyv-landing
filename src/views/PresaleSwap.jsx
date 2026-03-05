@@ -122,19 +122,7 @@ export default function PresaleSwap() {
             </div>
           </div>
 
-          {/* Oracle strip */}
-          <div className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-2.5">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-3.5 w-3.5 text-cyan-400" />
-              <span className="text-xs text-slate-400 font-mono tracking-wide">DYV / USD</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-cyan-300 font-mono">${dyvPrice.toFixed(5)}</span>
-              <button onClick={refreshOracle} className="text-slate-600 hover:text-cyan-400 transition-colors">
-                <RefreshCw className={clsx("h-3 w-3", oracleRefreshing && "animate-spin")} />
-              </button>
-            </div>
-          </div>
+   
         </div>
 
         {/* PRESALE PROGRESS */}
@@ -156,9 +144,8 @@ export default function PresaleSwap() {
             <span>$4,000,000</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mt-4">
+          <div className="grid grid-cols-2 gap-2 mt-4">
             {[
-              { label: 'Price',     value: '$0.02' },
               { label: 'Daily ROI', value: '1.5%'  },
               { label: 'Max ROI',   value: '500%'  },
             ].map(({ label, value }) => (
