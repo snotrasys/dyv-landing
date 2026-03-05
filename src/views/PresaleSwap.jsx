@@ -15,7 +15,7 @@ import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 import clsx from 'clsx';
 import TokenHandle from '@/context/TokenHandle';
 
-const DAILY_RATE = 1.5;
+const DAILY_RATE = 1.0;
 const MIN_USD = 50;
 const MAX_USD = 2000;
 
@@ -146,7 +146,7 @@ export default function PresaleSwap() {
 
           <div className="grid grid-cols-2 gap-2 mt-4">
             {[
-              { label: 'Daily ROI', value: '1.5%'  },
+              { label: 'Daily ROI', value: '1%'  },
               { label: 'Max ROI',   value: '500%'  },
             ].map(({ label, value }) => (
               <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] px-3 py-2.5 text-center">
