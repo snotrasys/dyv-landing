@@ -227,10 +227,14 @@ export default function PresaleSwap() {
               type="number"
               min={MIN_USD}
               max={MAX_USD}
-              value={amount}
               onChange={e => {
-                const v = e.target.value === '' ? 0 : Math.min(Math.max(Number(e.target.value), 0), MAX_USD);
-                setAmount(v);
+                if (e.target.value === '') {
+                  setAmount(0);
+                } else if (e.target.value > MAX_USD) {
+                  setAmount(MAX_USD);
+                } else {
+                  setAmount(Number(e.target.value));
+                }
               }}
               className="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 pl-8 pr-4 py-3 text-xl font-bold text-white font-mono outline-none transition-all placeholder-slate-700"
               placeholder="50"
