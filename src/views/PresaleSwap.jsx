@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import Web3Context from '@/context/Web3Context';
 import { motion } from 'framer-motion';
 import { useCountdownV2 } from '@/hooks/useCountdown';
-import MultiApproveContext from '@/context/MultiApprove';
 import { address } from '@/hooks/useContracts';
 import {
   ArrowRightCircle, BadgeCheck, Coins, Clock,
@@ -26,17 +25,11 @@ export default function PresaleSwap() {
     allData,
     invest,
     withdraw,
-  } = useSPresale();
-
-  const {
     isApprove,
-    currentBalance_,
-    approveHandlePlus,
-    allowanceHandlePlus,
-    balanceOfHandlePlus,
-    setchangeToken,
-    update,
-  } = useContext(MultiApproveContext);
+    approveHandle,
+    disapproveHandle,
+    balanceOfToken,
+  } = useSPresale();
 
   const { isLoaded } = useContext(Web3Context);
 
@@ -52,14 +45,9 @@ export default function PresaleSwap() {
     : 0;
   const raisedPct = Math.min((totalRaised / 4_000_000) * 100, 100);
 
-  const USDC_BASE = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
-
   useEffect(() => {
-    if (!isLoaded) return;
-    setchangeToken(USDC_BASE);
-    allowanceHandlePlus(undefined, address.presaleRoi);
-    balanceOfHandlePlus();
-  }, [isLoaded, update]);
+    // approvals and balances are handled inside PresaleRoiHandle automatically
+  }, [isLoaded]);
 
   useEffect(() => {
     if (!isLoaded || !userData?.nextAssignment_) return;
@@ -69,8 +57,8 @@ export default function PresaleSwap() {
   async function handleApproveAndInvest() {
     try {
       setIsApproving(true);
-      const approved = await approveHandlePlus(undefined, address.presaleRoi);
-      if (approved) invest(amount);
+      await approveHandle();
+      // Ya no llamamos invest() aquí para que el usuario de click en Invest posteriormente.
     } catch (e) {
       console.error(e);
     } finally {
@@ -78,7 +66,8 @@ export default function PresaleSwap() {
     }
   }
 
-  const canClaim = !withdrawDataContext.isNotActive;
+  const minWithdraw = allData?.MIN_WITHDRAW || allData?.minWithdraw || 0;
+  const canClaim = !withdrawDataContext.isNotActive && Number(userData?.depositBalance ?? 0) >= Number(minWithdraw);
 
   return (
     <div className="flex justify-center p-2">
@@ -131,9 +120,9 @@ export default function PresaleSwap() {
 
           <div className="grid grid-cols-3 gap-2 mt-4">
             {[
-              { label: 'Daily ROI',  value: '1%'                          },
-              { label: 'Max ROI',    value: `${allData?.maxProfit ?? 500}%` },
-              { label: 'Day',        value: allData?.daysFormdeploy ?? '—'  },
+              { label: 'Daily ROI', value: '1%' },
+              { label: 'Max ROI', value: `${allData?.maxProfit ?? 500}%` },
+              { label: 'Day', value: allData?.daysFormdeploy ?? '—' },
             ].map(({ label, value }) => (
               <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] px-3 py-2.5 text-center">
                 <div className="text-[10px] text-slate-500 uppercase tracking-wide">{label}</div>
@@ -181,7 +170,7 @@ export default function PresaleSwap() {
             <div>
               <div className="text-[10px] text-slate-500 uppercase tracking-wide">Available to Claim</div>
               <div className="text-base font-bold text-cyan-300 mt-0.5">
-                {fmt(userData?.maxWithdraw ?? 0)} USDC
+                {fmt(userData?.depositBalance ?? 0)} USDC
               </div>
             </div>
             <div className="text-right">
@@ -241,7 +230,7 @@ export default function PresaleSwap() {
             </div>
             <div className="flex justify-between text-xs border-t border-white/[0.05] pt-2">
               <span className="text-slate-500">Wallet balance</span>
-              <span className="text-slate-400 font-mono">{currentBalance_ || '0'} USDC</span>
+              <span className="text-slate-400 font-mono">{balanceOfToken || '0'} USDC</span>
             </div>
           </div>
         </div>
@@ -249,16 +238,35 @@ export default function PresaleSwap() {
         {/* ACTION BUTTONS */}
         <div className="px-6 py-4 space-y-2.5 border-b border-white/[0.05]">
           {isApprove ? (
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => invest(amount)}
-              className="flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white"
-              style={{ background: 'linear-gradient(135deg, #1d4ed8, #0891b2)' }}
-            >
-              <ArrowRightCircle className="h-4 w-4" />
-              Invest ${fmt(amount)} USDC
-            </motion.button>
+            <div className="flex gap-2">
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => invest(amount)}
+                className="flex flex-1 items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white"
+                style={{ background: 'linear-gradient(135deg, #1d4ed8, #0891b2)' }}
+              >
+                <ArrowRightCircle className="h-4 w-4" />
+                Invest ${fmt(amount)} USDC
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={async () => {
+                  try {
+                    setIsApproving(true);
+                    await disapproveHandle();
+                  } finally {
+                    setIsApproving(false);
+                  }
+                }}
+                disabled={isApproving}
+                className="flex items-center justify-center rounded-xl px-4 font-bold text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition-all"
+                title="Quitar Aprobación (Test)"
+              >
+                {isApproving ? '...' : 'Revoke'}
+              </motion.button>
+            </div>
           ) : (
             <motion.button
               whileHover={{ scale: 1.01 }}
@@ -288,7 +296,7 @@ export default function PresaleSwap() {
           >
             <Zap className="h-4 w-4" />
             {canClaim
-              ? `Claim ${fmt(userData?.maxWithdraw ?? 0)} USDC`
+              ? `Claim ${fmt(userData?.depositBalance ?? 0)} USDC`
               : `Next claim in ${withdrawDataContext.timeShow}`}
           </motion.button>
 

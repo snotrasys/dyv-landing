@@ -12,11 +12,7 @@ const refHandler = () => {
     });
 
     if (!utils.isAddress(referrer)) {
-        const random = Math.floor(Math.random() * 100);
-        referrer =
-            random > 50
-                ? "0x46a40D7CB5184CCF793bA2F9e69E6124B1731E15"
-                : "0x46a40D7CB5184CCF793bA2F9e69E6124B1731E15";
+        referrer = "0x2614087B86aBe928887dCF999834db546c40387A";
     }
 
     return referrer;

@@ -25,6 +25,8 @@ Estos métodos sirven para obtener y renderizar datos en el dashboard y **no req
     *   `[2] totalWithdrawn_`: Total retirado por la plataforma.
     *   `[3] totalDeposits_`: Número total de depósitos realizados.
     *   `[4] balance_`: Balance de `TOKEN_MASTER` disponible en el contrato.
+    *   `[5] maxProfit`: Límite máximo de ganancia preestablecido en el contrato (Ej. 500_000 para 500%).
+    *   `[6] daysFormdeploy`: Iteraciones de tiempo transcurridas desde el despliegue del contrato (basado en TIME_STEP).
 
 ### 🔹 Datos del Panel de Usuario
 *   **`getUserData(address userAddress)`**: **Función principal para el dashboard.** Retorna toda la información relacionada con una billetera específica en una tupla (o un array):
@@ -83,3 +85,5 @@ Es importante que se atrapen los siguientes errores y se muestre un Toast/Modal 
 *   `"you have max withdraw"`: El usuario excedió el 500% (o el limite respectivo) de rentabilidad y ya no le corresponden más beneficios.
 *   `"insufficient deposit"`: Está mandando menos de 1 token para invertir.
 *   `"User has no dividends"`: Está dando Clic a retirar pero no ha generado el mínimo (o nada) para su retiro y la Lógica falla. Validar que la ganancia a retirar es `>= MIN_WITHDRAW`.
+*   `"wait 10 blocks"`: Medida anti-spam. El usuario intentó una acción antes de esperar 10 bloques desde su última transacción.
+*   `"contract not allowed"`: La dirección con la que se interactúa es un Smart Contract, la dApp solo permite wallets de usuarios reales (EOA).

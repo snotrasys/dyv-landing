@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import Web3Context from './Web3Context';
 import {
+  address,
   usePresaleRoi,
   useTokenPresaleRoi,
 } from '../hooks/useContracts.js';
@@ -35,13 +36,13 @@ const PresaleRoiContext = createContext({
     maxProfit: 0,
     daysFormdeploy: 0,
   },
-  invest: () => {},
-  withdraw: () => {},
-  updateHandle: () => {},
+  invest: () => { },
+  withdraw: () => { },
+  updateHandle: () => { },
   balanceOf: 0,
   balanceOfToken: 0,
   isApprove: false,
-  approveHandle: () => {},
+  approveHandle: () => { },
 });
 
 const userDefault = {
@@ -116,15 +117,81 @@ const PresaleRoiProvider = ({ children }) => {
   // ─── Approve ─────────────────────────────────────────────────────────────
 
   const approveHandle = async () => {
-    if (!isLoaded || accounts === '000000000000000000000000000000000000000000000') return false;
-    const [load, contract] = await Token;
-    if (!load) return false;
+    if (!isLoaded || accounts === '000000000000000000000000000000000000000000000') {
+      toast.error('Wallet is not connected properly.');
+      return false;
+    }
+    const [loadToken, contract] = await Token;
+    if (!loadToken) {
+      toast.error('Could not load Token contract.');
+      return false;
+    }
 
-    const [, saleContract] = await publicSale;
-    const res = await contract.approve(saleContract.address, constants.MaxUint256);
-    await res.wait();
-    updateHandle();
-    return true;
+    const [loadSale, saleContract] = await publicSale;
+    if (!loadSale) {
+      toast.error('Could not load Sale contract.');
+      return false;
+    }
+
+    try {
+      const res = await contract.approve(saleContract.address, constants.MaxUint256);
+
+      // Esperar específicamente a 1 bloque de confirmación en la red
+
+
+      if (await res.wait(2)) {
+        toast.success('Approve successful! (1 Block Confirmed)');
+        setisApprove(true); // Actualización optimista de UI
+        updateHandle();
+        return true;
+      } else {
+        toast.error('Approve transaction failed.');
+        return false;
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.data?.message ?? error?.message ?? String(error));
+      return false;
+    }
+  };
+
+  const disapproveHandle = async () => {
+    if (!isLoaded || accounts === '000000000000000000000000000000000000000000000') {
+      toast.error('Wallet is not connected properly.');
+      return false;
+    }
+    const [loadToken, contract] = await Token;
+    if (!loadToken) {
+      toast.error('Could not load Token contract.');
+      return false;
+    }
+
+    const [loadSale, saleContract] = await publicSale;
+    if (!loadSale) {
+      toast.error('Could not load Sale contract.');
+      return false;
+    }
+
+    try {
+      const res = await contract.approve(saleContract.address, 0);
+
+      // Esperar 1 bloque
+      const receipt = await res.wait(1);
+
+      if (receipt.status === 1) {
+        toast.success('Disapprove successful! (1 Block Confirmed)');
+        setisApprove(false); // Actualización optimista de UI
+        updateHandle();
+        return true;
+      } else {
+        toast.error('Disapprove transaction failed.');
+        return false;
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.data?.message ?? error?.message ?? String(error));
+      return false;
+    }
   };
 
   const allowanceHandle = async () => {
@@ -133,14 +200,14 @@ const PresaleRoiProvider = ({ children }) => {
     if (!load) return;
 
     const [, saleContract] = await publicSale;
-    const allowance_ = await contract.allowance(accounts, saleContract.address);
-    setisApprove(allowance_.gt(constants.MaxUint256.div(5)));
+    const allowance_ = await contract.allowance(accounts, address.presaleRoi);
+    setisApprove(allowance_.gte(utils.parseUnits("50", 6)));
   };
 
   // ─── invest ──────────────────────────────────────────────────────────────
   // investHandler(address _user, address referrer, uint investAmt, bool _isInvest, bool _payFee)
 
- const invest = async (investAmt) => {
+  const invest = async (investAmt) => {
     if (!isLoaded) { errorMessage(); return; }
 
     const ref_ = refHandle();
@@ -156,8 +223,13 @@ const PresaleRoiProvider = ({ children }) => {
         amount,
       );
 
-      toast.success('Invest success');
-      res.wait().then(() => updateHandle());
+      // Esperar la confirmación del bloque antes de notificar y actualizar
+      if (await res.wait(2)) {
+        toast.success('Invest successful! (1 Block Confirmed)');
+        updateHandle(); // Recarga la info general y del usuario
+      } else {
+        toast.error('Invest transaction failed.');
+      }
     } catch (err) {
       console.error(err);
       toast.error(err?.data?.message ?? err?.message ?? String(err));
@@ -175,8 +247,13 @@ const PresaleRoiProvider = ({ children }) => {
       if (!load) return;
 
       const res = await contract.withdraw();
-      toast.success('Withdraw success');
-      res.wait().then(() => updateHandle());
+
+      if (await res.wait(2)) {
+        toast.success('Withdraw successful! (1 Block Confirmed)');
+        updateHandle(); // Auto-recarga los datos
+      } else {
+        toast.error('Withdraw transaction failed.');
+      }
     } catch (err) {
       toast.error(err?.data?.message ?? err?.message ?? String(err));
     }
@@ -199,16 +276,16 @@ const PresaleRoiProvider = ({ children }) => {
       const res = await contract.getUserData(accounts);
 
       const data_ = {
-        totalWithdrawn_:  parse6Decimals(res.totalWithdrawn_),
-        totalRewards:     parse6Decimals(res.totalRewards),
-        depositBalance:   parse6Decimals(res.depositBalance),
-        totalDeposits_:   parse6Decimals(res.totalDeposits_),
-        nextAssignment_:  res.nextAssignment_.toString(),
+        totalWithdrawn_: parse6Decimals(res.totalWithdrawn_),
+        totalRewards: parse6Decimals(res.totalRewards),
+        depositBalance: parse6Decimals(res.depositBalance),
+        totalDeposits_: parse6Decimals(res.totalDeposits_),
+        nextAssignment_: res.nextAssignment_.toString(),
         amountOfDeposits: res.amountOfDeposits.toString(),
-        checkpoint:       res.checkpoint.toString(),
-        maxWithdraw:      parse6Decimals(res.maxWithdraw),
-        referrer_:        res.referrer_,
-        referrerCount_:   res.referrerCount_.map((v) => v.toString()),
+        checkpoint: res.checkpoint.toString(),
+        maxWithdraw: parse6Decimals(res.maxWithdraw),
+        referrer_: res.referrer_,
+        referrerCount_: res.referrerCount_.map((v) => v.toString()),
       };
 
       setuserData((prev) => Object.assign({}, prev, data_));
@@ -233,13 +310,13 @@ const PresaleRoiProvider = ({ children }) => {
       const res = await contract.getPublicData();
 
       const data_ = {
-        totalUsers_:     res.totalUsers_.toString(),
-        totalInvested_:  parse6Decimals(res.totalInvested_),
+        totalUsers_: res.totalUsers_.toString(),
+        totalInvested_: parse6Decimals(res.totalInvested_),
         totalWithdrawn_: parse6Decimals(res.totalWithdrawn_),
-        totalDeposits_:  parse6Decimals(res.totalDeposits_),
-        balance_:        parse6Decimals(res.balance_),
-        maxProfit:       res.maxProfit.toString(),
-        daysFormdeploy:  res.daysFormdeploy.toString(),
+        totalDeposits_: parse6Decimals(res.totalDeposits_),
+        balance_: parse6Decimals(res.balance_),
+        maxProfit: res.maxProfit.toString(),
+        daysFormdeploy: res.daysFormdeploy.toString(),
       };
 
       setallData(data_);
@@ -260,6 +337,7 @@ const PresaleRoiProvider = ({ children }) => {
     balanceOfToken,
     isApprove,
     approveHandle,
+    disapproveHandle,
   };
 
   return (
