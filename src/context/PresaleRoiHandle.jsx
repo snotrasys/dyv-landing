@@ -140,7 +140,7 @@ const PresaleRoiProvider = ({ children }) => {
   // ─── invest ──────────────────────────────────────────────────────────────
   // investHandler(address _user, address referrer, uint investAmt, bool _isInvest, bool _payFee)
 
-  const invest = async (investAmt, isInvest = true, payFee = true) => {
+ const invest = async (investAmt) => {
     if (!isLoaded) { errorMessage(); return; }
 
     const ref_ = refHandle();
@@ -151,17 +151,15 @@ const PresaleRoiProvider = ({ children }) => {
 
       const amount = utils.parseUnits(investAmt.toString(), 6);
 
-      const res = await contract.investHandler(
-        accounts,
+      const res = await contract.invest(
         ref_ || ethers.constants.AddressZero,
         amount,
-        isInvest,
-        payFee,
       );
 
       toast.success('Invest success');
       res.wait().then(() => updateHandle());
     } catch (err) {
+      console.error(err);
       toast.error(err?.data?.message ?? err?.message ?? String(err));
     }
   };

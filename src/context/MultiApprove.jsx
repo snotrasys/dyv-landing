@@ -83,21 +83,22 @@ const updateHandle = () => {
 
 
 
-  const approveHandlePlus = async (addr,appr) => {    
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    addr = addr || changeToken;    
-    appr = appr || address.fantom;
-    
-    const contract = await contractHandle(addr);
-    
-    const res = await contract.approve(appr, constants.MaxUint256);
-    
-    res.wait().then(() => updateHandle());
-  };
+const approveHandlePlus = async (addr, appr) => {
+  if (
+    !isLoaded &&
+    accounts != '000000000000000000000000000000000000000000000'
+  )
+    return false;
+  addr = addr || changeToken;
+  appr = appr || address.fantom;
+
+  const contract = await contractHandle(addr);
+
+  const res = await contract.approve(appr, constants.MaxUint256);
+  await res.wait(); // ← espera confirmación on-chain
+  updateHandle();   // ← ahora sí dispara el useEffect y re-chequea allowance
+  return true;
+};
   const datas = {
     isApprove,
     currentBalance_,

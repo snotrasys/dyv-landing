@@ -57,9 +57,9 @@ export default function PresaleSwap() {
     balanceOfHandlePlus();
   }, [isLoaded, update]);
 
-  useEffect(() => {
+ useEffect(() => {
     if (!isLoaded || !userData?.nextAssignment_) return;
-    withdrawDataContext.setDate(userData.nextAssignment_);
+    withdrawDataContext.setDate(Number(userData.nextAssignment_));
   }, [userData, isLoaded]);
 
   async function handleApproveAndInvest() {
