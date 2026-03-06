@@ -67,7 +67,10 @@ export default function PresaleSwap() {
   }
 
   const minWithdraw = allData?.MIN_WITHDRAW || allData?.minWithdraw || 0;
-  const canClaim = !withdrawDataContext.isNotActive && Number(userData?.depositBalance ?? 0) >= Number(minWithdraw);
+
+  // El usuario indica que lo disponible a retirar viene en allData.balance_
+  const availableToClaim = Number(allData?.balance_ ?? 0);
+  const canClaim = !withdrawDataContext.isNotActive && availableToClaim >= Number(minWithdraw);
 
   return (
     <div className="flex justify-center p-2">
@@ -170,7 +173,7 @@ export default function PresaleSwap() {
             <div>
               <div className="text-[10px] text-slate-500 uppercase tracking-wide">Available to Claim</div>
               <div className="text-base font-bold text-cyan-300 mt-0.5">
-                {fmt(userData?.depositBalance ?? 0)} USDC
+                {fmt(availableToClaim)} USDC
               </div>
             </div>
             <div className="text-right">
@@ -296,7 +299,7 @@ export default function PresaleSwap() {
           >
             <Zap className="h-4 w-4" />
             {canClaim
-              ? `Claim ${fmt(userData?.depositBalance ?? 0)} USDC`
+              ? `Claim ${fmt(availableToClaim)} USDC`
               : `Next claim in ${withdrawDataContext.timeShow}`}
           </motion.button>
 

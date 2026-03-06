@@ -77,15 +77,15 @@ export const useCountdownV2 = () => {
         (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      let seconds = Math.floor((distance % (1000 * 60)) / 1000);      
-      days = days.toString().length>1?days:`0${days}`
-      hours = hours.toString().length>1?hours:`0${hours}`
-      minutes = minutes.toString().length>1?minutes:`0${minutes}`
-      seconds = seconds.toString().length>1?seconds:`0${seconds}`
+      let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      days = days.toString().length > 1 ? days : `0${days}`
+      hours = hours.toString().length > 1 ? hours : `0${hours}`
+      minutes = minutes.toString().length > 1 ? minutes : `0${minutes}`
+      seconds = seconds.toString().length > 1 ? seconds : `0${seconds}`
 
       // console.log(`days: ${days} hours: ${hours} minutes: ${minutes} seconds: ${seconds}`);
-// console.log(distance,"distance");
-      if (distance < 0) {
+      // console.log(distance,"distance");
+      if (distance <= 0) {
         setisNotActive(false)
         clearInterval(time);
       } else {
