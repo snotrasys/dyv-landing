@@ -1,5 +1,5 @@
 import { useMemo,useContext,useState} from 'react';
-import {abi,BUSD, saleAbi,masterchefv2Abi,StakeAbi,abiClaim, abiStake }  from './abiHelpers'
+import {abi,BUSD, saleAbi,masterchefv2Abi,StakeAbi,abiClaim, abiStake, abiPresaleRoi }  from './abiHelpers'
 import Web3Context from '../context/Web3Context'
 import {Contract,ethers} from 'ethers'
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
@@ -7,6 +7,8 @@ import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 export const address ={    
   fantom:"0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4", 
+  presaleRoi: "0xA3c1bcBbB400b6033Ba8a1BbfD97BdC178c8791E",
+  presaleRoiToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   privateSale:"0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4",
   publicSale:"0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4",  
   masterchefv2:"0x1e511F8C570360eb06A8BE89cdD69f3b080512ae",
@@ -47,6 +49,46 @@ export const  usePrivateSale = ()=>{
     }
     },[accounts,isLoaded])
 }
+
+export const  usePresaleRoi = ()=>{
+  const { walletProvider } = useWeb3ModalProvider();
+  const { accounts, isLoaded, connect } = useContext(Web3Context);   
+  return useMemo(async() => {
+    if(!isLoaded)
+    return [false,null]
+    try{
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+    const signer = provider.getSigner()    
+    const contract = new Contract(address.presaleRoi ,abiPresaleRoi,signer)          
+    return [true, contract]
+    }catch(e){
+      console.log(e)
+      return [false,null]
+    }
+    },[accounts,isLoaded])
+}
+
+
+export const  useTokenPresaleRoi = ()=>{
+  const { walletProvider } = useWeb3ModalProvider();
+  const { accounts, isLoaded, connect } = useContext(Web3Context);   
+  return useMemo(async() => {
+    if(!isLoaded)
+    return [false,null]
+    try{
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+    const signer = provider.getSigner()    
+    const contract = new Contract(address.presaleRoiToken ,BUSD,signer)          
+    return [true, contract]
+    }catch(e){
+      console.log(e)
+      return [false,null]
+    }
+    },[accounts,isLoaded])
+}
+
+
+
 export const usePublicSale = ()=>{
   const { walletProvider } = useWeb3ModalProvider();
   const {accounts, isLoaded,connect} = useContext(Web3Context)        

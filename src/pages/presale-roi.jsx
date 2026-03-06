@@ -2,14 +2,14 @@
 import { Layout } from '@/components/app/Layout';
 import PresaleSwap from '@/views/PresaleSwap';
 import React, { useEffect } from 'react';
-import { SwapProvider } from '@/context/SwapHandle';
+import { PresaleRoiProvider } from '@/context/PresaleRoiHandle';
 import { motion } from 'framer-motion';
-import PresaleSwapOld from '@/views/PresaleSwapOld';
+
 
 function Private() {
   return (
     <Layout>
-      <SwapProvider>
+      <PresaleRoiProvider>
         <div className="mx-auto pt-12 px-4 lg:grid max-w-7xl items-center lg:pt-16 lg:grid-cols-2">
           <div className="relative flex flex-col items-center lg:mt-0 mt-20">
             {/* Logo and title with animations */}
@@ -164,7 +164,7 @@ function Private() {
             <PresaleSwap />
           </motion.div>
         </div>
-      </SwapProvider>
+      </PresaleRoiProvider>
     </Layout>
   );
 }

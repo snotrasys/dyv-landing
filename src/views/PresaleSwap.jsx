@@ -1,19 +1,16 @@
 import React, { useState, useContext, useEffect } from 'react';
 import Web3Context from '@/context/Web3Context';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useCountdown, useCountdownV2 } from '@/hooks/useCountdown';
-import { useSwap_ } from '@/context/SwapHandle';
+import { motion } from 'framer-motion';
+import { useCountdownV2 } from '@/hooks/useCountdown';
 import MultiApproveContext from '@/context/MultiApprove';
 import { address } from '@/hooks/useContracts';
 import {
-  Wallet, ArrowRightCircle, BadgeCheck, Coins, Clock,
-  ChevronDown, DollarSign, Timer, CheckCircle2,
-  RefreshCw, TrendingUp, Zap
+  ArrowRightCircle, BadgeCheck, Coins, Clock,
+  DollarSign, Zap
 } from 'lucide-react';
 import CardRef from './CardRef';
-import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 import clsx from 'clsx';
-import TokenHandle from '@/context/TokenHandle';
+import { useSPresale } from '@/context/PresaleRoiHandle';
 
 const DAILY_RATE = 1.0;
 const MIN_USD = 50;
@@ -24,33 +21,31 @@ function fmt(n, dec = 2) {
 }
 
 export default function PresaleSwap() {
-  const { userData, allData, invest, withdraw, withdrawData } = useSwap_();
-  const { accounts, isLoaded, connect } = useContext(Web3Context);
+  const {
+    userData,
+    allData,
+    invest,
+    withdraw,
+  } = useSPresale();
+
   const {
     isApprove,
     currentBalance_,
     approveHandlePlus,
     allowanceHandlePlus,
     balanceOfHandlePlus,
-    update
+    update,
   } = useContext(MultiApproveContext);
-  const { withdrawTokens } = useContext(TokenHandle);
+
+  const { isLoaded } = useContext(Web3Context);
 
   const withdrawDataContext = useCountdownV2();
-  const Presale = UsePresaleVesting();
-
   const [amount, setAmount] = useState(50);
   const [isApproving, setIsApproving] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
 
-  // Oracle price — reemplazar con hook real: const { dyvPrice, refreshPrice } = useOraclePrice();
-  const [dyvPrice, setDyvPrice] = useState(0.021);
-  const [oracleRefreshing, setOracleRefreshing] = useState(false);
+  const dailyReturn = amount * (DAILY_RATE / 100);
 
-  const dyvForAmount = amount > 0 ? (amount / dyvPrice) : 0;
-  const dailyReturn  = amount * (DAILY_RATE / 100);
-
+  // allData vars: totalInvested_, totalUsers_, maxProfit, daysFormdeploy
   const totalRaised = allData?.totalInvested_
     ? Number(allData.totalInvested_) + 105740
     : 0;
@@ -58,37 +53,25 @@ export default function PresaleSwap() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    allowanceHandlePlus(undefined, address.privateSale);
+    allowanceHandlePlus(undefined, address.presaleRoiToken);
     balanceOfHandlePlus();
   }, [isLoaded, update]);
 
   useEffect(() => {
-    if (!isLoaded || !userData?.nextDatesRaw) return;
-    withdrawDataContext.setDate(userData.nextDatesRaw);
+    if (!isLoaded || !userData?.nextAssignment_) return;
+    withdrawDataContext.setDate(userData.nextAssignment_);
   }, [userData, isLoaded]);
 
   async function handleApproveAndInvest() {
     try {
       setIsApproving(true);
-      const approved = await approveHandlePlus(undefined, address.privateSale);
+      const approved = await approveHandlePlus(undefined, address.presaleRoiToken);
       if (approved) invest(amount);
     } catch (e) {
       console.error(e);
     } finally {
       setIsApproving(false);
     }
-  }
-
-  async function refreshOracle() {
-    setOracleRefreshing(true);
-    // const price = await getOraclePrice(); setDyvPrice(price);
-    await new Promise(r => setTimeout(r, 700));
-    setOracleRefreshing(false);
-  }
-
-  function isAdmin(addr) {
-    return ['0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136']
-      .some(a => a.toLowerCase() === addr?.toLowerCase());
   }
 
   const canClaim = !withdrawDataContext.isNotActive;
@@ -121,8 +104,6 @@ export default function PresaleSwap() {
               <span className="text-[11px] font-semibold text-emerald-400 tracking-wide">LIVE</span>
             </div>
           </div>
-
-   
         </div>
 
         {/* PRESALE PROGRESS */}
@@ -144,10 +125,11 @@ export default function PresaleSwap() {
             <span>$4,000,000</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 mt-4">
+          <div className="grid grid-cols-3 gap-2 mt-4">
             {[
-              { label: 'Daily ROI', value: '1%'  },
-              { label: 'Max ROI',   value: '500%'  },
+              { label: 'Daily ROI',  value: '1%'                          },
+              { label: 'Max ROI',    value: `${allData?.maxProfit ?? 500}%` },
+              { label: 'Day',        value: allData?.daysFormdeploy ?? '—'  },
             ].map(({ label, value }) => (
               <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] px-3 py-2.5 text-center">
                 <div className="text-[10px] text-slate-500 uppercase tracking-wide">{label}</div>
@@ -160,39 +142,42 @@ export default function PresaleSwap() {
         {/* MY STATS */}
         <div className="px-6 py-4 border-b border-white/[0.05]">
           <div className="grid grid-cols-2 gap-3">
+
+            {/* Invested = totalDeposits_ */}
             <div className="rounded-xl bg-blue-500/[0.06] border border-blue-500/15 p-4">
               <div className="flex items-center gap-1.5 mb-2">
                 <DollarSign className="h-3.5 w-3.5 text-blue-400" />
                 <span className="text-[10px] font-semibold tracking-widest text-blue-400/70 uppercase">Invested</span>
               </div>
               <div className="text-xl font-bold text-white leading-none">
-                {fmt(userData?.invest ?? 0)} <span className="text-xs font-normal text-slate-500">USDC</span>
+                {fmt(userData?.totalDeposits_ ?? 0)} <span className="text-xs font-normal text-slate-500">USDC</span>
               </div>
               <div className="text-[11px] text-slate-600 mt-1 font-mono">
-                ≈ {fmt((userData?.invest ?? 0) / dyvPrice, 0)} DYV
+                Balance: {fmt(userData?.depositBalance ?? 0)} USDC
               </div>
             </div>
 
+            {/* Withdrawn = totalWithdrawn_ */}
             <div className="rounded-xl bg-emerald-500/[0.06] border border-emerald-500/15 p-4">
               <div className="flex items-center gap-1.5 mb-2">
                 <Coins className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="text-[10px] font-semibold tracking-widest text-emerald-400/70 uppercase">Total Claimed</span>
+                <span className="text-[10px] font-semibold tracking-widest text-emerald-400/70 uppercase">Withdrawn</span>
               </div>
               <div className="text-xl font-bold text-white leading-none">
-                {fmt(userData?.totalWithdrawn ?? 0, 4)} <span className="text-xs font-normal text-slate-500">DYV</span>
+                {fmt(userData?.totalWithdrawn_ ?? 0)} <span className="text-xs font-normal text-slate-500">USDC</span>
               </div>
               <div className="text-[11px] text-slate-600 mt-1 font-mono">
-                ≈ ${fmt((userData?.totalWithdrawn ?? 0) * dyvPrice)}
+                Rewards: {fmt(userData?.totalRewards ?? 0)} USDC
               </div>
             </div>
           </div>
 
-          {/* Available to claim */}
+          {/* Available to claim = maxWithdraw */}
           <div className="mt-3 rounded-xl bg-white/[0.02] border border-white/[0.06] px-4 py-3 flex items-center justify-between">
             <div>
               <div className="text-[10px] text-slate-500 uppercase tracking-wide">Available to Claim</div>
               <div className="text-base font-bold text-cyan-300 mt-0.5">
-                {fmt(userData?.currentUserBalance ?? 0, 4)} DYV
+                {fmt(userData?.maxWithdraw ?? 0)} USDC
               </div>
             </div>
             <div className="text-right">
@@ -247,16 +232,16 @@ export default function PresaleSwap() {
 
           <div className="rounded-xl bg-white/[0.02] border border-white/[0.05] px-4 py-3 space-y-2">
             <div className="flex justify-between text-xs">
-              <span className="text-slate-500">You send</span>
-              <span className="text-white font-mono font-semibold">{fmt(dyvForAmount, 2)} DYV</span>
+              <span className="text-slate-500">You invest</span>
+              <span className="text-white font-mono font-semibold">${fmt(amount)} USDC</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-slate-500">Daily return</span>
               <span className="text-cyan-400 font-mono">≈ ${fmt(dailyReturn)} / day</span>
             </div>
             <div className="flex justify-between text-xs border-t border-white/[0.05] pt-2">
-              <span className="text-slate-500">Balance</span>
-              <span className="text-slate-400 font-mono">{currentBalance_ || '0'} DYV</span>
+              <span className="text-slate-500">Wallet balance</span>
+              <span className="text-slate-400 font-mono">{currentBalance_ || '0'} USDC</span>
             </div>
           </div>
         </div>
@@ -272,8 +257,7 @@ export default function PresaleSwap() {
               style={{ background: 'linear-gradient(135deg, #1d4ed8, #0891b2)' }}
             >
               <ArrowRightCircle className="h-4 w-4" />
-              Invest {fmt(dyvForAmount, 2)} DYV
-              <span className="text-blue-300/70 font-normal text-xs">(≈ ${fmt(amount)})</span>
+              Invest ${fmt(amount)} USDC
             </motion.button>
           ) : (
             <motion.button
@@ -288,7 +272,7 @@ export default function PresaleSwap() {
               style={!isApproving ? { background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' } : {}}
             >
               {isApproving ? <Clock className="h-4 w-4 animate-pulse" /> : <BadgeCheck className="h-4 w-4" />}
-              {isApproving ? 'Approving...' : 'Approve DYV'}
+              {isApproving ? 'Approving...' : 'Approve USDC'}
             </motion.button>
           )}
 
@@ -304,99 +288,12 @@ export default function PresaleSwap() {
           >
             <Zap className="h-4 w-4" />
             {canClaim
-              ? `Claim ${fmt(userData?.currentUserBalance ?? 0, 4)} DYV`
+              ? `Claim ${fmt(userData?.maxWithdraw ?? 0)} USDC`
               : `Next claim in ${withdrawDataContext.timeShow}`}
           </motion.button>
 
           <CardRef />
         </div>
-
-        {/* CLAIM HISTORY */}
-        {withdrawData?.length > 0 && (
-          <div className="px-6 py-3 border-b border-white/[0.05]">
-            <button
-              onClick={() => setShowHistory(h => !h)}
-              className="flex w-full items-center justify-between py-1"
-            >
-              <div className="flex items-center gap-2">
-                <Clock className="h-3.5 w-3.5 text-slate-500" />
-                <span className="text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">
-                  Claim History ({withdrawData.length})
-                </span>
-              </div>
-              <motion.div animate={{ rotate: showHistory ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronDown className="h-4 w-4 text-slate-600" />
-              </motion.div>
-            </button>
-
-            <AnimatePresence initial={false}>
-              {showHistory && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.22 }}
-                  className="overflow-hidden"
-                >
-                  <div className="pt-3 space-y-2">
-                    {withdrawData.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/[0.05] px-3 py-2.5">
-                        <div className="flex items-center gap-2.5">
-                          <div className="h-5 w-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                            <span className="text-[10px] text-emerald-400 font-bold">{i + 1}</span>
-                          </div>
-                          <div>
-                            <div className="text-sm font-semibold text-white">{fmt(item.tokenAmount, 4)} DYV</div>
-                            <div className="text-[11px] text-slate-600">≈ ${fmt(item.tokenAmount * dyvPrice)}</div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs text-slate-500 font-mono">{item.date}</div>
-                          <div className="flex items-center gap-1 justify-end mt-0.5">
-                            <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                            <span className="text-[10px] text-emerald-500">claimed</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
-
-        {/* ADMIN PANEL */}
-        {isAdmin(accounts) && (
-          <div className="px-6 py-3 border-b border-white/[0.05]">
-            <button onClick={() => setShowAdmin(a => !a)} className="flex w-full items-center justify-between py-1">
-              <span className="text-[11px] font-semibold tracking-[0.12em] text-red-500/50 uppercase">Admin Controls</span>
-              <motion.div animate={{ rotate: showAdmin ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronDown className="h-4 w-4 text-red-500/40" />
-              </motion.div>
-            </button>
-            <AnimatePresence initial={false}>
-              {showAdmin && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.22 }}
-                  className="overflow-hidden"
-                >
-                  <div className="pt-3 grid grid-cols-2 gap-2">
-                    <button onClick={() => Presale.start()}               className="rounded-lg py-2.5 px-3 text-xs font-semibold text-green-200 bg-green-900/30 border border-green-700/20 hover:bg-green-800/40 transition-colors">Start Sales</button>
-                    <button onClick={() => Presale.stop()}                className="rounded-lg py-2.5 px-3 text-xs font-semibold text-red-200 bg-red-900/30 border border-red-700/20 hover:bg-red-800/40 transition-colors">Stop Sales</button>
-                    <button onClick={() => Presale.starTWithDrawHandle()} className="rounded-lg py-2.5 px-3 text-xs font-semibold text-amber-200 bg-amber-900/30 border border-amber-700/20 hover:bg-amber-800/40 transition-colors">Start Withdrawals</button>
-                    <button onClick={() => Presale.stopWithDraw()}        className="rounded-lg py-2.5 px-3 text-xs font-semibold text-orange-200 bg-orange-900/30 border border-orange-700/20 hover:bg-orange-800/40 transition-colors">Stop Withdrawals</button>
-                    <button onClick={() => Presale.Claim()}               className="rounded-lg py-2.5 px-3 text-xs font-semibold text-orange-200 bg-orange-900/30 border border-orange-700/20 hover:bg-orange-800/40 transition-colors">Claim Fee</button>
-                    <button onClick={() => Presale.Claim2()}              className="rounded-lg py-2.5 px-3 text-xs font-semibold text-orange-200 bg-orange-900/30 border border-orange-700/20 hover:bg-orange-800/40 transition-colors">Claim Fee 2</button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
 
         {/* FOOTER */}
         <div className="px-6 py-4">
