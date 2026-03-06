@@ -1,8 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import Web3Context from './Web3Context';
 import {
-  usePrivateSale,
-  usePublicSale,
+  usePresaleRoi,
+  useTokenPresaleRoi,
 } from '../hooks/useContracts.js';
 import { constants, ethers, utils } from 'ethers';
 
@@ -77,9 +77,9 @@ const PresaleRoiProvider = ({ children }) => {
   const [balanceOfToken, setbalanceOfToken_] = useState(0);
   const [isApprove, setisApprove] = useState(false);
 
-  const privateSale = usePrivateSale();
-  const publicSale = usePublicSale();
-  const Token = useBUSD(); // keep as-is (approve needs it)
+
+  const publicSale = usePresaleRoi();
+  const Token = useTokenPresaleRoi(); // keep as-is (approve needs it)
 
   useEffect(() => {
     if (!isLoaded) return;
