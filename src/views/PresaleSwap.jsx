@@ -2,12 +2,12 @@ import React, { useState, useContext, useEffect } from 'react';
 import Web3Context from '@/context/Web3Context';
 import { motion } from 'framer-motion';
 import { useCountdownV2 } from '@/hooks/useCountdown';
-import { address } from '@/hooks/useContracts';
+
 import {
   ArrowRightCircle, BadgeCheck, Coins, Clock,
   DollarSign, Zap
 } from 'lucide-react';
-import CardRef from './CardRef';
+
 import clsx from 'clsx';
 import { useSPresale } from '@/context/PresaleRoiHandle';
 
@@ -15,8 +15,11 @@ const DAILY_RATE = 1.0;
 const MIN_USD = 50;
 const MAX_USD = 2000;
 
-function fmt(n, dec = 2) {
-  return Number(n ?? 0).toLocaleString('en-US', { maximumFractionDigits: dec });
+function fmt(n, dec = 4) {
+  return Number(n ?? 0).toLocaleString('en-US', {
+    minimumFractionDigits: dec,
+    maximumFractionDigits: dec
+  });
 }
 
 export default function PresaleSwap() {
@@ -73,9 +76,10 @@ export default function PresaleSwap() {
 
   const isPaused = allData?.isPaused;
   const hasMaxWithdraw = userData?.userHasMaxWithDraw;
-  const timePassed = userData?.checkUser; // Alternativamente, validado por withdrawDataContext
 
-  const canClaim = !isPaused && !hasMaxWithdraw && timePassed && !withdrawDataContext.isNotActive && availableToClaim >= Number(minWithdraw);
+  // Usamos el contador en vivo (!withdrawDataContext.isNotActive representa que expiró la cuenta atrás)
+  // en lugar de usar el static `userData.checkUser` que requiere refrescar la página.
+  const canClaim = !isPaused && !hasMaxWithdraw && !withdrawDataContext.isNotActive && availableToClaim > 0 && availableToClaim >= Number(minWithdraw);
 
   return (
     <div className="flex justify-center p-2">
@@ -93,11 +97,12 @@ export default function PresaleSwap() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600/30 to-blue-900/60 border border-blue-500/20 flex items-center justify-center">
+
                 <img src="/logo.png" alt="DYV" className="h-5 w-5" onError={e => { e.target.style.display = 'none'; }} />
               </div>
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.15em] text-blue-400/80 uppercase">D&V Token</p>
-                <h1 className="text-base font-bold text-white leading-none mt-0.5">Presale</h1>
+                <h1 className="text-base font-bold text-white leading-none mt-0.5">Stake</h1>
               </div>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1">
@@ -129,7 +134,7 @@ export default function PresaleSwap() {
           <div className="grid grid-cols-3 gap-2 mt-4">
             {[
               { label: 'Daily ROI', value: '1%' },
-              { label: 'Max ROI', value: `${allData?.maxProfit ?? 500}%` },
+              { label: 'Max ROI', value: `${allData?.maxProfit ? Number(allData.maxProfit) / 1000 : 500}%` },
               { label: 'Day', value: allData?.daysFormdeploy ?? '—' },
             ].map(({ label, value }) => (
               <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] px-3 py-2.5 text-center">
@@ -316,7 +321,7 @@ export default function PresaleSwap() {
                   : `Next claim in ${withdrawDataContext.timeShow}`}
           </motion.button>
 
-          <CardRef />
+
         </div>
 
         {/* FOOTER */}

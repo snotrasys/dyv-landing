@@ -12,7 +12,7 @@ import refHandle from '../hooks/utils';
 
 // Token uses 6 decimals (e.g. USDT/USDC)
 const parse6Decimals = (value) =>
-  Number(ethers.utils.formatUnits(value, 6)).toFixed(2);
+  Number(ethers.utils.formatUnits(value, 6)).toFixed(4);
 
 const PresaleRoiContext = createContext({
   userData: {
