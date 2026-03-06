@@ -68,8 +68,8 @@ export default function PresaleSwap() {
 
   const minWithdraw = allData?.MIN_WITHDRAW || allData?.minWithdraw || 0;
 
-  // El usuario indica que lo disponible a retirar viene en allData.balance_
-  const availableToClaim = Number(allData?.balance_ ?? 0);
+  // El saldo disponible en tiempo real para retirar del usuario está en userData.maxWithdraw
+  const availableToClaim = Number(userData?.maxWithdraw ?? 0);
   const canClaim = !withdrawDataContext.isNotActive && availableToClaim >= Number(minWithdraw);
 
   return (
