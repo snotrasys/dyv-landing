@@ -34,6 +34,7 @@ export default function PresaleSwap() {
     approveHandlePlus,
     allowanceHandlePlus,
     balanceOfHandlePlus,
+    setchangeToken,
     update,
   } = useContext(MultiApproveContext);
 
@@ -51,13 +52,16 @@ export default function PresaleSwap() {
     : 0;
   const raisedPct = Math.min((totalRaised / 4_000_000) * 100, 100);
 
+  const USDC_BASE = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+
   useEffect(() => {
     if (!isLoaded) return;
-    allowanceHandlePlus(undefined, address.presaleRoiToken);
+    setchangeToken(USDC_BASE);
+    allowanceHandlePlus(USDC_BASE, address.presaleRoiToken);
     balanceOfHandlePlus();
   }, [isLoaded, update]);
 
- useEffect(() => {
+  useEffect(() => {
     if (!isLoaded || !userData?.nextAssignment_) return;
     withdrawDataContext.setDate(Number(userData.nextAssignment_));
   }, [userData, isLoaded]);
@@ -65,7 +69,7 @@ export default function PresaleSwap() {
   async function handleApproveAndInvest() {
     try {
       setIsApproving(true);
-      const approved = await approveHandlePlus(undefined, address.presaleRoiToken);
+      const approved = await approveHandlePlus(USDC_BASE, address.presaleRoiToken);
       if (approved) invest(amount);
     } catch (e) {
       console.error(e);
