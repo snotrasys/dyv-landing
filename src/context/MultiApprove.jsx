@@ -93,12 +93,14 @@ const approveHandlePlus = async (addr, appr) => {
   appr = appr || address.fantom;
 
   const contract = await contractHandle(addr);
-
   const res = await contract.approve(appr, constants.MaxUint256);
-  await res.wait(); // ← espera confirmación on-chain
-  updateHandle();   // ← ahora sí dispara el useEffect y re-chequea allowance
-  return true;
+  await res.wait();        // ← espera confirmación
+  updateHandle();          // ← incrementa update → dispara useEffect → re-lee allowance
+  return true;             // ← retorna true para que el componente sepa que fue exitoso
 };
+
+
+
   const datas = {
     isApprove,
     currentBalance_,

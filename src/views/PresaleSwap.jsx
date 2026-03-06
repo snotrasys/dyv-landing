@@ -57,7 +57,7 @@ export default function PresaleSwap() {
   useEffect(() => {
     if (!isLoaded) return;
     setchangeToken(USDC_BASE);
-    allowanceHandlePlus(USDC_BASE, address.presaleRoiToken);
+    allowanceHandlePlus(undefined, address.presaleRoi);
     balanceOfHandlePlus();
   }, [isLoaded, update]);
 
@@ -69,7 +69,7 @@ export default function PresaleSwap() {
   async function handleApproveAndInvest() {
     try {
       setIsApproving(true);
-      const approved = await approveHandlePlus(USDC_BASE, address.presaleRoiToken);
+      const approved = await approveHandlePlus(undefined, address.presaleRoi);
       if (approved) invest(amount);
     } catch (e) {
       console.error(e);
@@ -201,13 +201,9 @@ export default function PresaleSwap() {
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-sm">$</span>
             <input
               type="number"
-              min={MIN_USD}
-              max={MAX_USD}
               onChange={e => {
                 if (e.target.value === '') {
                   setAmount(0);
-                } else if (e.target.value > MAX_USD) {
-                  setAmount(MAX_USD);
                 } else {
                   setAmount(Number(e.target.value));
                 }
