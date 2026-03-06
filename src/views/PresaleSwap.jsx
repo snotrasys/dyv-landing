@@ -66,11 +66,16 @@ export default function PresaleSwap() {
     }
   }
 
-  const minWithdraw = allData?.MIN_WITHDRAW || allData?.minWithdraw || 0;
+  const minWithdraw = allData?.MIN_WITHDRAW || 0;
 
-  // El saldo disponible en tiempo real para retirar del usuario está en userData.maxWithdraw
-  const availableToClaim = Number(userData?.maxWithdraw ?? 0);
-  const canClaim = !withdrawDataContext.isNotActive && availableToClaim >= Number(minWithdraw);
+  // El saldo disponible en tiempo real para retirar del usuario está en userData.depositBalance
+  const availableToClaim = Number(userData?.depositBalance ?? 0);
+
+  const isPaused = allData?.isPaused;
+  const hasMaxWithdraw = userData?.userHasMaxWithDraw;
+  const timePassed = userData?.checkUser; // Alternativamente, validado por withdrawDataContext
+
+  const canClaim = !isPaused && !hasMaxWithdraw && timePassed && !withdrawDataContext.isNotActive && availableToClaim >= Number(minWithdraw);
 
   return (
     <div className="flex justify-center p-2">
@@ -246,11 +251,15 @@ export default function PresaleSwap() {
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => invest(amount)}
-                className="flex flex-1 items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white"
-                style={{ background: 'linear-gradient(135deg, #1d4ed8, #0891b2)' }}
+                disabled={isPaused}
+                className={clsx(
+                  "flex flex-1 items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white",
+                  isPaused && "opacity-60 cursor-not-allowed bg-slate-700"
+                )}
+                style={!isPaused ? { background: 'linear-gradient(135deg, #1d4ed8, #0891b2)' } : {}}
               >
                 <ArrowRightCircle className="h-4 w-4" />
-                Invest ${fmt(amount)} USDC
+                {isPaused ? 'Paused' : `Invest $${fmt(amount)} USDC`}
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -275,15 +284,15 @@ export default function PresaleSwap() {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleApproveAndInvest}
-              disabled={isApproving}
+              disabled={isApproving || isPaused}
               className={clsx(
                 "flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white transition-all",
-                isApproving ? "opacity-60 cursor-wait bg-slate-700" : ""
+                (isApproving || isPaused) ? "opacity-60 cursor-wait bg-slate-700" : ""
               )}
-              style={!isApproving ? { background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' } : {}}
+              style={!(isApproving || isPaused) ? { background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' } : {}}
             >
-              {isApproving ? <Clock className="h-4 w-4 animate-pulse" /> : <BadgeCheck className="h-4 w-4" />}
-              {isApproving ? 'Approving...' : 'Approve USDC'}
+              {(isApproving || isPaused) ? <Clock className="h-4 w-4 animate-pulse" /> : <BadgeCheck className="h-4 w-4" />}
+              {isApproving ? 'Approving...' : isPaused ? 'Paused' : 'Approve USDC'}
             </motion.button>
           )}
 
@@ -298,9 +307,13 @@ export default function PresaleSwap() {
             style={canClaim ? { background: 'linear-gradient(135deg, #059669, #0d9488)' } : {}}
           >
             <Zap className="h-4 w-4" />
-            {canClaim
-              ? `Claim ${fmt(availableToClaim)} USDC`
-              : `Next claim in ${withdrawDataContext.timeShow}`}
+            {isPaused
+              ? 'Paused'
+              : hasMaxWithdraw
+                ? 'Max Limit Reached'
+                : canClaim
+                  ? `Claim ${fmt(availableToClaim)} USDC`
+                  : `Next claim in ${withdrawDataContext.timeShow}`}
           </motion.button>
 
           <CardRef />

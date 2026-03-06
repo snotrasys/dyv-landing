@@ -19139,7 +19139,7 @@ export const abi_dyv_2 = [
       },
       {
         "internalType": "address",
-        "name": "_mixedRouteQuoterV1",
+        "name": "_pool",
         "type": "address"
       },
       {
@@ -19599,6 +19599,19 @@ export const abi_dyv_2 = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "TOKEN_POOL",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -19853,6 +19866,56 @@ export const abi_dyv_2 = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getExternalWallets",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "TOKEN_MASTER",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "TOKEN_REWARD",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "devWallet",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "defWallet",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "mWallet",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "pWallet",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "pWallet2",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IDYV_V2.ExternalWallets",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -19889,6 +19952,25 @@ export const abi_dyv_2 = [
       {
         "internalType": "uint256",
         "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "price",
         "type": "uint256"
       }
     ],
@@ -20031,35 +20113,6 @@ export const abi_dyv_2 = [
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_fromToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_toToken",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amountIn",
-        "type": "uint256"
-      }
-    ],
-    "name": "getTokenAmountOut",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -20446,25 +20499,6 @@ export const abi_dyv_2 = [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
-      }
-    ],
-    "name": "isContract",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "isPaused",
     "outputs": [
@@ -20491,19 +20525,6 @@ export const abi_dyv_2 = [
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "mixedRouteQuoterV1",
-    "outputs": [
-      {
-        "internalType": "contract IMixedRouteQuoterV1",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",

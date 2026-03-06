@@ -28,6 +28,8 @@ Estos métodos sirven para obtener y renderizar datos en el dashboard y **no req
     *   `[5] maxProfit`: Límite máximo de ganancia preestablecido en el contrato (Ej. 500_000 para 500%).
     *   `[6] daysFormdeploy`: Iteraciones de tiempo transcurridas desde el despliegue del contrato (basado en TIME_STEP).
 
+*   **`getPrice(uint amount)`**: Retorna la equivalencia en `TOKEN_REWARD` calculada usando la conversión directa del pool de Uniswap/Pancake V3 para una cantidad determinada de `TOKEN_MASTER`. (Útil en el frontend para anticipar e indicarle al usuario cuánto va a recibir).
+
 ### 🔹 Datos del Panel de Usuario
 *   **`getUserData(address userAddress)`**: **Función principal para el dashboard.** Retorna toda la información relacionada con una billetera específica en una tupla (o un array):
     *   `[0] totalWithdrawn_`: Saldo total ya retirado.
@@ -67,11 +69,11 @@ El frontend **tiene que confirmar** que el contrato `DYV_V2` tiene la asignació
     *   `investAmt`: La cantidad del monto, convertida a los 6 decimales.
 
 ### 💸 B. Reclamar Ganancias (Withdraw)
-El usuario reclama sus `depositBalance` y sus `totalRewards`. Estas recompensas se le entregarán transformadas al `TOKEN_REWARD` gracias al Swapper de Uniswap interno.
+El usuario reclama sus dividendos acumulados (`depositBalance`). El contrato determinará su valor equivalente llamando internamente a `getPrice(...)` basado en el pool de Pancake/Uniswap V3 y transferirá los fondos en `TOKEN_REWARD` directamente al usuario. *(Nota: El contrato no ejecuta swaps durante el retiro, sino que lo hace al momento de recibir depósitos `invest`).*
 
 *   **Firma:** `withdraw()`
 *   **Condiciones previas antes de enviar:**
-    *   Debe haner pasado el tiempo: `checkUser(address) == true`.
+    *   Debe haber pasado el tiempo de espera: `checkUser(address) == true`.
     *   Y el usuario no debe tener su tope de ganancia máximo: `userHasMaxWithDraw(address) == false`.
     *   El saldo `depositBalance` debe ser al menos `>= MIN_WITHDRAW`.
 
@@ -86,4 +88,3 @@ Es importante que se atrapen los siguientes errores y se muestre un Toast/Modal 
 *   `"insufficient deposit"`: Está mandando menos de 1 token para invertir.
 *   `"User has no dividends"`: Está dando Clic a retirar pero no ha generado el mínimo (o nada) para su retiro y la Lógica falla. Validar que la ganancia a retirar es `>= MIN_WITHDRAW`.
 *   `"wait 10 blocks"`: Medida anti-spam. El usuario intentó una acción antes de esperar 10 bloques desde su última transacción.
-*   `"contract not allowed"`: La dirección con la que se interactúa es un Smart Contract, la dApp solo permite wallets de usuarios reales (EOA).

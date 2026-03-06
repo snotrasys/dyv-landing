@@ -26,6 +26,8 @@ const PresaleRoiContext = createContext({
     maxWithdraw: 0,
     referrer_: '',
     referrerCount_: [],
+    userHasMaxWithDraw: false,
+    checkUser: false,
   },
   allData: {
     totalUsers_: 0,
@@ -35,6 +37,9 @@ const PresaleRoiContext = createContext({
     balance_: 0,
     maxProfit: 0,
     daysFormdeploy: 0,
+    MIN_WITHDRAW: 0,
+    MIN_INVEST: 0,
+    isPaused: false,
   },
   invest: () => { },
   withdraw: () => { },
@@ -56,6 +61,8 @@ const userDefault = {
   maxWithdraw: 0,
   referrer_: '',
   referrerCount_: [],
+  userHasMaxWithDraw: false,
+  checkUser: false,
 };
 
 const PresaleRoiProvider = ({ children }) => {
@@ -72,6 +79,9 @@ const PresaleRoiProvider = ({ children }) => {
     balance_: 0,
     maxProfit: 0,
     daysFormdeploy: 0,
+    MIN_WITHDRAW: 0,
+    MIN_INVEST: 0,
+    isPaused: false,
   });
 
   const [balanceOf, setbalanceOf_] = useState(0);
@@ -275,6 +285,9 @@ const PresaleRoiProvider = ({ children }) => {
 
       const res = await contract.getUserData(accounts);
 
+      const userCheck = await contract.checkUser(accounts);
+      const hasMaxWithdraw = await contract.userHasMaxWithDraw(accounts);
+
       const data_ = {
         totalWithdrawn_: parse6Decimals(res.totalWithdrawn_),
         totalRewards: parse6Decimals(res.totalRewards),
@@ -286,6 +299,8 @@ const PresaleRoiProvider = ({ children }) => {
         maxWithdraw: parse6Decimals(res.maxWithdraw),
         referrer_: res.referrer_,
         referrerCount_: res.referrerCount_.map((v) => v.toString()),
+        checkUser: userCheck,
+        userHasMaxWithDraw: hasMaxWithdraw,
       };
 
       setuserData((prev) => Object.assign({}, prev, data_));
@@ -308,6 +323,9 @@ const PresaleRoiProvider = ({ children }) => {
       if (!load) return;
 
       const res = await contract.getPublicData();
+      const minW = await contract.MIN_WITHDRAW();
+      const minI = await contract.MIN_INVEST();
+      const paused = await contract.isPaused();
 
       const data_ = {
         totalUsers_: res.totalUsers_.toString(),
@@ -317,6 +335,9 @@ const PresaleRoiProvider = ({ children }) => {
         balance_: parse6Decimals(res.balance_),
         maxProfit: res.maxProfit.toString(),
         daysFormdeploy: res.daysFormdeploy.toString(),
+        MIN_WITHDRAW: parse6Decimals(minW),
+        MIN_INVEST: parse6Decimals(minI),
+        isPaused: paused,
       };
 
       setallData(data_);
