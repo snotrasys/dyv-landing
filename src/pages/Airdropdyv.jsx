@@ -76,7 +76,7 @@ export default function AirdropDYV() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 text-center"
+          className="mb-6 text-center mt-20"
         >
           <h1 className="text-3xl font-black tracking-tight text-white">
             Airdrop <span style={{ color: "#60a5fa" }}>DYV</span>
