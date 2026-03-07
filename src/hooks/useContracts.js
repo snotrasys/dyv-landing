@@ -7,7 +7,7 @@ import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 export const address = {
   fantom: "0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4",
-  presaleRoi: "0x95150fDA52e98f0B341E283175fac01984a4E1D3",
+  presaleRoi: "0x9ea869C059512cd34Ae9Cc077fa6aF367b82dF4D",
   presaleRoiToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   privateSale: "0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4",
   publicSale: "0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4",
