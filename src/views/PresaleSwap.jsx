@@ -301,24 +301,15 @@ export default function PresaleSwap() {
             </motion.button>
           )}
 
-          <motion.button
-            whileHover={canClaim ? { scale: 1.01 } : {}}
-            whileTap={canClaim ? { scale: 0.98 } : {}}
-            onClick={() => canClaim && withdraw()}
-            className={clsx(
-              "flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white transition-all",
-              !canClaim && "opacity-50 cursor-not-allowed bg-slate-800 border border-slate-700/40"
-            )}
-            style={canClaim ? { background: 'linear-gradient(135deg, #059669, #0d9488)' } : {}}
+   <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => withdraw()}
+            className="flex w-full items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold text-sm text-white transition-all"
+            style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
           >
             <Zap className="h-4 w-4" />
-            {isPaused
-              ? 'Paused'
-              : hasMaxWithdraw
-                ? 'Max Limit Reached'
-                : canClaim
-                  ? `Claim ${fmt(availableToClaim)} USDC`
-                  : `Next claim in ${withdrawDataContext.timeShow}`}
+            {`Claim ${fmt(userData?.maxWithdraw ?? 0)} USDC`}
           </motion.button>
 
 
