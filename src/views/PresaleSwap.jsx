@@ -113,7 +113,7 @@ export default function PresaleSwap() {
         </div>
 
         {/* PRESALE PROGRESS */}
-        <div className="px-6 py-4 border-b border-white/[0.05]">
+        <div className="hidden px-6 py-4 border-b border-white/[0.05]">
           <div className="flex justify-between items-center mb-2">
             <span className="text-[11px] font-semibold tracking-[0.12em] text-slate-500 uppercase">Presale Progress</span>
             <span className="text-xs font-mono text-slate-400">{raisedPct.toFixed(1)}%</span>
@@ -328,7 +328,7 @@ export default function PresaleSwap() {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between text-[11px] text-slate-600">
             <span>BASE Network · Smart Contract</span>
-            <span className="font-mono">Min ${MIN_USD} — Max ${MAX_USD}</span>
+            <span className="font-mono hidden">Min ${MIN_USD} — Max ${MAX_USD}</span>
           </div>
         </div>
 
