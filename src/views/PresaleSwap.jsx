@@ -309,7 +309,7 @@ export default function PresaleSwap() {
             style={{ background: 'linear-gradient(135deg, #059669, #0d9488)' }}
           >
             <Zap className="h-4 w-4" />
-            {`Claim ${fmt(userData?.maxWithdraw ?? 0)} USDC`}
+            {`Claim ${fmt(availableToClaim ?? 0)} USDC`}
           </motion.button>
 
 
