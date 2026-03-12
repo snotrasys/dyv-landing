@@ -12,7 +12,7 @@ import Web3Context from "../context/Web3Context";
 import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
 
 const VESTING_CONTRACT = "0x5B3B17F9B20D5A95dfe6B9e222F387599A037efa";
-const BASE_RPC = "https://mainnet.base.org";
+const BASE_RPC = "https://frequent-flashy-slug.base-mainnet.quiknode.pro/c768dd581cd676309f6d69af17ec7cd9b3e490e1";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 function fmt(n, dec = 2) {

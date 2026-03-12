@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, Plus, Trash2, RefreshCw, AlertCircle,
-  ExternalLink, X, Loader2, Wallet,
+  ExternalLink, X, Loader2, Wallet, Search,
 } from "lucide-react";
 import { useWeb3Modal } from "@web3modal/ethers5/react";
 import { useWeb3ModalProvider } from "@web3modal/ethers5/react";
@@ -12,8 +12,8 @@ import Web3Context from "../context/Web3Context";
 import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
 
 const VESTING_CONTRACT = "0x5B3B17F9B20D5A95dfe6B9e222F387599A037efa";
-const BASE_RPC = "https://mainnet.base.org";
-const PAGE_SIZE = 10;
+const BASE_RPC = "https://frequent-flashy-slug.base-mainnet.quiknode.pro/c768dd581cd676309f6d69af17ec7cd9b3e490e1";
+const PAGE_SIZE_OPTIONS = [10, 50, 100];
 
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
@@ -54,6 +54,9 @@ export default function PanelAdmin() {
   const [vestings, setVestings] = useState([]);
   const [vestingTotal, setVestingTotal] = useState(0);
   const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [walletFilter, setWalletFilter] = useState("");
+  const [walletFilterInput, setWalletFilterInput] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -109,20 +112,28 @@ export default function PanelAdmin() {
     return () => { active = false; };
   }, [refreshKey]);
 
-  // Load vestings (paginated)
+  // Load vestings (paginated + optional wallet filter)
   useEffect(() => {
     let active = true;
     setLoading(true);
     (async () => {
       try {
         const c = getReadContract();
-        const [items, total] = await c.getAllVestingsBatch(
-          ethers.BigNumber.from(page * PAGE_SIZE),
-          ethers.BigNumber.from(PAGE_SIZE)
-        );
+        const offset = ethers.BigNumber.from(page * pageSize);
+        const limit  = ethers.BigNumber.from(pageSize);
+        let items, total;
+        if (walletFilter && ethers.utils.isAddress(walletFilter)) {
+          const res = await c.getBeneficiaryVestingsBatch(walletFilter, offset, limit);
+          items = res[0] || [];
+          total = res[1]?.toNumber() ?? items.length;
+        } else {
+          const res = await c.getAllVestingsBatch(offset, limit);
+          items = res[0] || [];
+          total = res[1]?.toNumber() ?? items.length;
+        }
         if (!active) return;
         setVestings(items);
-        setVestingTotal(total.toNumber());
+        setVestingTotal(total);
         const uniqueTokens = [...new Set(items.map(v => v.token))];
         if (uniqueTokens.length > 0) {
           const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
@@ -144,7 +155,7 @@ export default function PanelAdmin() {
       finally { if (active) setLoading(false); }
     })();
     return () => { active = false; };
-  }, [page, refreshKey]);
+  }, [page, pageSize, walletFilter, refreshKey]);
 
   // Check admin role when wallet changes
   useEffect(() => {
@@ -235,7 +246,18 @@ export default function PanelAdmin() {
     }
   };
 
-  const totalPages = Math.ceil(vestingTotal / PAGE_SIZE);
+  const totalPages = Math.ceil(vestingTotal / pageSize);
+
+  const applyWalletFilter = () => {
+    setPage(0);
+    setWalletFilter(walletFilterInput.trim());
+  };
+
+  const clearWalletFilter = () => {
+    setWalletFilterInput("");
+    setWalletFilter("");
+    setPage(0);
+  };
 
   // ── render ──────────────────────────────────────────────────────────────
   return (
@@ -355,7 +377,9 @@ export default function PanelAdmin() {
           {/* List header */}
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.05]">
             <div>
-              <span className="text-sm font-black text-white">Todos los vestings</span>
+              <span className="text-sm font-black text-white">
+                {walletFilter ? "Vestings de wallet" : "Todos los vestings"}
+              </span>
               <span className="ml-2 text-[11px] text-slate-600">({vestingTotal})</span>
             </div>
             {isAdmin && (
@@ -368,6 +392,52 @@ export default function PanelAdmin() {
                 {showCreate ? "Cerrar" : "Nuevo"}
               </button>
             )}
+          </div>
+
+          {/* Filter + page size bar */}
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.05]" style={{ background: "rgba(255,255,255,0.015)" }}>
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-600" />
+              <input
+                type="text"
+                value={walletFilterInput}
+                onChange={e => setWalletFilterInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && applyWalletFilter()}
+                placeholder="Filtrar por wallet 0x…"
+                className="w-full rounded-xl pl-8 pr-8 py-2 text-[11px] font-mono text-white bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/50 placeholder-slate-700"
+              />
+              {walletFilterInput && (
+                <button
+                  onClick={clearWalletFilter}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-300"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={applyWalletFilter}
+              className="flex-shrink-0 px-3 py-2 rounded-xl text-[11px] font-bold text-white"
+              style={{ background: "linear-gradient(135deg, #7c3aed99, #4f46e599)" }}
+            >
+              Buscar
+            </button>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {PAGE_SIZE_OPTIONS.map(s => (
+                <button
+                  key={s}
+                  onClick={() => { setPageSize(s); setPage(0); }}
+                  className="px-2 py-1.5 rounded-lg text-[10px] font-bold transition-colors"
+                  style={{
+                    background: pageSize === s ? "rgba(124,58,237,0.35)" : "rgba(255,255,255,0.04)",
+                    color: pageSize === s ? "#c4b5fd" : "#64748b",
+                    border: pageSize === s ? "1px solid rgba(124,58,237,0.4)" : "1px solid transparent",
+                  }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Create form */}
@@ -556,7 +626,12 @@ export default function PanelAdmin() {
                 disabled={page === 0}
                 className="text-[11px] text-slate-400 disabled:text-slate-700 hover:text-white transition-colors"
               >← Anterior</button>
-              <span className="text-[11px] text-slate-600">Página {page + 1} / {totalPages}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-600">
+                  {page * pageSize + 1}–{Math.min((page + 1) * pageSize, vestingTotal)} de {vestingTotal}
+                </span>
+                <span className="text-[10px] text-slate-700">· Pág {page + 1}/{totalPages}</span>
+              </div>
               <button
                 onClick={() => setPage(p => p + 1)}
                 disabled={page >= totalPages - 1}
