@@ -11,7 +11,7 @@ import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
 import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
 
-const VESTING_CONTRACT = "0x5B3B17F9B20D5A95dfe6B9e222F387599A037efa";
+const VESTING_CONTRACT = "0x709B435357185537B3e73164f992b0011F1F1293";
 const BASE_RPC = "https://frequent-flashy-slug.base-mainnet.quiknode.pro/c768dd581cd676309f6d69af17ec7cd9b3e490e1";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -36,7 +36,7 @@ function getCountdown(v, nowSec) {
   try {
     const start   = v.startTimestamp.toNumber();
     const elapsed = v.elapsedDays.toNumber();
-    const DAY_SECONDS = 300; // 5 min por día en contrato de prueba (producción: 86400)
+    const DAY_SECONDS = 86400; // 1 día real
     const nextDay = start + (elapsed + 1) * DAY_SECONDS;
     const diff    = nextDay - nowSec;
     if (diff <= 0) return null;
