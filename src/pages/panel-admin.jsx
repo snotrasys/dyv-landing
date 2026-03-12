@@ -11,7 +11,7 @@ import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
 import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
 
-const VESTING_CONTRACT = "0x4e7B51797D952ea5c50B061F358B05C8c6349295";
+const VESTING_CONTRACT = "0x5B3B17F9B20D5A95dfe6B9e222F387599A037efa";
 const BASE_RPC = "https://mainnet.base.org";
 const PAGE_SIZE = 10;
 
@@ -50,16 +50,16 @@ export default function PanelAdmin() {
   const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
 
-  const [globalStats, setGlobalStats]   = useState(null);
-  const [vestings, setVestings]         = useState([]);
+  const [globalStats, setGlobalStats] = useState(null);
+  const [vestings, setVestings] = useState([]);
   const [vestingTotal, setVestingTotal] = useState(0);
-  const [page, setPage]                 = useState(0);
-  const [isAdmin, setIsAdmin]           = useState(false);
-  const [loading, setLoading]           = useState(true);
-  const [showCreate, setShowCreate]     = useState(false);
-  const [submitting, setSubmitting]     = useState(false);
-  const [revoking, setRevoking]         = useState(null);
-  const [refreshKey, setRefreshKey]     = useState(0);
+  const [page, setPage] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [revoking, setRevoking] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const [form, setForm] = useState({
     beneficiary: "", token: "", amount: "", dailyBps: "150", tokenSymbol: "",
@@ -80,12 +80,12 @@ export default function PanelAdmin() {
         const [created, active_, beneficiaries, tokenTotals] = await c.getGlobalTotals();
         if (!active) return;
         setGlobalStats({
-          created:       created.toNumber(),
-          active:        active_.toNumber(),
+          created: created.toNumber(),
+          active: active_.toNumber(),
           beneficiaries: beneficiaries.toNumber(),
-          tokenTotals:   tokenTotals.map(t => ({
-            token:       t.token,
-            locked:      numBn(t.totalLocked),
+          tokenTotals: tokenTotals.map(t => ({
+            token: t.token,
+            locked: numBn(t.totalLocked),
             distributed: numBn(t.totalDistributed),
           })),
         });
@@ -146,8 +146,8 @@ export default function PanelAdmin() {
   const handleCreate = async () => {
     if (!accounts || !walletProvider) { toast.error("Conecta tu wallet"); return; }
     if (!ethers.utils.isAddress(form.beneficiary)) { toast.error("Dirección de beneficiario inválida"); return; }
-    if (!ethers.utils.isAddress(form.token))        { toast.error("Dirección de token inválida"); return; }
-    if (!form.amount || Number(form.amount) <= 0)   { toast.error("Monto inválido"); return; }
+    if (!ethers.utils.isAddress(form.token)) { toast.error("Dirección de token inválida"); return; }
+    if (!form.amount || Number(form.amount) <= 0) { toast.error("Monto inválido"); return; }
     const bps = Math.round(Number(form.dailyBps));
     if (bps < 1 || bps > 10000) { toast.error("BPS debe estar entre 1 y 10000"); return; }
 
@@ -157,7 +157,7 @@ export default function PanelAdmin() {
       const signer = provider.getSigner();
 
       const tokenContract = new ethers.Contract(form.token, ERC20_ABI, signer);
-      const decimals    = await tokenContract.decimals();
+      const decimals = await tokenContract.decimals();
       const totalAmount = ethers.utils.parseUnits(form.amount, decimals);
 
       const allowance = await tokenContract.allowance(accounts, VESTING_CONTRACT);
@@ -208,7 +208,7 @@ export default function PanelAdmin() {
   // ── render ──────────────────────────────────────────────────────────────
   return (
     <div
-      className="min-h-screen p-4 pt-8"
+      className="min-h-screen p-4 pt-24"
       style={{ background: "radial-gradient(ellipse at 70% -5%, #1a0a2e 0%, #080b18 65%)" }}
     >
       <div className="max-w-2xl mx-auto space-y-4">
@@ -259,9 +259,9 @@ export default function PanelAdmin() {
             className="grid grid-cols-3 gap-2"
           >
             {[
-              { label: "Vestings creados", value: globalStats.created,       color: "#a78bfa" },
-              { label: "Vestings activos", value: globalStats.active,        color: "#60a5fa" },
-              { label: "Beneficiarios",    value: globalStats.beneficiaries, color: "#34d399" },
+              { label: "Vestings creados", value: globalStats.created, color: "#a78bfa" },
+              { label: "Vestings activos", value: globalStats.active, color: "#60a5fa" },
+              { label: "Beneficiarios", value: globalStats.beneficiaries, color: "#34d399" },
             ].map(({ label, value, color }) => (
               <div
                 key={label}
@@ -347,10 +347,10 @@ export default function PanelAdmin() {
                   <div className="text-[10px] font-semibold uppercase tracking-widest text-purple-400">Crear vesting</div>
 
                   {[
-                    { label: "Wallet beneficiaria",            key: "beneficiary", ph: "0x…",      mono: true  },
-                    { label: "Contrato del token ERC-20",      key: "token",       ph: "0x…",      mono: true  },
-                    { label: "Monto total de tokens",          key: "amount",      ph: "1000000",  type: "number" },
-                    { label: "ROI diario en BPS (150 = 1.5%)", key: "dailyBps",    ph: "150",      type: "number" },
+                    { label: "Wallet beneficiaria", key: "beneficiary", ph: "0x…", mono: true },
+                    { label: "Contrato del token ERC-20", key: "token", ph: "0x…", mono: true },
+                    { label: "Monto total de tokens", key: "amount", ph: "1000000", type: "number" },
+                    { label: "ROI diario en BPS (150 = 1.5%)", key: "dailyBps", ph: "150", type: "number" },
                   ].map(({ label, key, ph, mono, type = "text" }) => (
                     <div key={key}>
                       <div className="text-[10px] text-slate-500 mb-1">{label}</div>
@@ -429,11 +429,11 @@ export default function PanelAdmin() {
           ) : (
             <div className="divide-y divide-white/[0.04]">
               {vestings.map(v => {
-                const claimed  = numBn(v.claimedAmount);
-                const total    = numBn(v.totalAmount);
+                const claimed = numBn(v.claimedAmount);
+                const total = numBn(v.totalAmount);
                 const claimable = numBn(v.claimableNow);
-                const pct      = total > 0 ? Math.min(100, (claimed / total) * 100) : 0;
-                const idStr    = v.vestingId.toString();
+                const pct = total > 0 ? Math.min(100, (claimed / total) * 100) : 0;
+                const idStr = v.vestingId.toString();
                 const isRevokingThis = revoking === idStr;
 
                 return (
@@ -445,9 +445,8 @@ export default function PanelAdmin() {
                     {/* Row 1 */}
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                          v.revoked ? "bg-red-500" : v.active ? "bg-emerald-400" : "bg-slate-600"
-                        }`} />
+                        <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${v.revoked ? "bg-red-500" : v.active ? "bg-emerald-400" : "bg-slate-600"
+                          }`} />
                         <a
                           href={`https://basescan.org/address/${v.beneficiary}`}
                           target="_blank" rel="noopener noreferrer"
@@ -458,11 +457,10 @@ export default function PanelAdmin() {
                         <span className="text-[9px] text-slate-700 flex-shrink-0">#{idStr}</span>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded-full ${
-                          v.revoked ? "bg-red-500/15 text-red-400"
-                          : v.active ? "bg-emerald-500/15 text-emerald-400"
-                          : "bg-slate-500/15 text-slate-400"
-                        }`}>
+                        <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded-full ${v.revoked ? "bg-red-500/15 text-red-400"
+                            : v.active ? "bg-emerald-500/15 text-emerald-400"
+                              : "bg-slate-500/15 text-slate-400"
+                          }`}>
                           {v.revoked ? "Revocado" : v.active ? "Activo" : "Completado"}
                         </span>
                         {isAdmin && v.active && !v.revoked && (

@@ -11,7 +11,7 @@ import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
 import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
 
-const VESTING_CONTRACT = "0x4e7B51797D952ea5c50B061F358B05C8c6349295";
+const VESTING_CONTRACT = "0x5B3B17F9B20D5A95dfe6B9e222F387599A037efa";
 const BASE_RPC = "https://mainnet.base.org";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -32,6 +32,21 @@ function fmtBn(bn, dec = 18, maxDec = 4) {
   return fmt(numBn(bn, dec), maxDec);
 }
 
+function getCountdown(v, nowSec) {
+  try {
+    const start   = v.startTimestamp.toNumber();
+    const elapsed = v.elapsedDays.toNumber();
+    const DAY_SECONDS = 300; // 5 min por día en contrato de prueba (producción: 86400)
+    const nextDay = start + (elapsed + 1) * DAY_SECONDS;
+    const diff    = nextDay - nowSec;
+    if (diff <= 0) return null;
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
+    const s = diff % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  } catch { return null; }
+}
+
 function getReadContract() {
   const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
   return new ethers.Contract(VESTING_CONTRACT, abi_MultiTokenVesting, provider);
@@ -45,13 +60,20 @@ export default function VestingUsers() {
   const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
 
-  const [totals, setTotals]           = useState(null);
-  const [vestings, setVestings]       = useState([]);
+  const [totals, setTotals] = useState(null);
+  const [vestings, setVestings] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
-  const [showAll, setShowAll]         = useState(false);
-  const [claimingId, setClaimingId]   = useState(null);
+  const [showAll, setShowAll] = useState(false);
+  const [claimingId, setClaimingId] = useState(null);
   const [claimingAll, setClaimingAll] = useState(false);
-  const [refreshKey, setRefreshKey]   = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [now, setNow]               = useState(() => Math.floor(Date.now() / 1000));
+
+  // Tick every second for countdowns
+  useEffect(() => {
+    const t = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const getSignedContract = useCallback(() => {
     if (!walletProvider) return null;
@@ -128,15 +150,15 @@ export default function VestingUsers() {
   };
 
   const totalClaimable = totals ? numBn(totals.totalClaimable) : 0;
-  const totalClaimed   = totals ? numBn(totals.totalClaimed) : 0;
-  const totalAmount    = totals ? numBn(totals.totalAmount) : 0;
-  const progressPct    = totalAmount > 0 ? Math.min(100, (totalClaimed / totalAmount) * 100) : 0;
-  const hasVestings    = totals && !totals.totalVestings.isZero();
+  const totalClaimed = totals ? numBn(totals.totalClaimed) : 0;
+  const totalAmount = totals ? numBn(totals.totalAmount) : 0;
+  const progressPct = totalAmount > 0 ? Math.min(100, (totalClaimed / totalAmount) * 100) : 0;
+  const hasVestings = totals && !totals.totalVestings.isZero();
 
   // ── render ──────────────────────────────────────────────────────────────
   return (
     <div
-      className="min-h-screen flex items-start justify-center p-4 pt-10"
+      className="min-h-screen flex items-start justify-center p-4 pt-24"
       style={{ background: "radial-gradient(ellipse at 30% 10%, #061a30 0%, #060b18 65%)" }}
     >
       <div className="w-full max-w-md space-y-4">
@@ -232,10 +254,10 @@ export default function VestingUsers() {
             >
               <div className="px-5 py-4 grid grid-cols-2 gap-3">
                 {[
-                  { label: "Total asignado",  val: fmtBn(totals.totalAmount),    color: "#60a5fa" },
-                  { label: "Reclamado",        val: fmtBn(totals.totalClaimed),   color: "#34d399" },
+                  { label: "Total asignado", val: fmtBn(totals.totalAmount), color: "#60a5fa" },
+                  { label: "Reclamado", val: fmtBn(totals.totalClaimed), color: "#34d399" },
                   { label: "Disponible ahora", val: fmtBn(totals.totalClaimable), color: "#a78bfa" },
-                  { label: "Restante",         val: fmtBn(totals.totalRemaining), color: "#fbbf24" },
+                  { label: "Restante", val: fmtBn(totals.totalRemaining), color: "#fbbf24" },
                 ].map(({ label, val, color }) => (
                   <div
                     key={label}
@@ -344,10 +366,10 @@ export default function VestingUsers() {
                 <div className="divide-y divide-white/[0.03]">
                   {vestings.map(v => {
                     const claimable = numBn(v.claimableNow);
-                    const claimed   = numBn(v.claimedAmount);
-                    const total     = numBn(v.totalAmount);
-                    const pct       = total > 0 ? Math.min(100, (claimed / total) * 100) : 0;
-                    const idStr     = v.vestingId.toString();
+                    const claimed = numBn(v.claimedAmount);
+                    const total = numBn(v.totalAmount);
+                    const pct = total > 0 ? Math.min(100, (claimed / total) * 100) : 0;
+                    const idStr = v.vestingId.toString();
                     const isClaimingThis = claimingId === idStr;
 
                     return (
@@ -360,17 +382,15 @@ export default function VestingUsers() {
                         <div className="flex items-start justify-between mb-2">
                           <div>
                             <div className="flex items-center gap-2 mb-0.5">
-                              <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                                v.revoked ? "bg-red-500"
-                                : v.active ? "bg-emerald-400 animate-pulse"
-                                : "bg-slate-600"
-                              }`} />
+                              <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${v.revoked ? "bg-red-500"
+                                  : v.active ? "bg-emerald-400 animate-pulse"
+                                    : "bg-slate-600"
+                                }`} />
                               <span className="text-xs font-mono text-slate-400">{shortAddr(v.token)}</span>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                                v.revoked ? "bg-red-500/15 text-red-400"
-                                : v.active ? "bg-emerald-500/15 text-emerald-400"
-                                : "bg-slate-500/15 text-slate-500"
-                              }`}>
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${v.revoked ? "bg-red-500/15 text-red-400"
+                                  : v.active ? "bg-emerald-500/15 text-emerald-400"
+                                    : "bg-slate-500/15 text-slate-500"
+                                }`}>
                                 {v.revoked ? "Revocado" : v.active ? "Activo" : "Completado"}
                               </span>
                             </div>
@@ -381,26 +401,37 @@ export default function VestingUsers() {
                             </div>
                           </div>
 
-                          {v.active && !v.revoked && claimable > 0 && (
-                            <motion.button
-                              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                              onClick={() => handleClaim(v.vestingId)}
-                              disabled={isClaimingThis}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white disabled:opacity-60 flex-shrink-0"
-                              style={{ background: "linear-gradient(135deg, #059669, #0d9488)" }}
-                            >
-                              {isClaimingThis
-                                ? <Loader2 className="h-3 w-3 animate-spin" />
-                                : <Zap className="h-3 w-3" />}
-                              {fmt(claimable, 4)}
-                            </motion.button>
-                          )}
-
-                          {v.active && !v.revoked && claimable === 0 && (
-                            <span className="flex items-center gap-1 text-[10px] text-slate-700 flex-shrink-0">
-                              <CheckCircle className="h-3 w-3" /> Al día
-                            </span>
-                          )}
+                          {v.active && !v.revoked && (() => {
+                            const countdown = claimable === 0 ? getCountdown(v, now) : null;
+                            return (
+                              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                <motion.button
+                                  whileHover={claimable > 0 ? { scale: 1.05 } : {}}
+                                  whileTap={claimable > 0 ? { scale: 0.95 } : {}}
+                                  onClick={() => claimable > 0 && handleClaim(v.vestingId)}
+                                  disabled={isClaimingThis || claimable === 0}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold text-white disabled:cursor-not-allowed flex-shrink-0 transition-opacity"
+                                  style={{
+                                    background: claimable > 0
+                                      ? "linear-gradient(135deg, #059669, #0d9488)"
+                                      : "rgba(255,255,255,0.06)",
+                                    opacity: claimable === 0 ? 0.45 : 1,
+                                    border: claimable === 0 ? "1px solid rgba(255,255,255,0.08)" : "none",
+                                  }}
+                                >
+                                  {isClaimingThis
+                                    ? <Loader2 className="h-3 w-3 animate-spin" />
+                                    : <Zap className="h-3 w-3" />}
+                                  {claimable > 0 ? fmt(claimable, 4) : "Claim"}
+                                </motion.button>
+                                {countdown && (
+                                  <span className="text-[9px] font-mono text-slate-600 flex items-center gap-1">
+                                    <Clock className="h-2.5 w-2.5" />{countdown}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         {/* Row 2: amounts grid */}
