@@ -60,6 +60,7 @@ export default function PanelAdmin() {
   const [submitting, setSubmitting] = useState(false);
   const [revoking, setRevoking] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [tokenMeta, setTokenMeta] = useState({});
 
   const [form, setForm] = useState({
     beneficiary: "", token: "", amount: "", dailyBps: "150", tokenSymbol: "",
@@ -85,10 +86,24 @@ export default function PanelAdmin() {
           beneficiaries: beneficiaries.toNumber(),
           tokenTotals: tokenTotals.map(t => ({
             token: t.token,
-            locked: numBn(t.totalLocked),
-            distributed: numBn(t.totalDistributed),
+            locked: t.totalLocked,
+            distributed: t.totalDistributed,
           })),
         });
+        const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
+        const metaEntries = await Promise.all(
+          tokenTotals.map(async (t) => {
+            try {
+              const tc = new ethers.Contract(t.token, ERC20_ABI, provider);
+              const [dec, sym] = await Promise.all([tc.decimals(), tc.symbol()]);
+              return [t.token, { decimals: Number(dec), symbol: sym }];
+            } catch {
+              return [t.token, { decimals: 18, symbol: shortAddr(t.token) }];
+            }
+          })
+        );
+        if (!active) return;
+        setTokenMeta(prev => ({ ...prev, ...Object.fromEntries(metaEntries) }));
       } catch (e) { console.error("loadStats", e); }
     })();
     return () => { active = false; };
@@ -108,6 +123,23 @@ export default function PanelAdmin() {
         if (!active) return;
         setVestings(items);
         setVestingTotal(total.toNumber());
+        const uniqueTokens = [...new Set(items.map(v => v.token))];
+        if (uniqueTokens.length > 0) {
+          const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
+          const metaEntries = await Promise.all(
+            uniqueTokens.map(async (token) => {
+              try {
+                const tc = new ethers.Contract(token, ERC20_ABI, provider);
+                const [dec, sym] = await Promise.all([tc.decimals(), tc.symbol()]);
+                return [token, { decimals: Number(dec), symbol: sym }];
+              } catch {
+                return [token, { decimals: 18, symbol: shortAddr(token) }];
+              }
+            })
+          );
+          if (!active) return;
+          setTokenMeta(prev => ({ ...prev, ...Object.fromEntries(metaEntries) }));
+        }
       } catch (e) { console.error("loadVestings", e); }
       finally { if (active) setLoading(false); }
     })();
@@ -285,27 +317,32 @@ export default function PanelAdmin() {
             <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-3">
               Tokens en el contrato
             </div>
-            {globalStats.tokenTotals.map((t, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
-                <a
-                  href={`https://basescan.org/token/${t.token}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1"
-                >
-                  {shortAddr(t.token)} <ExternalLink className="h-2.5 w-2.5" />
-                </a>
-                <div className="flex gap-4 text-right">
-                  <div>
-                    <div className="text-[9px] text-slate-600 uppercase">Bloqueado</div>
-                    <div className="text-xs font-mono font-bold text-blue-300">{fmt(t.locked, 2)}</div>
-                  </div>
-                  <div>
-                    <div className="text-[9px] text-slate-600 uppercase">Distribuido</div>
-                    <div className="text-xs font-mono font-bold text-emerald-300">{fmt(t.distributed, 2)}</div>
+            {globalStats.tokenTotals.map((t, i) => {
+              const meta = tokenMeta[t.token] ?? { decimals: 18, symbol: shortAddr(t.token) };
+              return (
+                <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+                  <a
+                    href={`https://basescan.org/token/${t.token}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1.5"
+                  >
+                    <span className="font-bold text-purple-300">{meta.symbol}</span>
+                    <span className="text-slate-600">{shortAddr(t.token)}</span>
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </a>
+                  <div className="flex gap-4 text-right">
+                    <div>
+                      <div className="text-[9px] text-slate-600 uppercase">Bloqueado</div>
+                      <div className="text-xs font-mono font-bold text-blue-300">{fmt(numBn(t.locked, meta.decimals), 2)}</div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] text-slate-600 uppercase">Distribuido</div>
+                      <div className="text-xs font-mono font-bold text-emerald-300">{fmt(numBn(t.distributed, meta.decimals), 2)}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </motion.div>
         )}
 
@@ -429,9 +466,10 @@ export default function PanelAdmin() {
           ) : (
             <div className="divide-y divide-white/[0.04]">
               {vestings.map(v => {
-                const claimed = numBn(v.claimedAmount);
-                const total = numBn(v.totalAmount);
-                const claimable = numBn(v.claimableNow);
+                const dec = tokenMeta[v.token]?.decimals ?? 18;
+                const claimed = numBn(v.claimedAmount, dec);
+                const total = numBn(v.totalAmount, dec);
+                const claimable = numBn(v.claimableNow, dec);
                 const pct = total > 0 ? Math.min(100, (claimed / total) * 100) : 0;
                 const idStr = v.vestingId.toString();
                 const isRevokingThis = revoking === idStr;
@@ -480,7 +518,7 @@ export default function PanelAdmin() {
                     {/* Row 2: amounts */}
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <span className="text-[11px] font-mono text-white font-bold">{fmt(total, 0)}</span>
-                      <span className="text-[10px] font-mono text-slate-600">{shortAddr(v.token)}</span>
+                      <span className="text-[10px] font-bold text-purple-300">{tokenMeta[v.token]?.symbol ?? shortAddr(v.token)}</span>
                       <span
                         className="text-[10px] rounded-full px-2 py-0.5"
                         style={{ background: "#7c3aed18", color: "#a78bfa" }}
