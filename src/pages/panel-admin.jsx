@@ -1,644 +1,551 @@
-import { useState } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
+import { ethers } from "ethers";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Shield, Plus, Trash2, Upload, Wallet,
-  Zap, Eye, EyeOff, Clock,
-  CheckCircle, ExternalLink, Edit3, X, RefreshCw, LogOut
+  Shield, Plus, Trash2, RefreshCw, AlertCircle,
+  ExternalLink, X, Loader2, Wallet,
 } from "lucide-react";
+import { useWeb3Modal } from "@web3modal/ethers5/react";
+import { useWeb3ModalProvider } from "@web3modal/ethers5/react";
+import { toast } from "react-hot-toast";
+import Web3Context from "../context/Web3Context";
+import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
+
+const VESTING_CONTRACT = "0x4e7B51797D952ea5c50B061F358B05C8c6349295";
+const BASE_RPC = "https://mainnet.base.org";
+const PAGE_SIZE = 10;
+
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+  "function symbol() view returns (string)",
+];
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 function fmt(n, dec = 2) {
   return Number(n ?? 0).toLocaleString("en-US", { maximumFractionDigits: dec });
 }
 function shortAddr(a = "") {
-  if (a.length < 10) return a;
+  if (!a || a.length < 10) return a;
   return `${a.slice(0, 6)}...${a.slice(-4)}`;
 }
-function bpsToDisplay(bps) {
+function bpsToPct(bps) {
   return (Number(bps) / 100).toFixed(2);
 }
+function numBn(bn, dec = 18) {
+  try { return Number(ethers.utils.formatUnits(bn, dec)); } catch { return 0; }
+}
 
-// ─── mock state ──────────────────────────────────────────────────────────────
-const OWNER_WALLET = "0xAdminWallet000000000000000000000000000001";
-
-const MOCK_GRANTS = [
-  {
-    wallet:      "0xJuan000000000000000000000000000000000001",
-    name:        "Juan",
-    token:       "0xDYVToken000000000000000000000000000000002",
-    tokenSymbol: "DYV",
-    totalAmount: 1_000_000,
-    claimed:     20_000,
-    dailyRoiBps: 200,   // 2%
-    startTime:   "2025-03-01",
-    active:      true,
-  },
-  {
-    wallet:      "0xMaria00000000000000000000000000000000003",
-    name:        "Maria",
-    token:       "0xDYVToken000000000000000000000000000000002",
-    tokenSymbol: "DYV",
-    totalAmount: 500_000,
-    claimed:     3_750,
-    dailyRoiBps: 150,   // 1.5%
-    startTime:   "2025-03-05",
-    active:      true,
-  },
-];
-
-// ═══════════════════════════════════════════════════════════════════════════
-// EDIT MODAL
-// ═══════════════════════════════════════════════════════════════════════════
-function EditModal({ grant, onSave, onClose }) {
-  const [amount,  setAmount]  = useState(String(grant.totalAmount));
-  const [roi,     setRoi]     = useState(bpsToDisplay(grant.dailyRoiBps));
-  const [wallet,  setWallet]  = useState(grant.wallet);
-  const [token,   setToken]   = useState(grant.token);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }}
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92, y: 20 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="w-full max-w-md rounded-3xl p-6 space-y-4"
-        style={{
-          background: "linear-gradient(160deg, #111830, #0c1020)",
-          border: "1px solid rgba(124,58,237,0.3)",
-          boxShadow: "0 0 80px rgba(124,58,237,0.2)",
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-black text-white">Modificar Grant</h3>
-            <p className="text-[11px] text-slate-500 mt-0.5">{grant.name}</p>
-          </div>
-          <button onClick={onClose}
-            className="h-8 w-8 rounded-xl bg-white/[0.05] flex items-center justify-center text-slate-400 hover:text-white"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        {[
-          { label: "Wallet beneficiaria", val: wallet,  set: setWallet,  mono: true,  ph: "0x..." },
-          { label: "Token ERC-20 (contrato)", val: token, set: setToken, mono: true,  ph: "0x..." },
-          { label: "Monto total de tokens", val: amount, set: setAmount, mono: false, ph: "1000000", type: "number" },
-          { label: "ROI diario (%)", val: roi, set: setRoi, mono: false,  ph: "2.0", type: "number", step: "0.1" },
-        ].map(({ label, val, set, mono, ph, type = "text", step }) => (
-          <div key={label}>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-1.5">{label}</div>
-            <input
-              type={type}
-              step={step}
-              value={val}
-              onChange={e => set(e.target.value)}
-              placeholder={ph}
-              className={`w-full rounded-xl px-4 py-2.5 text-sm text-white bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/60 placeholder-slate-700 ${mono ? "font-mono" : ""}`}
-            />
-          </div>
-        ))}
-
-        {/* Preview */}
-        <div className="rounded-xl p-3 space-y-1"
-          style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}
-        >
-          <div className="text-[10px] text-slate-500 uppercase tracking-wide mb-1.5">Vista previa</div>
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-400">Monto total</span>
-            <span className="font-mono font-bold text-white">{fmt(Number(amount) || 0, 0)} tokens</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-400">ROI diario</span>
-            <span className="font-mono font-bold text-purple-300">{roi || 0}%</span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-400">Diario aprox</span>
-            <span className="font-mono font-bold text-cyan-300">
-              {fmt((Number(amount) || 0) * (Number(roi) || 0) / 100, 2)} tokens
-            </span>
-          </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-400">Días para completar</span>
-            <span className="font-mono font-bold text-white">
-              {Number(roi) > 0 ? Math.ceil(100 / Number(roi)) : "—"} días
-            </span>
-          </div>
-        </div>
-
-        <div className="flex gap-2 pt-1">
-          <button onClick={() => onSave({ amount: Number(amount), roi: Number(roi), wallet, token })}
-            className="flex-1 py-3 rounded-xl font-bold text-sm text-white"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}
-          >
-            Guardar cambios
-          </button>
-          <button onClick={onClose}
-            className="px-4 py-3 rounded-xl text-sm text-slate-400 bg-white/[0.03] border border-white/[0.06]"
-          >
-            Cancelar
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
+function getReadContract() {
+  const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
+  return new ethers.Contract(VESTING_CONTRACT, abi_MultiTokenVesting, provider);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ADMIN PAGE
 // ═══════════════════════════════════════════════════════════════════════════
-function AdminPage({ onSwitch }) {
-  const [grants, setGrants]         = useState(MOCK_GRANTS);
-  const [editTarget, setEditTarget] = useState(null);
-  const [showAdd, setShowAdd]       = useState(false);
+export default function PanelAdmin() {
+  const { accounts } = useContext(Web3Context);
+  const { open } = useWeb3Modal();
+  const { walletProvider } = useWeb3ModalProvider();
 
-  // new grant form
-  const [nWallet,  setNWallet]  = useState("");
-  const [nName,    setNName]    = useState("");
-  const [nToken,   setNToken]   = useState("");
-  const [nAmount,  setNAmount]  = useState("");
-  const [nRoi,     setNRoi]     = useState("2");
+  const [globalStats, setGlobalStats]   = useState(null);
+  const [vestings, setVestings]         = useState([]);
+  const [vestingTotal, setVestingTotal] = useState(0);
+  const [page, setPage]                 = useState(0);
+  const [isAdmin, setIsAdmin]           = useState(false);
+  const [loading, setLoading]           = useState(true);
+  const [showCreate, setShowCreate]     = useState(false);
+  const [submitting, setSubmitting]     = useState(false);
+  const [revoking, setRevoking]         = useState(null);
+  const [refreshKey, setRefreshKey]     = useState(0);
 
-  function addGrant() {
-    if (!nWallet || !nToken || !nAmount) return;
-    setGrants(prev => [...prev, {
-      wallet:      nWallet,
-      name:        nName || shortAddr(nWallet),
-      token:       nToken,
-      tokenSymbol: "TOKEN",
-      totalAmount: Number(nAmount),
-      claimed:     0,
-      dailyRoiBps: Math.round(Number(nRoi) * 100),
-      startTime:   new Date().toISOString().split("T")[0],
-      active:      true,
-    }]);
-    setNWallet(""); setNName(""); setNToken(""); setNAmount(""); setNRoi("2");
-    setShowAdd(false);
-  }
+  const [form, setForm] = useState({
+    beneficiary: "", token: "", amount: "", dailyBps: "150", tokenSymbol: "",
+  });
 
-  function saveEdit({ amount, roi, wallet, token }) {
-    setGrants(prev => prev.map(g =>
-      g.wallet === editTarget.wallet
-        ? { ...g, totalAmount: amount, dailyRoiBps: Math.round(roi * 100), wallet, token }
-        : g
-    ));
-    setEditTarget(null);
-  }
+  const getSignedContract = useCallback(() => {
+    if (!walletProvider) return null;
+    const provider = new ethers.providers.Web3Provider(walletProvider);
+    return new ethers.Contract(VESTING_CONTRACT, abi_MultiTokenVesting, provider.getSigner());
+  }, [walletProvider]);
 
-  function revokeGrant(wallet) {
-    setGrants(prev => prev.map(g => g.wallet === wallet ? { ...g, active: false } : g));
-  }
+  // Load global stats
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const c = getReadContract();
+        const [created, active_, beneficiaries, tokenTotals] = await c.getGlobalTotals();
+        if (!active) return;
+        setGlobalStats({
+          created:       created.toNumber(),
+          active:        active_.toNumber(),
+          beneficiaries: beneficiaries.toNumber(),
+          tokenTotals:   tokenTotals.map(t => ({
+            token:       t.token,
+            locked:      numBn(t.totalLocked),
+            distributed: numBn(t.totalDistributed),
+          })),
+        });
+      } catch (e) { console.error("loadStats", e); }
+    })();
+    return () => { active = false; };
+  }, [refreshKey]);
 
-  const totalAllocated = grants.filter(g => g.active).reduce((s, g) => s + g.totalAmount, 0);
-  const totalClaimed   = grants.filter(g => g.active).reduce((s, g) => s + g.claimed, 0);
+  // Load vestings (paginated)
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    (async () => {
+      try {
+        const c = getReadContract();
+        const [items, total] = await c.getAllVestingsBatch(
+          ethers.BigNumber.from(page * PAGE_SIZE),
+          ethers.BigNumber.from(PAGE_SIZE)
+        );
+        if (!active) return;
+        setVestings(items);
+        setVestingTotal(total.toNumber());
+      } catch (e) { console.error("loadVestings", e); }
+      finally { if (active) setLoading(false); }
+    })();
+    return () => { active = false; };
+  }, [page, refreshKey]);
 
+  // Check admin role when wallet changes
+  useEffect(() => {
+    if (!accounts) { setIsAdmin(false); return; }
+    (async () => {
+      try {
+        const c = getReadContract();
+        const role = await c.VESTING_ADMIN_ROLE();
+        setIsAdmin(await c.hasRole(role, accounts));
+      } catch { setIsAdmin(false); }
+    })();
+  }, [accounts]);
+
+  // Auto-fetch token symbol when token address changes
+  useEffect(() => {
+    if (!ethers.utils.isAddress(form.token)) {
+      setForm(prev => ({ ...prev, tokenSymbol: "" }));
+      return;
+    }
+    (async () => {
+      try {
+        const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
+        const token = new ethers.Contract(form.token, ERC20_ABI, provider);
+        const symbol = await token.symbol();
+        setForm(prev => ({ ...prev, tokenSymbol: symbol }));
+      } catch { setForm(prev => ({ ...prev, tokenSymbol: "?" })); }
+    })();
+  }, [form.token]);
+
+  // ── create vesting ──────────────────────────────────────────────────────
+  const handleCreate = async () => {
+    if (!accounts || !walletProvider) { toast.error("Conecta tu wallet"); return; }
+    if (!ethers.utils.isAddress(form.beneficiary)) { toast.error("Dirección de beneficiario inválida"); return; }
+    if (!ethers.utils.isAddress(form.token))        { toast.error("Dirección de token inválida"); return; }
+    if (!form.amount || Number(form.amount) <= 0)   { toast.error("Monto inválido"); return; }
+    const bps = Math.round(Number(form.dailyBps));
+    if (bps < 1 || bps > 10000) { toast.error("BPS debe estar entre 1 y 10000"); return; }
+
+    setSubmitting(true);
+    try {
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+      const signer = provider.getSigner();
+
+      const tokenContract = new ethers.Contract(form.token, ERC20_ABI, signer);
+      const decimals    = await tokenContract.decimals();
+      const totalAmount = ethers.utils.parseUnits(form.amount, decimals);
+
+      const allowance = await tokenContract.allowance(accounts, VESTING_CONTRACT);
+      if (allowance.lt(totalAmount)) {
+        const approveTx = await tokenContract.approve(VESTING_CONTRACT, totalAmount);
+        toast.loading("Aprobando token…", { id: "vesting-tx" });
+        await approveTx.wait();
+      }
+
+      toast.loading("Creando vesting…", { id: "vesting-tx" });
+      const vestingContract = new ethers.Contract(VESTING_CONTRACT, abi_MultiTokenVesting, signer);
+      const tx = await vestingContract.createVesting(
+        form.beneficiary, form.token, totalAmount, ethers.BigNumber.from(bps)
+      );
+      await tx.wait();
+
+      toast.success("Vesting creado", { id: "vesting-tx" });
+      setForm({ beneficiary: "", token: "", amount: "", dailyBps: "150", tokenSymbol: "" });
+      setShowCreate(false);
+      setRefreshKey(k => k + 1);
+    } catch (e) {
+      toast.error(e?.reason || e?.message?.slice(0, 80) || "Error en la transacción", { id: "vesting-tx" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ── revoke vesting ──────────────────────────────────────────────────────
+  const handleRevoke = async (vestingId) => {
+    if (!accounts || !walletProvider) return;
+    const idStr = vestingId.toString();
+    setRevoking(idStr);
+    try {
+      const tx = await getSignedContract().revokeVesting(vestingId);
+      toast.loading("Revocando vesting…", { id: `revoke-${idStr}` });
+      await tx.wait();
+      toast.success("Vesting revocado", { id: `revoke-${idStr}` });
+      setRefreshKey(k => k + 1);
+    } catch (e) {
+      toast.error(e?.reason || "Error al revocar", { id: `revoke-${idStr}` });
+    } finally {
+      setRevoking(null);
+    }
+  };
+
+  const totalPages = Math.ceil(vestingTotal / PAGE_SIZE);
+
+  // ── render ──────────────────────────────────────────────────────────────
   return (
-    <>
-      <div className="min-h-screen p-4 pt-8"
-        style={{ background: "radial-gradient(ellipse at 70% -5%, #1a0a2e 0%, #080b18 65%)" }}
-      >
-        <div className="max-w-lg mx-auto space-y-4">
+    <div
+      className="min-h-screen p-4 pt-8"
+      style={{ background: "radial-gradient(ellipse at 70% -5%, #1a0a2e 0%, #080b18 65%)" }}
+    >
+      <div className="max-w-2xl mx-auto space-y-4">
 
-          {/* Header */}
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between mb-2"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, #7c3aed33, #4f46e533)", border: "1px solid #7c3aed44" }}
-              >
-                <Shield className="h-5 w-5 text-purple-400" />
-              </div>
-              <div>
-                <h1 className="text-xl font-black text-white">Vesting Admin</h1>
-                <p className="text-[11px] text-slate-500 font-mono">{shortAddr(OWNER_WALLET)}</p>
-              </div>
-            </div>
-            <button onClick={onSwitch}
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-semibold text-slate-400 hover:text-white transition-colors"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-2"
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="h-10 w-10 rounded-2xl flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, #7c3aed33, #4f46e533)", border: "1px solid #7c3aed44" }}
             >
-              <Eye className="h-3.5 w-3.5" />
-              Vista usuario
+              <Shield className="h-5 w-5 text-purple-400" />
+            </div>
+            <div>
+              <h1 className="text-xl font-black text-white">Vesting Admin</h1>
+              <p className="text-[11px] font-mono text-slate-500">
+                {accounts
+                  ? <>{shortAddr(accounts)}{isAdmin && <span className="text-purple-400"> · Admin</span>}</>
+                  : "Sin wallet conectada"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setRefreshKey(k => k + 1)}
+              className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-white bg-white/[0.04] border border-white/[0.06]"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
             </button>
-          </motion.div>
+            <button
+              onClick={() => open()}
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-bold text-white"
+              style={{ background: accounts ? "rgba(124,58,237,0.25)" : "linear-gradient(135deg, #7c3aed, #4f46e5)" }}
+            >
+              <Wallet className="h-3.5 w-3.5" />
+              {accounts ? shortAddr(accounts) : "Conectar wallet"}
+            </button>
+          </div>
+        </motion.div>
 
-          {/* Stats */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.06 }}
+        {/* Global stats */}
+        {globalStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="grid grid-cols-3 gap-2"
           >
             {[
-              { label: "Grants activos", value: grants.filter(g => g.active).length, color: "#a78bfa" },
-              { label: "Total asignado", value: fmt(totalAllocated, 0),               color: "#60a5fa" },
-              { label: "Total reclamado",value: fmt(totalClaimed, 0),                 color: "#34d399" },
+              { label: "Vestings creados", value: globalStats.created,       color: "#a78bfa" },
+              { label: "Vestings activos", value: globalStats.active,        color: "#60a5fa" },
+              { label: "Beneficiarios",    value: globalStats.beneficiaries, color: "#34d399" },
             ].map(({ label, value, color }) => (
-              <div key={label} className="rounded-2xl px-3 py-3 text-center"
+              <div
+                key={label}
+                className="rounded-2xl px-3 py-3 text-center"
                 style={{ background: "linear-gradient(145deg, #110d22, #0c0a1a)", border: `1px solid ${color}18` }}
               >
                 <div className="text-[10px] text-slate-500 uppercase tracking-wide leading-tight">{label}</div>
-                <div className="text-xl font-black font-mono mt-1" style={{ color }}>{value}</div>
+                <div className="text-2xl font-black font-mono mt-1" style={{ color }}>{value}</div>
               </div>
             ))}
           </motion.div>
+        )}
 
-          {/* Grant list */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="rounded-2xl overflow-hidden"
+        {/* Token totals */}
+        {globalStats?.tokenTotals?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+            className="rounded-2xl p-4"
             style={{ background: "linear-gradient(145deg, #110d22, #0c0a1a)", border: "1px solid rgba(255,255,255,0.06)" }}
           >
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.05]">
-              <span className="text-sm font-black text-white">Grants</span>
-              <button onClick={() => setShowAdd(v => !v)}
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-3">
+              Tokens en el contrato
+            </div>
+            {globalStats.tokenTotals.map((t, i) => (
+              <div key={i} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+                <a
+                  href={`https://basescan.org/token/${t.token}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="text-[11px] font-mono text-slate-400 hover:text-slate-200 flex items-center gap-1"
+                >
+                  {shortAddr(t.token)} <ExternalLink className="h-2.5 w-2.5" />
+                </a>
+                <div className="flex gap-4 text-right">
+                  <div>
+                    <div className="text-[9px] text-slate-600 uppercase">Bloqueado</div>
+                    <div className="text-xs font-mono font-bold text-blue-300">{fmt(t.locked, 2)}</div>
+                  </div>
+                  <div>
+                    <div className="text-[9px] text-slate-600 uppercase">Distribuido</div>
+                    <div className="text-xs font-mono font-bold text-emerald-300">{fmt(t.distributed, 2)}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Vestings list */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="rounded-2xl overflow-hidden"
+          style={{ background: "linear-gradient(145deg, #110d22, #0c0a1a)", border: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          {/* List header */}
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.05]">
+            <div>
+              <span className="text-sm font-black text-white">Todos los vestings</span>
+              <span className="ml-2 text-[11px] text-slate-600">({vestingTotal})</span>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={() => setShowCreate(v => !v)}
                 className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold text-white"
                 style={{ background: "linear-gradient(135deg, #7c3aed99, #4f46e599)" }}
               >
-                <Plus className="h-3.5 w-3.5" />
-                Nuevo
+                {showCreate ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                {showCreate ? "Cerrar" : "Nuevo"}
               </button>
-            </div>
+            )}
+          </div>
 
-            {/* Add form */}
-            <AnimatePresence>
-              {showAdd && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
-                  className="overflow-hidden border-b border-white/[0.05]"
-                >
-                  <div className="p-4 space-y-3" style={{ background: "rgba(124,58,237,0.06)" }}>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest text-purple-400">Nuevo grant</div>
+          {/* Create form */}
+          <AnimatePresence>
+            {showCreate && isAdmin && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden border-b border-white/[0.05]"
+              >
+                <div className="p-4 space-y-3" style={{ background: "rgba(124,58,237,0.06)" }}>
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-purple-400">Crear vesting</div>
 
-                    <input value={nName} onChange={e => setNName(e.target.value)} placeholder="Nombre (ej: Juan)"
-                      className="w-full rounded-xl px-3 py-2.5 text-sm text-white bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/50 placeholder-slate-700"
-                    />
-                    <input value={nWallet} onChange={e => setNWallet(e.target.value)} placeholder="Wallet 0x..."
-                      className="w-full rounded-xl px-3 py-2.5 text-sm text-white font-mono bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/50 placeholder-slate-700"
-                    />
-                    <input value={nToken} onChange={e => setNToken(e.target.value)} placeholder="Contrato token ERC-20 0x..."
-                      className="w-full rounded-xl px-3 py-2.5 text-sm text-white font-mono bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/50 placeholder-slate-700"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <div className="text-[10px] text-slate-500 mb-1.5">Monto de tokens</div>
-                        <input type="number" value={nAmount} onChange={e => setNAmount(e.target.value)} placeholder="1000000"
-                          className="w-full rounded-xl px-3 py-2.5 text-sm text-white font-mono bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/50 placeholder-slate-700"
+                  {[
+                    { label: "Wallet beneficiaria",            key: "beneficiary", ph: "0x…",      mono: true  },
+                    { label: "Contrato del token ERC-20",      key: "token",       ph: "0x…",      mono: true  },
+                    { label: "Monto total de tokens",          key: "amount",      ph: "1000000",  type: "number" },
+                    { label: "ROI diario en BPS (150 = 1.5%)", key: "dailyBps",    ph: "150",      type: "number" },
+                  ].map(({ label, key, ph, mono, type = "text" }) => (
+                    <div key={key}>
+                      <div className="text-[10px] text-slate-500 mb-1">{label}</div>
+                      <div className="relative">
+                        <input
+                          type={type}
+                          value={form[key]}
+                          onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))}
+                          placeholder={ph}
+                          className={`w-full rounded-xl px-3 py-2.5 text-sm text-white bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/50 placeholder-slate-700 ${mono ? "font-mono" : ""}`}
                         />
-                      </div>
-                      <div>
-                        <div className="text-[10px] text-slate-500 mb-1.5">ROI diario %</div>
-                        <input type="number" step="0.1" value={nRoi} onChange={e => setNRoi(e.target.value)} placeholder="2.0"
-                          className="w-full rounded-xl px-3 py-2.5 text-sm text-white font-mono bg-white/[0.04] border border-white/[0.07] outline-none focus:border-purple-500/50 placeholder-slate-700"
-                        />
+                        {key === "token" && form.tokenSymbol && (
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-purple-300">
+                            {form.tokenSymbol}
+                          </span>
+                        )}
                       </div>
                     </div>
+                  ))}
 
-                    {/* Preview */}
-                    {nAmount && nRoi && (
-                      <div className="rounded-xl px-3 py-2.5 text-xs space-y-1"
-                        style={{ background: "#7c3aed10", border: "1px solid #7c3aed22" }}
-                      >
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Diario</span>
-                          <span className="text-purple-300 font-mono font-bold">
-                            {fmt(Number(nAmount) * Number(nRoi) / 100, 2)} tokens
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Días para 100%</span>
-                          <span className="text-white font-mono font-bold">
-                            {Number(nRoi) > 0 ? Math.ceil(100 / Number(nRoi)) : "—"}d
-                          </span>
-                        </div>
+                  {/* Preview */}
+                  {form.amount && form.dailyBps && (
+                    <div
+                      className="rounded-xl px-3 py-2.5 text-xs space-y-1.5"
+                      style={{ background: "#7c3aed10", border: "1px solid #7c3aed22" }}
+                    >
+                      <div className="text-[9px] uppercase tracking-wide text-slate-600 mb-1">Vista previa</div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">% diario</span>
+                        <span className="text-purple-300 font-mono font-bold">
+                          {(Number(form.dailyBps) / 100).toFixed(2)}%
+                        </span>
                       </div>
-                    )}
-
-                    <div className="flex gap-2">
-                      <button onClick={addGrant}
-                        className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white"
-                        style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}
-                      >
-                        Crear grant
-                      </button>
-                      <button onClick={() => setShowAdd(false)}
-                        className="px-4 py-2.5 rounded-xl text-sm text-slate-400 bg-white/[0.03] border border-white/[0.06]"
-                      >
-                        ✕
-                      </button>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Tokens/día aprox</span>
+                        <span className="text-cyan-300 font-mono font-bold">
+                          {fmt((Number(form.amount) * Number(form.dailyBps)) / 10000, 2)} {form.tokenSymbol}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Días para 100%</span>
+                        <span className="text-white font-mono font-bold">
+                          {Number(form.dailyBps) > 0 ? Math.ceil(10000 / Number(form.dailyBps)) : "—"}d
+                        </span>
+                      </div>
                     </div>
+                  )}
+
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      onClick={handleCreate}
+                      disabled={submitting}
+                      className="flex-1 py-2.5 rounded-xl font-bold text-sm text-white disabled:opacity-50 flex items-center justify-center gap-2"
+                      style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}
+                    >
+                      {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                      Crear vesting
+                    </button>
+                    <button
+                      onClick={() => setShowCreate(false)}
+                      className="px-4 py-2.5 rounded-xl text-sm text-slate-400 bg-white/[0.03] border border-white/[0.06]"
+                    >✕</button>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-            {/* Items */}
+          {/* Vestings list body */}
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
+            </div>
+          ) : vestings.length === 0 ? (
+            <div className="text-center py-10 text-slate-600 text-sm">Sin vestings creados</div>
+          ) : (
             <div className="divide-y divide-white/[0.04]">
-              {grants.map((g, i) => {
-                const claimedPct = g.totalAmount > 0 ? (g.claimed / g.totalAmount) * 100 : 0;
-                const daily      = (g.totalAmount * g.dailyRoiBps) / 10000;
-                const daysLeft   = daily > 0 ? Math.ceil((g.totalAmount - g.claimed) / daily) : "—";
+              {vestings.map(v => {
+                const claimed  = numBn(v.claimedAmount);
+                const total    = numBn(v.totalAmount);
+                const claimable = numBn(v.claimableNow);
+                const pct      = total > 0 ? Math.min(100, (claimed / total) * 100) : 0;
+                const idStr    = v.vestingId.toString();
+                const isRevokingThis = revoking === idStr;
+
                 return (
-                  <motion.div key={g.wallet} layout
+                  <div
+                    key={idStr}
                     className="px-4 py-3.5"
-                    style={{ opacity: g.active ? 1 : 0.4 }}
+                    style={{ opacity: (!v.active || v.revoked) ? 0.45 : 1 }}
                   >
                     {/* Row 1 */}
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`h-2 w-2 rounded-full ${g.active ? "bg-emerald-400" : "bg-slate-600"}`} />
-                        <span className="text-sm font-black text-white">{g.name}</span>
-                        <span className="text-[10px] font-mono text-slate-500">{shortAddr(g.wallet)}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
+                          v.revoked ? "bg-red-500" : v.active ? "bg-emerald-400" : "bg-slate-600"
+                        }`} />
+                        <a
+                          href={`https://basescan.org/address/${v.beneficiary}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="text-[11px] font-mono text-slate-300 hover:text-white truncate"
+                        >
+                          {shortAddr(v.beneficiary)}
+                        </a>
+                        <span className="text-[9px] text-slate-700 flex-shrink-0">#{idStr}</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <button onClick={() => setEditTarget(g)}
-                          className="h-7 w-7 rounded-lg flex items-center justify-center text-slate-600 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                        </button>
-                        <button onClick={() => revokeGrant(g.wallet)}
-                          className="h-7 w-7 rounded-lg flex items-center justify-center text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded-full ${
+                          v.revoked ? "bg-red-500/15 text-red-400"
+                          : v.active ? "bg-emerald-500/15 text-emerald-400"
+                          : "bg-slate-500/15 text-slate-400"
+                        }`}>
+                          {v.revoked ? "Revocado" : v.active ? "Activo" : "Completado"}
+                        </span>
+                        {isAdmin && v.active && !v.revoked && (
+                          <button
+                            onClick={() => handleRevoke(v.vestingId)}
+                            disabled={isRevokingThis}
+                            className="h-6 w-6 rounded-lg flex items-center justify-center text-slate-600 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-40"
+                          >
+                            {isRevokingThis
+                              ? <Loader2 className="h-3 w-3 animate-spin" />
+                              : <Trash2 className="h-3 w-3" />}
+                          </button>
+                        )}
                       </div>
                     </div>
 
-                    {/* Row 2: stats */}
-                    <div className="flex items-center gap-3 mb-2 flex-wrap">
-                      <span className="text-[11px] font-mono text-white font-bold">
-                        {fmt(g.totalAmount, 0)} <span className="text-slate-500">{g.tokenSymbol}</span>
-                      </span>
-                      <span className="text-[10px] rounded-full px-2 py-0.5"
+                    {/* Row 2: amounts */}
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span className="text-[11px] font-mono text-white font-bold">{fmt(total, 0)}</span>
+                      <span className="text-[10px] font-mono text-slate-600">{shortAddr(v.token)}</span>
+                      <span
+                        className="text-[10px] rounded-full px-2 py-0.5"
                         style={{ background: "#7c3aed18", color: "#a78bfa" }}
                       >
-                        {bpsToDisplay(g.dailyRoiBps)}%/día
+                        {bpsToPct(v.dailyBps)}%/día
                       </span>
-                      <span className="text-[10px] text-slate-500">
-                        +{fmt(daily, 2)}/día · {daysLeft}d restantes
-                      </span>
+                      {claimable > 0 && (
+                        <span className="text-[10px] text-emerald-300">
+                          +{fmt(claimable, 2)} disponible
+                        </span>
+                      )}
                     </div>
 
                     {/* Progress bar */}
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.05]">
-                        <div className="h-full rounded-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-700"
-                          style={{ width: `${claimedPct}%` }}
+                      <div className="flex-1 h-1 rounded-full bg-white/[0.05]">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-purple-600 to-purple-400 transition-all duration-700"
+                          style={{ width: `${pct}%` }}
                         />
                       </div>
-                      <span className="text-[10px] font-mono text-slate-600 flex-shrink-0">
-                        {claimedPct.toFixed(1)}%
-                      </span>
+                      <span className="text-[9px] font-mono text-slate-600">{pct.toFixed(1)}%</span>
                     </div>
-                  </motion.div>
+                  </div>
                 );
               })}
             </div>
-          </motion.div>
+          )}
 
-          <div className="pb-8" />
-        </div>
-      </div>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.05]">
+              <button
+                onClick={() => setPage(p => p - 1)}
+                disabled={page === 0}
+                className="text-[11px] text-slate-400 disabled:text-slate-700 hover:text-white transition-colors"
+              >← Anterior</button>
+              <span className="text-[11px] text-slate-600">Página {page + 1} / {totalPages}</span>
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={page >= totalPages - 1}
+                className="text-[11px] text-slate-400 disabled:text-slate-700 hover:text-white transition-colors"
+              >Siguiente →</button>
+            </div>
+          )}
+        </motion.div>
 
-      {/* Edit modal */}
-      <AnimatePresence>
-        {editTarget && (
-          <EditModal grant={editTarget} onSave={saveEdit} onClose={() => setEditTarget(null)} />
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// USER PAGE
-// ═══════════════════════════════════════════════════════════════════════════
-function UserPage({ onSwitch }) {
-  // Simula wallet conectada — en producción viene de Web3Context
-  const [connectedAs, setConnectedAs] = useState(MOCK_GRANTS[0].wallet); // mock Juan
-  const [claimed, setClaimed] = useState(MOCK_GRANTS[0].claimed);
-  const [showFull, setShowFull] = useState(false);
-
-  const grant = { ...MOCK_GRANTS.find(g => g.wallet === connectedAs), claimed };
-
-  const daily       = grant ? (grant.totalAmount * grant.dailyRoiBps) / 10000 : 0;
-  const available   = grant ? Math.min(daily * 10, grant.totalAmount - claimed) : 0; // mock 10 días
-  const claimedPct  = grant ? (claimed / grant.totalAmount) * 100 : 0;
-  const daysLeft    = daily > 0 ? Math.ceil((grant.totalAmount - claimed) / daily) : 0;
-
-  const HISTORY = [
-    { amount: daily, date: "2025-03-10" },
-    { amount: daily, date: "2025-03-09" },
-    { amount: daily, date: "2025-03-08" },
-  ];
-
-  if (!grant || !grant.active) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 gap-4"
-        style={{ background: "radial-gradient(ellipse at 50% 20%, #0a1530 0%, #060b18 65%)" }}
-      >
-        <div className="text-5xl">🔒</div>
-        <h2 className="text-xl font-black text-white">Sin asignación</h2>
-        <p className="text-sm text-slate-500 text-center">Esta wallet no tiene tokens asignados en este contrato.</p>
-        <button onClick={onSwitch}
-          className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-400 border border-white/[0.08]"
-        >
-          <Shield className="h-4 w-4" /> Ir al Admin
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex items-start justify-center p-4 pt-10"
-      style={{ background: "radial-gradient(ellipse at 30% 10%, #061a30 0%, #060b18 65%)" }}
-    >
-      <div className="w-full max-w-md space-y-4">
-
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between"
-        >
-          <div>
-            <h1 className="text-2xl font-black text-white">Hola, {grant.name} 👋</h1>
-            <button onClick={() => setShowFull(v => !v)}
-              className="flex items-center gap-1.5 mt-0.5 text-[11px] text-slate-500 hover:text-slate-300 font-mono"
-            >
-              {showFull ? grant.wallet : shortAddr(grant.wallet)}
-              {showFull ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-            </button>
-          </div>
-          <button onClick={onSwitch}
-            className="flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-semibold text-slate-400 hover:text-white"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+        {/* Not-admin warning */}
+        {accounts && !isAdmin && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="rounded-2xl px-4 py-3 flex items-center gap-3"
+            style={{ background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.2)" }}
           >
-            <Shield className="h-3.5 w-3.5" /> Admin
-          </button>
-        </motion.div>
+            <AlertCircle className="h-4 w-4 text-yellow-400 flex-shrink-0" />
+            <p className="text-[11px] text-yellow-300">
+              La wallet conectada no tiene permisos de admin. Solo puedes ver los datos del contrato.
+            </p>
+          </motion.div>
+        )}
 
-        {/* Main stats card */}
-        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.08 }}
-          className="rounded-3xl overflow-hidden"
-          style={{
-            background: "linear-gradient(160deg, #0d1e3a 0%, #091526 100%)",
-            border: "1px solid rgba(56,189,248,0.15)",
-            boxShadow: "0 0 60px rgba(14,90,180,0.12)",
-          }}
-        >
-          {/* Token header */}
-          <div className="px-5 pt-5 pb-4 border-b border-white/[0.05] flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl flex items-center justify-center font-black text-base"
-                style={{ background: "#0891b222", border: "1px solid #0891b233", color: "#38bdf8" }}
-              >
-                {grant.tokenSymbol[0]}
-              </div>
-              <div>
-                <div className="text-sm font-black text-white">{grant.tokenSymbol} Vesting</div>
-                <div className="text-[11px] text-slate-500 font-mono">{shortAddr(grant.token)}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
-              style={{ background: "rgba(52,211,153,0.1)", border: "1px solid rgba(52,211,153,0.2)" }}
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wide">Activo</span>
-            </div>
-          </div>
-
-          {/* 4 stats */}
-          <div className="px-5 py-4 grid grid-cols-2 gap-3">
-            {[
-              { label: "Total asignado",  val: `${fmt(grant.totalAmount, 0)}`, sub: grant.tokenSymbol, color: "#60a5fa" },
-              { label: "ROI diario",      val: `${bpsToDisplay(grant.dailyRoiBps)}%`, sub: `≈ ${fmt(daily, 2)} ${grant.tokenSymbol}/día`, color: "#a78bfa" },
-              { label: "Ya reclamado",    val: `${fmt(claimed, 0)}`, sub: `${claimedPct.toFixed(2)}% completado`, color: "#34d399" },
-              { label: "Días restantes",  val: daysLeft, sub: "para liberación total", color: "#fbbf24" },
-            ].map(({ label, val, sub, color }) => (
-              <div key={label} className="rounded-2xl px-4 py-3"
-                style={{ background: `${color}08`, border: `1px solid ${color}15` }}
-              >
-                <div className="text-[10px] text-slate-500 uppercase tracking-wide">{label}</div>
-                <div className="text-xl font-black font-mono mt-0.5" style={{ color }}>{val}</div>
-                <div className="text-[10px] text-slate-600 mt-0.5">{sub}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Progress */}
-          <div className="px-5 pb-5">
-            <div className="flex justify-between text-[11px] mb-1.5">
-              <span className="text-slate-500 uppercase tracking-wide">Progreso</span>
-              <span className="font-mono text-cyan-400">{claimedPct.toFixed(2)}%</span>
-            </div>
-            <div className="h-2.5 rounded-full bg-white/[0.04] overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${claimedPct}%` }}
-                transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-                className="h-full rounded-full"
-                style={{ background: "linear-gradient(90deg, #0891b2, #38bdf8)" }}
-              />
-            </div>
-            <div className="flex justify-between mt-1 text-[10px] text-slate-700 font-mono">
-              <span>{fmt(claimed, 0)} reclamado</span>
-              <span>{fmt(grant.totalAmount, 0)} total</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Claim card */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="rounded-2xl px-5 py-5"
-          style={{
-            background: "linear-gradient(145deg, #0d2a1e, #091a14)",
-            border: "1px solid rgba(52,211,153,0.2)",
-            boxShadow: "0 0 40px rgba(52,211,153,0.07)",
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-[11px] text-slate-500 uppercase tracking-widest mb-1">
-                Disponible ahora
-              </div>
-              <div className="text-4xl font-black text-white font-mono leading-none">
-                {fmt(available, 4)}
-              </div>
-              <div className="text-sm text-emerald-400 font-mono mt-1">{grant.tokenSymbol}</div>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.95 }}
-              onClick={() => setClaimed(c => Math.min(c + available, grant.totalAmount))}
-              className="h-18 flex flex-col items-center justify-center gap-1 px-5 py-4 rounded-2xl font-bold text-white"
-              style={{
-                background: "linear-gradient(135deg, #059669, #0d9488)",
-                boxShadow: "0 0 35px rgba(5,150,105,0.4)",
-              }}
-            >
-              <Zap className="h-6 w-6" />
-              <span className="text-[11px] uppercase tracking-widest">Claim</span>
-            </motion.button>
-          </div>
-        </motion.div>
-
-        {/* History */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="rounded-2xl overflow-hidden"
-          style={{ background: "linear-gradient(145deg, #0d1526, #0a1020)", border: "1px solid rgba(255,255,255,0.05)" }}
-        >
-          <div className="px-4 py-3.5 border-b border-white/[0.05] flex items-center gap-2">
-            <Clock className="h-4 w-4 text-slate-500" />
-            <span className="text-sm font-bold text-white">Historial</span>
-            <span className="ml-auto text-[11px] font-mono text-slate-500">{fmt(claimed, 0)} reclamado total</span>
-          </div>
-          {HISTORY.map((h, i) => (
-            <div key={i} className="flex items-center justify-between px-4 py-3 border-b border-white/[0.03]">
-              <div className="flex items-center gap-2.5">
-                <CheckCircle className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
-                <div>
-                  <div className="text-xs font-semibold text-white font-mono">
-                    +{fmt(h.amount, 4)} {grant.tokenSymbol}
-                  </div>
-                  <div className="text-[10px] text-slate-600 font-mono">{h.date}</div>
-                </div>
-              </div>
-              <ExternalLink className="h-3 w-3 text-slate-700 hover:text-slate-400 cursor-pointer transition-colors" />
-            </div>
-          ))}
-        </motion.div>
-
-        <div className="pb-10" />
+        <div className="pb-8" />
       </div>
     </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// ROOT
-// ═══════════════════════════════════════════════════════════════════════════
-export default function VestingPanel() {
-  const [page, setPage] = useState("user");
-  return (
-    <AnimatePresence mode="wait">
-      {page === "admin" ? (
-        <motion.div key="admin"
-          initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.2 }}
-        >
-          <AdminPage onSwitch={() => setPage("user")} />
-        </motion.div>
-      ) : (
-        <motion.div key="user"
-          initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.2 }}
-        >
-          <UserPage onSwitch={() => setPage("admin")} />
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
