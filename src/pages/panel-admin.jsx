@@ -20,7 +20,7 @@ const AIRDROP_POOLS = [
   { id: "jrcorp",  label: "JR Corp",     contract: "0x107f7d7A3C379367AAeAafCf576C2c075663EF58", color: "#fbbf24" },
   { id: "staker",  label: "Staker ZUUX", contract: "0xca296FE4031145A3e8d5DC32fE5f232765463cB8", color: "#38bdf8" },
   { id: "nft",     label: "NFT ZUUX",    contract: "0x5877fa8dF889CA3049C82765a9410485B31adE5b", color: "#a78bfa" },
-  { id: "test",    label: "Test",        contract: "0xb00b6a79F64142F3538DDEBeC22640BB783F661b", color: "#34d399" },
+  { id: "test",    label: "Test",        contract: "0x453Ef93F589833dECd83ae893E2e17752f4397c5", color: "#34d399" },
 ];
 
 const ERC20_ABI = [

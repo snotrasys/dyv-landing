@@ -33,7 +33,7 @@ const POOLS = [
   {
     id: "test",
     label: "Test",
-    contract: "0xb00b6a79F64142F3538DDEBeC22640BB783F661b",
+    contract: "0x453Ef93F589833dECd83ae893E2e17752f4397c5",
     color: "#34d399",
   },
 ];
