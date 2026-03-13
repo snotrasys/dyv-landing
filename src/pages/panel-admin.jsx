@@ -17,10 +17,7 @@ const PAGE_SIZE_OPTIONS = [10, 50, 100];
 
 const AIRDROP_TOKEN_DECIMALS = 6;
 const AIRDROP_POOLS = [
-  { id: "jrcorp",  label: "JR Corp",     contract: "0x107f7d7A3C379367AAeAafCf576C2c075663EF58", color: "#fbbf24" },
-  { id: "staker",  label: "Staker ZUUX", contract: "0xca296FE4031145A3e8d5DC32fE5f232765463cB8", color: "#38bdf8" },
-  { id: "nft",     label: "NFT ZUUX",    contract: "0x5877fa8dF889CA3049C82765a9410485B31adE5b", color: "#a78bfa" },
-  { id: "test",    label: "Test",        contract: "0x963f424529B6396d7904D0d1CE1DB7B56BE5b1D0", color: "#34d399" },
+  { id: "dyv", label: "DYV", contract: "0x963f424529B6396d7904D0d1CE1DB7B56BE5b1D0", color: "#34d399" },
 ];
 
 const ERC20_ABI = [
