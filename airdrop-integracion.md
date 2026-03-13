@@ -12,8 +12,8 @@ Contrato de distribución de tokens con **vesting lineal al 3% diario**. Los usu
 
 ```ts
 // config/airdrop.ts
-export const AIRDROP_ADDRESS = "0xb35d3c48AEab92BE02192e77EcBfD63fDc2Ec9F4" as const;
-export const TOKEN_ADDRESS = "0x12e54508785649a2C360169a06479e5007C8100A" as const;
+export const AIRDROP_ADDRESS = "0x453Ef93F589833dECd83ae893E2e17752f4397c5" as const;
+export const TOKEN_ADDRESS = "0xf2c764d1b9e10A199FC0a5D7AEdC9FB46392BdD3" as const;
 export const TOKEN_DECIMALS = 6;
 export const AIRDROP_ABI = [...] as const; // ABI generado al compilar
 ```
