@@ -9,11 +9,18 @@ import { useWeb3Modal } from "@web3modal/ethers5/react";
 import { useWeb3ModalProvider } from "@web3modal/ethers5/react";
 import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
-import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
+import { abi_MultiTokenVesting, abi_Airdrop } from "../hooks/abiHelpers";
 
 const VESTING_CONTRACT = "0x709B435357185537B3e73164f992b0011F1F1293";
 const BASE_RPC = "https://frequent-flashy-slug.base-mainnet.quiknode.pro/c768dd581cd676309f6d69af17ec7cd9b3e490e1";
 const PAGE_SIZE_OPTIONS = [10, 50, 100];
+
+const AIRDROP_TOKEN_DECIMALS = 6;
+const AIRDROP_POOLS = [
+  { id: "jrcorp",  label: "JR Corp",     contract: "0x107f7d7A3C379367AAeAafCf576C2c075663EF58", color: "#fbbf24" },
+  { id: "staker",  label: "Staker ZUUX", contract: "0xca296FE4031145A3e8d5DC32fE5f232765463cB8", color: "#38bdf8" },
+  { id: "nft",     label: "NFT ZUUX",    contract: "0x5877fa8dF889CA3049C82765a9410485B31adE5b", color: "#a78bfa" },
+];
 
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
@@ -40,6 +47,202 @@ function numBn(bn, dec = 18) {
 function getReadContract() {
   const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
   return new ethers.Contract(VESTING_CONTRACT, abi_MultiTokenVesting, provider);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AIRDROP SECTION
+// ═══════════════════════════════════════════════════════════════════════════
+function AirdropSection({ accounts, walletProvider }) {
+  const [selectedPool, setSelectedPool] = useState(AIRDROP_POOLS[0]);
+  const [poolStats, setPoolStats] = useState(null);
+  const [isOwner, setIsOwner] = useState(false);
+  const [rows, setRows] = useState([{ address: "", amount: "" }]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const getReadAirdrop = useCallback((contract) => {
+    const provider = new ethers.providers.JsonRpcProvider(BASE_RPC);
+    return new ethers.Contract(contract, abi_Airdrop, provider);
+  }, []);
+
+  // Load pool stats + check owner
+  useEffect(() => {
+    let active = true;
+    setPoolStats(null);
+    setIsOwner(false);
+    (async () => {
+      try {
+        const c = getReadAirdrop(selectedPool.contract);
+        const [investors, reward, owner] = await Promise.all([
+          c.getInvestors(),
+          c.rewardToDistribute(),
+          c.owner(),
+        ]);
+        if (!active) return;
+        setPoolStats({
+          investors: investors.length,
+          reward: Number(ethers.utils.formatUnits(reward, AIRDROP_TOKEN_DECIMALS)),
+        });
+        if (accounts) {
+          setIsOwner(owner.toLowerCase() === accounts.toLowerCase());
+        }
+      } catch (e) { console.error("airdrop stats", e); }
+    })();
+    return () => { active = false; };
+  }, [selectedPool, accounts, getReadAirdrop]);
+
+  const addRow = () => setRows(r => [...r, { address: "", amount: "" }]);
+  const removeRow = (i) => setRows(r => r.filter((_, idx) => idx !== i));
+  const updateRow = (i, field, value) =>
+    setRows(r => r.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
+
+  const handleAddUsers = async () => {
+    if (!accounts || !walletProvider) { toast.error("Conecta tu wallet"); return; }
+
+    const validRows = rows.filter(r => ethers.utils.isAddress(r.address) && Number(r.amount) > 0);
+    if (validRows.length === 0) { toast.error("Agrega al menos un usuario válido"); return; }
+
+    const addresses = validRows.map(r => r.address);
+    const amounts = validRows.map(r =>
+      ethers.utils.parseUnits(String(r.amount), AIRDROP_TOKEN_DECIMALS)
+    );
+
+    setSubmitting(true);
+    try {
+      const provider = new ethers.providers.Web3Provider(walletProvider);
+      const signer = provider.getSigner();
+      const c = new ethers.Contract(selectedPool.contract, abi_Airdrop, signer);
+      const tx = await c.addUsers(addresses, amounts);
+      toast.loading("Confirmando...", { id: "airdrop-add" });
+      await tx.wait();
+      toast.success(`${validRows.length} usuario(s) agregado(s)`, { id: "airdrop-add" });
+      setRows([{ address: "", amount: "" }]);
+      // refresh stats
+      const rc = getReadAirdrop(selectedPool.contract);
+      const [investors, reward] = await Promise.all([rc.getInvestors(), rc.rewardToDistribute()]);
+      setPoolStats({
+        investors: investors.length,
+        reward: Number(ethers.utils.formatUnits(reward, AIRDROP_TOKEN_DECIMALS)),
+      });
+    } catch (e) {
+      toast.error(e?.reason || e?.message?.slice(0, 80) || "Error", { id: "airdrop-add" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+      className="rounded-2xl overflow-hidden"
+      style={{ background: "linear-gradient(145deg, #0d1a12, #0a1020)", border: "1px solid rgba(251,191,36,0.1)" }}
+    >
+      {/* Header */}
+      <div className="px-4 py-3.5 border-b border-white/[0.05] flex items-center justify-between">
+        <div>
+          <span className="text-sm font-black text-white">Airdrop DYV</span>
+          <span className="ml-2 text-[11px] text-slate-600">addUsers</span>
+        </div>
+        {/* Pool selector */}
+        <div className="flex gap-1">
+          {AIRDROP_POOLS.map(p => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPool(p)}
+              className="px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors"
+              style={{
+                background: selectedPool.id === p.id ? `${p.color}22` : "rgba(255,255,255,0.04)",
+                color: selectedPool.id === p.id ? p.color : "#64748b",
+                border: selectedPool.id === p.id ? `1px solid ${p.color}44` : "1px solid transparent",
+              }}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2 px-4 py-3 border-b border-white/[0.05]">
+        <div className="rounded-xl px-3 py-2.5 text-center" style={{ background: "rgba(255,255,255,0.03)" }}>
+          <div className="text-[10px] text-slate-600 uppercase tracking-wide">Inversores</div>
+          <div className="text-xl font-black font-mono mt-0.5" style={{ color: selectedPool.color }}>
+            {poolStats ? poolStats.investors : <Loader2 className="h-4 w-4 animate-spin inline" />}
+          </div>
+        </div>
+        <div className="rounded-xl px-3 py-2.5 text-center" style={{ background: "rgba(255,255,255,0.03)" }}>
+          <div className="text-[10px] text-slate-600 uppercase tracking-wide">Total registrado (DYV)</div>
+          <div className="text-xl font-black font-mono mt-0.5 text-white">
+            {poolStats ? fmt(poolStats.reward, 2) : <Loader2 className="h-4 w-4 animate-spin inline" />}
+          </div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <div className="px-4 py-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
+            Usuarios a agregar
+          </div>
+          {!isOwner && accounts && (
+            <span className="text-[10px] text-yellow-400 flex items-center gap-1">
+              <AlertCircle className="h-3 w-3" /> Solo el owner puede agregar
+            </span>
+          )}
+        </div>
+
+        {/* Column headers */}
+        <div className="grid grid-cols-[1fr_120px_28px] gap-2">
+          <div className="text-[10px] text-slate-600 px-1">Wallet (0x…)</div>
+          <div className="text-[10px] text-slate-600 px-1">Monto DYV</div>
+          <div />
+        </div>
+
+        {rows.map((row, i) => (
+          <div key={i} className="grid grid-cols-[1fr_120px_28px] gap-2 items-center">
+            <input
+              type="text"
+              value={row.address}
+              onChange={e => updateRow(i, "address", e.target.value)}
+              placeholder="0x…"
+              className="w-full rounded-xl px-3 py-2 text-xs font-mono text-white bg-white/[0.04] border border-white/[0.07] outline-none focus:border-yellow-500/40 placeholder-slate-700"
+            />
+            <input
+              type="number"
+              value={row.amount}
+              onChange={e => updateRow(i, "amount", e.target.value)}
+              placeholder="1000"
+              className="w-full rounded-xl px-3 py-2 text-xs font-mono text-white bg-white/[0.04] border border-white/[0.07] outline-none focus:border-yellow-500/40 placeholder-slate-700"
+            />
+            <button
+              onClick={() => removeRow(i)}
+              disabled={rows.length === 1}
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-slate-700 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-20"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ))}
+
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={addRow}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold text-slate-400 bg-white/[0.03] border border-white/[0.06] hover:text-white transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" /> Añadir fila
+          </button>
+          <button
+            onClick={handleAddUsers}
+            disabled={submitting || !isOwner}
+            className="flex-1 py-2 rounded-xl font-bold text-sm text-white disabled:opacity-40 flex items-center justify-center gap-2"
+            style={{ background: `linear-gradient(135deg, ${selectedPool.color}cc, ${selectedPool.color}77)` }}
+          >
+            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            Registrar usuarios
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -640,6 +843,9 @@ export default function PanelAdmin() {
             </div>
           )}
         </motion.div>
+
+        {/* Airdrop section */}
+        <AirdropSection accounts={accounts} walletProvider={walletProvider} />
 
         {/* Not-admin warning */}
         {accounts && !isAdmin && (
