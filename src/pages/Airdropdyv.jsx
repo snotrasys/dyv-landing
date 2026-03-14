@@ -11,11 +11,13 @@ import { abi_Airdrop } from "../hooks/abiHelpers";
 const BASE_RPC = "https://frequent-flashy-slug.base-mainnet.quiknode.pro/c768dd581cd676309f6d69af17ec7cd9b3e490e1";
 const TOKEN_DECIMALS = 6;
 
+const AIRDROP_TOKEN = "0x65053fea6c7240A13B597157D91379370769942a";
+
 const POOLS = [
   {
     id: "dyv",
     label: "DYV",
-    contract: "0x963f424529B6396d7904D0d1CE1DB7B56BE5b1D0",
+    contract: "0x6f3CFB345D633842071ecbdCAAF532F035C0D89A",
     color: "#34d399",
   },
 ];
