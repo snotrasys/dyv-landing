@@ -17,7 +17,7 @@ const POOLS = [
   {
     id: "dyv",
     label: "DYV",
-    contract: "0x6f3CFB345D633842071ecbdCAAF532F035C0D89A",
+    contract: "0x2c866dDf9F22aAd9779ecd41F07AAdC4175Cae8D",
     color: "#34d399",
   },
 ];
