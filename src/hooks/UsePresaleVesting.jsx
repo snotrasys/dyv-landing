@@ -31,6 +31,7 @@ export default function UsePresaleVesting() {
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   const address_ = address.privateSale;
   const Stake = useContract(address_);
+  const Stake2 = useContract(address.privateSale2);
   const opt = {
     // value: ethers.utils.parseEther("0.0032"),
   };
@@ -53,9 +54,17 @@ export default function UsePresaleVesting() {
   };
 
   const withdrawTokens = async () => {
-    
+
     if (!isLoaded) return;
-    const [load, contract] = await Stake;        
+    const [load, contract] = await Stake;
+    const tx = contract.withdrawTokens();
+    return tx;
+  };
+
+  const withdrawTokens2 = async () => {
+
+    if (!isLoaded) return;
+    const [load, contract] = await Stake2;
     const tx = contract.withdrawTokens();
     return tx;
   };
@@ -206,6 +215,7 @@ const totalInvested = async () => {
     address_,
     buy,
     withdrawTokens,
+    withdrawTokens2,
     getReserveToInvest,
     sales,
     totalInvested,
