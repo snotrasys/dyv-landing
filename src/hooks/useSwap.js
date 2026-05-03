@@ -8,7 +8,7 @@ export const useSwap = () => {
   const { accounts, isLoaded, connect } = useContext(Web3Context);
       const { walletProvider } = useWeb3ModalProvider(); 
   // const address_ = '0x11caa40Fb970dd322f7116fAD7d37B6AeA536EDB';
-  const address_ = '0xCcD27a41bD76BF7891140642fea3Ff17Ff3BEdF0';
+  const address_ = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
   
   const contract = async () => {
     if (!isLoaded) return null;
