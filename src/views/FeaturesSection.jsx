@@ -139,7 +139,7 @@ const FeatureSections = () => {
   };
 
   return (
-    <section className="bg-black text-white" id="explore-dvgroup">
+    <section className="bg-black text-white" id="explore-mft">
       <div className="w-full max-w-[1408px] mx-auto">
         {/* First Section: Mission & Vision - Image on right */}
         <motion.div 
@@ -479,7 +479,7 @@ const FeatureSections = () => {
                 whileHover={isMobile ? {} : { x: 5 }}
                 transition={{ duration: 0.2 }}
               >
-                D&V Group Blockchain is committed to building a comprehensive ecosystem that empowers communities, delivers sustainable solutions, and creates meaningful economic opportunities through blockchain technology.
+                Match Fan Token is committed to building a comprehensive ecosystem that empowers communities, delivers sustainable solutions, and creates meaningful economic opportunities through blockchain technology.
               </motion.p>
               
               <div className="mt-6 space-y-3">

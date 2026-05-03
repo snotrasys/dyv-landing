@@ -14,7 +14,7 @@ const socialLinks = [
   },
   {
     name: "Twitter",
-    href: "https://x.com/dyvgroup",
+    href: "https://x.com/matchfantoken",
     icon: (props) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -46,15 +46,15 @@ const Footer = () => {
           <div className="mb-8">
             <img 
               src="/logo-black.png" 
-              alt="D&V GROUP" 
-              className="h-12" 
+              alt="MATCH FAN TOKEN" 
+              className="h-44" 
             />
           </div>
           
           {/* Mission Statement */}
           <div className="max-w-3xl text-center mb-10">
             <p className="text-gray-500 text-lg">
-              D&V Group is building an ecosystem where the community can invest, 
+              Match Fan Token is building an ecosystem where the community can invest, 
               grow, and benefit from Web3. Our BASE blockchain-based platform 
               ensures security, transparency, and accessibility for all.
             </p>
@@ -88,7 +88,7 @@ const Footer = () => {
           
           {/* Copyright */}
           <div className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} D&V Group. All rights reserved.
+            © {new Date().getFullYear()} Match Fan Token. All rights reserved.
           </div>
         </div>
       </div>

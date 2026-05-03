@@ -20,7 +20,7 @@ const CardSliderSection = () => {
     {
       id: 3,
       title: "Tokenomics",
-      description: "Learn about D&V Token distribution, vesting schedules, and our long-term value creation strategy",
+      description: "Learn about MFT Token distribution, vesting schedules, and our long-term value creation strategy",
       icon: LineChart,
       link: "/tokenomics"
     },
@@ -34,7 +34,7 @@ const CardSliderSection = () => {
     {
       id: 5,
       title: "Join Community",
-      description: "Connect with like-minded investors and be part of the D&V Group ecosystem",
+      description: "Connect with like-minded investors and be part of the Match Fan Token ecosystem",
       icon: Users,
       link: "/community"
     }
@@ -43,7 +43,7 @@ const CardSliderSection = () => {
   return (
     <div className="bg-white py-16 px-4">
       <div className="max-w-7xl mx-auto mb-10">
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-2">Explore D&V Ecosystem</h2>
+        <h2 className="text-4xl font-bold text-center text-gray-900 mb-2">Explore Match Fan Token Ecosystem</h2>
         <p className="text-xl text-center text-gray-600 max-w-3xl mx-auto">
           Discover the various aspects of our platform and how you can get involved
         </p>

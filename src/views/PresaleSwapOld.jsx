@@ -33,7 +33,7 @@ function PresaleSwapOld() {
 
 
   const { timerDays, timerHours, timerMinutes, timerSeconds } = useCountdown([2025, 6, 30, 20]);
-  const [amount, setAmount] = useState(50);
+  const [amount, setAmount] = useState(10);
   const [recaudacion, setRecaudacion] = useState(0);
   const [showTokenomics, setShowTokenomics] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
@@ -82,13 +82,12 @@ function PresaleSwapOld() {
 
 
 const tokenData = [
-    { amount: "200,000,000", allocation: "Presale (33% monthly vesting)", percentage: "20%" },
-    { amount: "300,000,000", allocation: "Ecosystem Development", percentage: "30%" },
-    { amount: "200,000,000", allocation: "Staking Rewards", percentage: "20%" },
-    { amount: "100,000,000", allocation: "DEX Liquidity", percentage: "10%" },
-    { amount: "100,000,000", allocation: "CEX Listings", percentage: "10%" },
-    { amount: "50,000,000", allocation: "Marketing", percentage: "5%" },
-    { amount: "50,000,000", allocation: "Development", percentage: "5%" }
+    { amount: "1,000,000", allocation: "Ecosystem", percentage: "45.45%" },
+    { amount: "400,000", allocation: "DEX Listing", percentage: "18.18%" },
+    { amount: "400,000", allocation: "Presale", percentage: "18.18%" },
+    { amount: "200,000", allocation: "CEX Listing", percentage: "9.09%" },
+    { amount: "100,000", allocation: "Devs", percentage: "4.55%" },
+    { amount: "100,000", allocation: "AirDrop", percentage: "4.55%" }
 ];
 
 
@@ -109,7 +108,7 @@ const tokenData = [
         {/* Header Section */}
         <div className="px-6 py-8 text-center">
           <div className="flex items-center justify-center gap-3">
-            <img src="/logo.png" alt="D&V Token" className="h-10 w-10" />
+            <img src="/logo.png" alt="Match Fan Token" className="h-10 w-10" />
           </div>
           
      
@@ -141,7 +140,7 @@ const tokenData = [
               </div>
               <div>
                 <p className="text-blue-200/70">Min Purchase</p>
-                <p className="font-medium text-blue-100">50 USDC</p>
+                <p className="font-medium text-blue-100">10 USDC</p>
               </div>
               <div>
                 <p className="text-blue-200/70">Max Purchase</p>
@@ -190,14 +189,14 @@ const tokenData = [
                 <div className="rounded-lg bg-blue-900/30 p-3">
                   <div className="text-sm text-blue-300/80">Available for Withdrawn</div>
                   <div className="font-semibold text-blue-100">
-                    {userData.currentUserBalance} D&V
+                    {userData.currentUserBalance} MFT
                   </div>
                 </div>
                 
                 <div className="rounded-lg bg-blue-900/30 p-3">
                   <div className="text-sm text-blue-300/80">Total Withdraw</div>
                   <div className="font-semibold text-blue-100">
-                    {userData.totalWithdrawn} D&V
+                    {userData.totalWithdrawn} MFT
                   </div>
                 </div>
               </div>
@@ -227,7 +226,7 @@ const tokenData = [
                 {/* Historical Rewards - Replicando exactamente la imagen */}
                 <div className="bg-[#0a1428] rounded-lg p-4">
                   <div className="mb-2 font-medium text-gray-400">
-                    HISTORICAL REWARDS - TOTAL {userData.totalWithdrawn} D&V
+                    HISTORICAL REWARDS - TOTAL {userData.totalWithdrawn} MFT
                   </div>
                  {withdrawData.length > 0 && withdrawData.map((item, index) => (
                     
@@ -236,7 +235,7 @@ const tokenData = [
                       <span className="text-blue-100 font-medium">ID { index +1} -</span>
                       <div className="flex items-center">
                         <div className="h-5 w-5 flex items-center justify-center">
-                          <img src="/dyv.png" alt="D&V Token" className="h-5 w-5" />
+                          <img src="/mft.png" alt="Match Fan Token" className="h-5 w-5" />
                         </div>
                         <span className="ml-1 text-blue-100">{item.tokenAmount}</span>
                       </div>
@@ -326,14 +325,14 @@ const tokenData = [
                   }
                 }}
                 className="w-full rounded-lg border border-blue-800/50 bg-[#0a1428] p-3 pl-10 text-xl text-blue-100 placeholder-blue-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Enter USDC amount"
+                placeholder="Enter USDC amount (min 10)"
               />
             </div>
             <div className="mt-2 text-sm text-blue-300/80">
               Balance: {currentBalance_ || '0'} USDC
             </div>
             <div className="mt-2 text-sm text-blue-300/80">
-              You will receive: {calculateTokens(amount).toLocaleString('en-US', {maximumFractionDigits: 0})} D&V
+              You will receive: {calculateTokens(amount).toLocaleString('en-US', {maximumFractionDigits: 0})} MFT
             </div>
                 
           </div>
@@ -347,7 +346,7 @@ const tokenData = [
       className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-500 p-3 font-semibold text-white transition-all hover:from-indigo-700 hover:to-blue-600 shadow-lg"
     >
       <ArrowRightCircle className="h-5 w-5" />
-      Buy D&V Token
+      Buy MFT Token
     </button>
   ) : (
     <button
@@ -365,7 +364,7 @@ const tokenData = [
     className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
   >
     <Wallet className="h-5 w-5" />
-    Claim D&V Token
+    Claim MFT Token
   </button>
 
 
@@ -375,7 +374,7 @@ const tokenData = [
     className="hidden flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
   >
     <Wallet className="h-5 w-5" />
-    Claim D&V Token (TEST)
+    Claim MFT Token (TEST)
   </button>
 
   <CardRef />
@@ -451,7 +450,7 @@ const tokenData = [
   {userData?.tokenAmount ? 
     Number(userData.tokenAmount > 0 ? userData.tokenAmount : 0)
       .toLocaleString('en-US', {maximumFractionDigits: 0}) : 
-    '0'} D&V
+    '0'} MFT
 </div>
               </div>
             </div>
@@ -547,8 +546,8 @@ const tokenData = [
             {showTokenomics && (
         <div className="px-4 pb-4 space-y-4">
           <div className="bg-[#0a1428] rounded-lg p-4">
-            <h4 className="text-lg font-semibold text-blue-300 mb-3">D&V Token</h4>
-            <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 1.000.000.000</p>
+            <h4 className="text-lg font-semibold text-blue-300 mb-3">MFT Token</h4>
+            <p className="text-sm text-blue-100 font-semibold mb-1">Total Supply: 2,200,000</p>
             <p className="text-xs text-blue-300/80 mb-3">Standard BASE Token</p>
             
             {/* Cabecera responsiva */}

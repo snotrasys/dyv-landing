@@ -415,7 +415,7 @@ function LandingPage() {
                 <source src="/blockchain-desktop.mp4" type="video/mp4" media="(min-width: 1024px)" />
                 <source src="/blockchain-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
                 {/* Fallback image for browsers that don't support video */}
-                <img src="/videos/blockchain-poster.jpg" alt="D&V Group Blockchain" />
+                <img src="/videos/blockchain-poster.jpg" alt="Match Fan Token Blockchain" />
               </video>
               
               {/* Overlay div to darken the video - only applied to desktop */}
@@ -498,8 +498,8 @@ function LandingPage() {
                       />
                       <img 
                         src="/logo-text.png" 
-                        alt="D&V GROUP BLOCKCHAIN" 
-                        className="relative h-12 sm:h-16 mb-6 sm:mb-8" 
+                        alt="MATCH FAN TOKEN" 
+                        className="relative h-60 sm:h-40 mb-6 sm:mb-8" 
                       />
                     </motion.div>
                     
@@ -514,7 +514,7 @@ function LandingPage() {
                       variants={childVariants}
                       className="text-pretty text-white text-[1.0625rem] leading-[2rem] lg:text-2xl lg:leading-[2rem] mb-8"
                     >
-                      D&V Group Blockchain is taking a leap into the future with D&V 
+                      Match Fan Token is taking a leap into the future with the MFT 
                       Token, a cryptocurrency designed to revolutionize investing in 
                       <span className="whitespace-nowrap"> real estate</span>, renewable energy, and 
                       decentralized financial services.
@@ -561,7 +561,7 @@ function LandingPage() {
                       
                       {/* Explore Button with simpler interaction for mobile */}
                       <motion.a 
-                        href="#explore-dvg" 
+                        href="#explore-mft" 
                         className="flex justify-between items-center group py-3 px-0 group relative overflow-hidden transition-all duration-200 hover:px-4 text-white no-underline border-t border-white md:inline-flex"
                         onMouseEnter={() => !isMobile && setIsHoveredExplore(true)}
                         onMouseLeave={() => !isMobile && setIsHoveredExplore(false)}
@@ -792,7 +792,7 @@ function LandingPage() {
                       className="max-w-4xl mx-auto"
                     >
                       <p className="text-lg sm:text-xl md:text-2xl text-white mb-12 leading-relaxed">
-                        D&V Group Blockchain is taking a leap into the future with D&V 
+                        Match Fan Token is taking a leap into the future with the MFT 
                         Token, a cryptocurrency designed to revolutionize investing in real 
                         estate, renewable energy, and decentralized financial services. Our 
                         mission is to integrate Web 3.0 into community development and 
@@ -832,7 +832,7 @@ function LandingPage() {
                     >
                       <motion.img 
                         src="/token.png" 
-                        alt="D&V Token Visualization" 
+                        alt="Match Fan Token Visualization" 
                         className="w-full"
                         whileHover={{ scale: 1.03 }}
                         transition={{ duration: 0.3 }}
