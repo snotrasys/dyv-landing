@@ -76,7 +76,7 @@ function PresaleSwapOld() {
   }
 
   function calculateTokens(usdcAmount) {
-    return usdcAmount * 50;
+    return usdcAmount * 1;
   }
 
 
@@ -124,27 +124,15 @@ const tokenData = [
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-blue-200/70">Price</p>
-                <p className="font-medium text-blue-100">0.02 USDC</p>
+                <p className="font-medium text-blue-100">1 USDC</p>
               </div>
               <div>
                 <p className="text-blue-200/70">Network</p>
                 <p className="font-medium text-blue-100">BASE</p>
               </div>
               <div>
-                <p className="text-blue-200/70">Hard Cap</p>
-                <p className="font-medium text-blue-100">4,000,000 USDC</p>
-              </div>
-              <div>
-                <p className="text-blue-200/70">Soft Cap</p>
-                <p className="font-medium text-blue-100">100,000 USDC</p>
-              </div>
-              <div>
                 <p className="text-blue-200/70">Min Purchase</p>
                 <p className="font-medium text-blue-100">10 USDC</p>
-              </div>
-              <div>
-                <p className="text-blue-200/70">Max Purchase</p>
-                <p className="font-medium text-blue-100">2,000 USDC</p>
               </div>
             </div>
           </div>
@@ -371,7 +359,7 @@ const tokenData = [
 
     <button
     onClick={() => withdrawTokens()}
-    className="hidden flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
+    className=" flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
   >
     <Wallet className="h-5 w-5" />
     Claim MFT Token (TEST)
