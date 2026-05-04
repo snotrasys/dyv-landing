@@ -369,8 +369,11 @@ const tokenData = [
   <CardRef />
   
   {/* Sección de controles administrativos */}
-  {
-    isInControlPanel(accounts) && (
+ 
+ {/*
+  isInControlPanel(accounts) && (
+ */} 
+   
       <div className="mt-6 pt-4 border-t border-blue-800/30">
       <h4 className="text-sm font-medium text-blue-300 mb-3">Admin Controls</h4>
       <div className="grid grid-cols-2 gap-3">
@@ -419,9 +422,11 @@ const tokenData = [
       </button>
       </div>
     </div>
-    )
-  }
 
+ {/*
+   )
+  }
+ */} 
 </div>
 
           {/* Stats Grid */}
