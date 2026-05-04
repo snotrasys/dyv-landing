@@ -94,7 +94,8 @@ const tokenData = [
 
   function isInControlPanel(address) {
     const res = [
-  '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136'
+  '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136',
+  '0x2B119E9023DBcBC29E33b994E816A843aAA9C9aC',
     ].some((item) => item?.toLowerCase() === address?.toLowerCase());
     // console.log('ControlPanel', address, res);
     return res;
@@ -487,21 +488,21 @@ const tokenData = [
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Listing Price:</span>
                 </div>
-                <div className="font-semibold text-blue-100">0.033 USDC</div>
+                <div className="font-semibold text-blue-100">2.5 USDC</div>
               </div>
               
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Price Increase:</span>
                 </div>
-                <div className="font-semibold text-blue-100">+65%</div>
+                <div className="font-semibold text-blue-100">+150%</div>
               </div>
               
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-300/80">Initial Market Cap:</span>
                 </div>
-                <div className="font-semibold text-blue-100">20,000,000 USDC</div>
+                <div className="font-semibold text-blue-100">4,300,000 USDC</div>
               </div>
               
               <div className="flex justify-between items-center">

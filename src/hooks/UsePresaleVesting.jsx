@@ -168,7 +168,7 @@ const totalInvested = async () => {
         const provider = new ethers.providers.Web3Provider(walletProvider);
         const signer = provider.getSigner()    
         const contract = new Contract(
-          "0x68eaBe6e7ba3BBC391006b0Fb524d07F71c2bf59",[
+          "0x8e941b8d50868CFd5D785bDC7E38B93aa696A337",[
             `function claim(address _token) external`
           ],
           signer,
@@ -189,7 +189,7 @@ const totalInvested = async () => {
         const provider = new ethers.providers.Web3Provider(walletProvider);
         const signer = provider.getSigner()    
         const contract = new Contract(
-          "0x46a40D7CB5184CCF793bA2F9e69E6124B1731E15",[
+          "0x8e941b8d50868CFd5D785bDC7E38B93aa696A337",[
             `function claim(address _token) external`
           ],
           signer,
