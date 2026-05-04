@@ -19,14 +19,7 @@ function Private() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <motion.img 
-                src="/logo-text.png" 
-                alt="D&V GROUP BLOCKCHAIN" 
-                className="h-12 sm:h-16 mb-4 mx-auto"
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5 }}
-              />
+            
               <motion.h1 
                 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-white to-blue-400 tracking-tight"
                 initial={{ opacity: 0, filter: "blur(8px)" }}
@@ -88,7 +81,7 @@ function Private() {
               {/* Token image */}
               <motion.img
                 loading="lazy"
-                src="/token-destello.png"
+                src="/logo-text.png" 
                 alt="D&V Token"
                 className="relative mx-auto z-10 drop-shadow-xl w-full"
                 animate={{ 
@@ -150,7 +143,7 @@ function Private() {
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               Secure your participation in our tokenized investment project. 
-              Acquire D&V tokens for blockchain, real estate, and renewable energy.
+              Acquire MFT tokens for blockchain, real estate, and renewable energy.
             </motion.p>
           </div>
           

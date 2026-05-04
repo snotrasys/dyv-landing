@@ -143,7 +143,7 @@ function Private() {
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               Secure your participation in our tokenized investment project.
-              Acquire D&V tokens for blockchain, real estate, and renewable energy.
+              
             </motion.p>
           </div>
 
