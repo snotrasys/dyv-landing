@@ -208,7 +208,8 @@ const SwapProvider = ({ children }) => {
     try {
       const [lastBlock_,data] = await Presale.sales()
       sleep(500);
-    
+
+
       const currentUserBalance = await Presale.currentUserBalance(accounts);
       console.log(currentUserBalance, 'currentUserBalance');
       sleep(500);
@@ -216,11 +217,7 @@ const SwapProvider = ({ children }) => {
       
       let nextDates = await Presale.nextDates();
            
-     if(nextDates.length>0 && nextDates[0]>0)
-  nextDates=nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_SHORT))
-    else 
-  nextDates=[]
-      
+ 
       // address buyer;
       //   uint tokenAmount;
       //   uint bonusToken;
@@ -247,7 +244,7 @@ const SwapProvider = ({ children }) => {
         hasWithdrawn:data.hasWithdrawn.toString(),
         referrals:data.referrals,
         data:ParseEther(data.toWithdraw),
-        nextDates:nextDates,
+      //  nextDates:nextDates,
         // referrer:data.referrals.map((e)=>e.toString())
       };
       console.log(data_,accounts, 'getUserData');
