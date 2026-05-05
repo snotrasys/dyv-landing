@@ -4,16 +4,16 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import { motion, useReducedMotion } from 'framer-motion';
 import TonkenContext from '@/context/TokenHandle';
-import { Clipboard, Check, Users, TrendingUp, Award } from 'lucide-react';
+import { Clipboard, Check, Users, TrendingUp, Award, Coins } from 'lucide-react';
 
 const dataRef_ = [
-  { level: 1, porcentaje: '10%', amount: 0 },
-  { level: 2, porcentaje: '5%', amount: 0 },
-  { level: 3, porcentaje: '3%', amount: 0 },
-  { level: 4, porcentaje: '2%', amount: 0 },
-  { level: 5, porcentaje: '2%', amount: 0 },
-  { level: 6, porcentaje: '2%', amount: 0 },
-  { level: 7, porcentaje: '1%', amount: 0 }
+  { level: 1, porcentaje: '10%', amount: 0, amountInvested: 0, reward: 0 },
+  { level: 2, porcentaje: '5%', amount: 0, amountInvested: 0, reward: 0 },
+  { level: 3, porcentaje: '3%', amount: 0, amountInvested: 0, reward: 0 },
+  { level: 4, porcentaje: '2%', amount: 0, amountInvested: 0, reward: 0 },
+  { level: 5, porcentaje: '2%', amount: 0, amountInvested: 0, reward: 0 },
+  { level: 6, porcentaje: '2%', amount: 0, amountInvested: 0, reward: 0 },
+  { level: 7, porcentaje: '1%', amount: 0, amountInvested: 0, reward: 0 }
 ];
 
 function CardRef() {
@@ -45,21 +45,20 @@ function CardRef() {
   useEffect(() => {
     if (!userData || !isLoaded) return;
     
-    let data_ = [...dataRef_];
-    data_ = data_.map((item, i) => {
-      if (
-        userData.referrerCount_?.[i] === undefined ||
-        Number(userData.referrerCount_[i]) === 0
-      ) return item;
-      
-      return { ...item, amount: userData.referrerCount_[i] };
-    });
+    const data_ = dataRef_.map((item, i) => ({
+      ...item,
+      amount: Number(userData.referrerCount_?.[i] ?? 0),
+      amountInvested: Number(userData.referrerAmount_?.[i] ?? 0),
+      reward: Number(userData.referrerReward_?.[i] ?? 0),
+    }));
     
     setdataRef_(data_);
   }, [userData, isLoaded]);
 
-  // Total de referidos (suma de todos los niveles)
+  // Totales (suma de todos los niveles)
   const totalReferrals = dataRef.reduce((acc, item) => acc + Number(item.amount || 0), 0);
+  const totalRewards = dataRef.reduce((acc, item) => acc + Number(item.reward || 0), 0);
+  const totalInvested = dataRef.reduce((acc, item) => acc + Number(item.amountInvested || 0), 0);
 
   const onCopy = () => {
     setIsCopied(true);
@@ -149,24 +148,37 @@ function CardRef() {
             </div>
           </div>
 
-          {/* Stats compactos */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-3">
-              <div className="rounded-md bg-blue-500/20 p-2">
+          {/* Stats compactos - 3 columnas */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
+            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-2 sm:gap-3">
+              <div className="rounded-md bg-blue-500/20 p-2 hidden sm:block">
                 <Users className="h-4 w-4 text-blue-300" />
               </div>
-              <div>
-                <div className="text-xs text-blue-300/70">Total Referrals</div>
+              <div className="min-w-0">
+                <div className="text-[10px] sm:text-xs text-blue-300/70 truncate">Total Refs</div>
                 <div className="text-base font-bold text-blue-100">{totalReferrals}</div>
               </div>
             </div>
-            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-3">
-              <div className="rounded-md bg-blue-500/20 p-2">
+            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-2 sm:gap-3">
+              <div className="rounded-md bg-blue-500/20 p-2 hidden sm:block">
+                <Coins className="h-4 w-4 text-blue-300" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] sm:text-xs text-blue-300/70 truncate">Total Rewards</div>
+                <div className="text-base font-bold text-blue-100 truncate">
+                  {totalRewards.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                </div>
+              </div>
+            </div>
+            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-2 sm:gap-3">
+              <div className="rounded-md bg-blue-500/20 p-2 hidden sm:block">
                 <Award className="h-4 w-4 text-blue-300" />
               </div>
-              <div>
-                <div className="text-xs text-blue-300/70">Levels</div>
-                <div className="text-base font-bold text-blue-100">7 Available</div>
+              <div className="min-w-0">
+                <div className="text-[10px] sm:text-xs text-blue-300/70 truncate">Network Vol.</div>
+                <div className="text-base font-bold text-blue-100 truncate">
+                  {totalInvested.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                </div>
               </div>
             </div>
           </div>
@@ -178,30 +190,47 @@ function CardRef() {
                 <TrendingUp className="h-4 w-4 text-blue-400" />
                 <h3 className="text-sm font-semibold text-blue-200">Referral Levels</h3>
               </div>
-              <span className="text-xs text-blue-300/70">Bonus per level</span>
+              <span className="text-xs text-blue-300/70">7 Levels</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {dataRef.map((item) => (
                 <div
                   key={item.level}
-                  className="rounded-md bg-[#0a1428] border border-blue-900/40 p-2.5 flex items-center gap-2"
+                  className="rounded-md bg-[#0a1428] border border-blue-900/40 p-2.5"
                 >
-                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white">
-                    {item.level}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[10px] text-blue-300/70 leading-tight">
-                      Level {item.level}
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white">
+                      {item.level}
                     </div>
-                    <div className="text-sm font-bold text-blue-100 leading-tight">
-                      {item.porcentaje}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-blue-300/70 leading-tight">
+                        Level {item.level}
+                      </div>
+                      <div className="text-sm font-bold text-blue-100 leading-tight">
+                        {item.porcentaje} bonus
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] text-blue-300/70 leading-tight">Refs</div>
+                      <div className="text-xs font-semibold text-blue-200 leading-tight">
+                        {item.amount}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-[10px] text-blue-300/70 leading-tight">Refs</div>
-                    <div className="text-xs font-semibold text-blue-200 leading-tight">
-                      {item.amount}
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-blue-900/40">
+                    <div>
+                      <div className="text-[10px] text-blue-300/70 leading-tight">Volume</div>
+                      <div className="text-xs font-medium text-blue-100 truncate">
+                        {Number(item.amountInvested).toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] text-blue-300/70 leading-tight">Earned</div>
+                      <div className="text-xs font-medium text-emerald-300 truncate">
+                        {Number(item.reward).toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                      </div>
                     </div>
                   </div>
                 </div>

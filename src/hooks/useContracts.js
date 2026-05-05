@@ -6,11 +6,11 @@ import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 
 
 export const address = {
-  fantom: "0x347219d2e056E61f6c3aa55871294b4738afcFBa",
+  fantom: "0xbF449562612F33d0FF456718D32040a1223DFC0d",
   presaleRoi: "0x9ea869C059512cd34Ae9Cc077fa6aF367b82dF4D",
   presaleRoiToken: "0x323B70d1f8dF954Ff09A35910e47d99c8e125962",
-  privateSale: "0x347219d2e056E61f6c3aa55871294b4738afcFBa",
-  publicSale: "0x347219d2e056E61f6c3aa55871294b4738afcFBa",
+  privateSale: "0xbF449562612F33d0FF456718D32040a1223DFC0d",
+  publicSale: "0xbF449562612F33d0FF456718D32040a1223DFC0d",
   masterchefv2: "0x1e511F8C570360eb06A8BE89cdD69f3b080512ae",
   stake: "0x86335E8745f59da1701af82dB688Bf4E5151d4A7",
   vaulStake: "0xB1e87F81113807b99356454B34DD4857DbdCf395",

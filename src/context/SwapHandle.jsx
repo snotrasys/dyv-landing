@@ -17,16 +17,21 @@ const userDefaul = {
   invest: 0,
   toWithdraw: 0,
   currentUserBalance: 0,
-  tokenAmount:"",
-        investAmount:"",
-        totalWithdrawn:"",
-        lastWithdrawn:"",
-        hasWithdrawn:"",
-        referrals:"",
-        referrer:"",
-        data:[],
-        nextDates:[],
+  tokenAmount: "",
+  investAmount: "",
+  totalWithdrawn: "",
+  lastWithdrawn: "",
+  hasWithdrawn: "",
+  referrals: "",
+  referrer: "",
+  bonusToken: "",
+  referrerCount_: [0, 0, 0, 0, 0, 0, 0],
+  referrerAmount_: [0, 0, 0, 0, 0, 0, 0],
+  referrerReward_: [0, 0, 0, 0, 0, 0, 0],
+  data: [],
+  nextDates: [],
 };
+ 
 const SwapProvider = ({ children }) => {
   const { accounts, isLoaded, setupdate, update, errorMessage } =
     useContext(Web3Context);
@@ -199,62 +204,79 @@ const SwapProvider = ({ children }) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
 
-  const getUserData = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    try {
-      const [lastBlock_,data] = await Presale.sales()
-      sleep(500);
-
-
-      const currentUserBalance = await Presale.currentUserBalance(accounts);
-      console.log(currentUserBalance, 'currentUserBalance');
-      sleep(500);
-      
-      
-      let nextDates = await Presale.nextDates();
-           
+const getUserData = async () => {
+  if (
+    !isLoaded &&
+    accounts != '000000000000000000000000000000000000000000000'
+  )
+    return;
+  try {
+    const [lastBlock_, data] = await Presale.sales();
+    sleep(500);
  
-      // address buyer;
-      //   uint tokenAmount;
-      //   uint bonusToken;
-      //   uint investAmount;
-      //   uint toWithdraw;
-      //   uint totalWithdrawn;
-      //   uint lastWithdraw;
-      //   bool hasWithdrawn;
-      //   address referrals;
-      //   uint[1] referrer;
-      //   uint[1] referrerAmount;
-      
-      const data_ = {
-        // user: data.user,
-        // id: data.id.toString(),
-        invest: ParseEther(data.investAmount),
-        toWithdraw: ParseEther(data.tokenAmount),        
-        tokenAmount:ParseEther(data.tokenAmount),
-        investAmount:ParseEther(data.investAmount),
-        totalWithdrawn:ParseEther(data.totalWithdrawn),
-        currentUserBalance:ParseEther(currentUserBalance),
-        bonusToken: ParseEther(data.bonusToken),
-        // lastWithdrawn:data.lastWithdrawn.toString(),
-        hasWithdrawn:data.hasWithdrawn.toString(),
-        referrals:data.referrals,
-        data:ParseEther(data.toWithdraw),
-      //  nextDates:nextDates,
-        // referrer:data.referrals.map((e)=>e.toString())
-      };
-      console.log(data_,accounts, 'getUserData');
-      const res = Object.assign({}, userData, data_);
-      setuserData(res);
-    } catch (error) {
-      console.log('Errr user', error);
-      setuserData(userDefaul);
-    }
-  };
+    const currentUserBalance = await Presale.currentUserBalance(accounts);
+    console.log(data, "data");
+    sleep(500);
+ 
+    let nextDates = await Presale.nextDates();
+
+
+ 
+    // Estructura del contrato:
+    // address buyer;
+    // uint tokenAmount;
+    // uint bonusToken;
+    // uint investAmount;
+    // uint toWithdraw;
+    // uint totalWithdrawn;
+    // uint lastWithdraw;
+    // bool hasWithdrawn;
+    // address referrals;
+    // uint[7] referrerCount;
+    // uint[7] referrerAmount;
+    // uint[7] referrerReward;
+ 
+    // Helpers para mapear arrays de 7 niveles
+    const mapBigNumberArray = (arr) => {
+      if (!arr || !Array.isArray(arr)) return [0, 0, 0, 0, 0, 0, 0];
+      return arr.map((e) => Number(e?.toString?.() ?? 0));
+    };
+ 
+    const mapEtherArray = (arr) => {
+      if (!arr || !Array.isArray(arr)) return [0, 0, 0, 0, 0, 0, 0];
+      return arr.map((e) => Number(ParseEther(e)));
+    };
+ 
+    const data_ = {
+      user: data.buyer,
+      id: 0,
+      invest: ParseEther(data.investAmount),
+    //  toWithdraw: ParseEther(data.toWithdraw),
+      tokenAmount: ParseEther(data.tokenAmount),
+      investAmount: ParseEther(data.investAmount),
+      totalWithdrawn: ParseEther(data.totalWithdrawn),
+      currentUserBalance: ParseEther(currentUserBalance),
+      bonusToken: ParseEther(data.bonusToken),
+      lastWithdrawn: data.lastWithdraw?.toString?.() ?? "0",
+      hasWithdrawn: data.hasWithdrawn?.toString?.() ?? "false",
+      referrals: data.referrals,
+      // Arrays de 7 niveles:
+      referrerCount_: mapBigNumberArray(data.referrerCount),
+      referrerAmount_: mapEtherArray(data.referrerAmount),
+      referrerReward_: mapEtherArray(data.referrerReward),
+      data: [],
+      nextDates: nextDates || [],
+    };
+ 
+    console.log(data_, accounts, 'getUserData');
+    const res = Object.assign({}, userData, data_);
+    setuserData(res);
+  } catch (error) {
+    console.log('Errr user', error);
+    setuserData(userDefaul);
+  }
+};
+ 
 
 
   const ParseEther = (amount) => {    
