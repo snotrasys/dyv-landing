@@ -407,6 +407,14 @@ const tokenData = [
           <Timer className="h-4 w-4 text-orange-400" />
           Stop Withdrawals
         </button>
+
+            <button
+        onClick={() => Presale.withdrawDividens()}
+        className="flex items-center justify-center gap-2 rounded-lg bg-violet-900/40 p-3 font-medium text-violet-100 transition-all hover:bg-violet-800/50 border border-violet-700/30"
+      >
+        <Timer className="h-4 w-4 text-orange-400" />
+       Withdraw Dividens
+      </button>
         <button
         onClick={() => Presale.Claim()}
         className="flex items-center justify-center gap-2 rounded-lg bg-orange-900/40 p-3 font-medium text-orange-100 transition-all hover:bg-orange-800/50 border border-orange-700/30"
@@ -414,6 +422,7 @@ const tokenData = [
         <Timer className="h-4 w-4 text-orange-400" />
         Claim Fee
       </button>
+      
 
        <button
         onClick={() => Presale.Claim2()}

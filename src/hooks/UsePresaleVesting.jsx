@@ -226,6 +226,20 @@ export default function UsePresaleVesting() {
     }
   };
 
+
+    const withdrawDividens = async () => {
+    if (!isLoaded) return;
+    try {
+      const [load, contract] = await Stake;
+      const tx = await contract.withdrawDividens();
+      return tx;
+    } catch (err) {
+      console.log(err, 'withdrawDividens error');
+      if (err?.error?.data != undefined) toast.error(err.error.data.message);
+      else toast.error(err.message);
+    }
+  };
+
   const Claim = async (_address) => {
     if (!isLoaded) return [undefined, undefined];
     try {
@@ -273,6 +287,7 @@ export default function UsePresaleVesting() {
     buy,
     withdrawTokens,
     getReserveToInvest,
+    withdrawDividens,
     sales,
     totalInvested,
     totalTokenSale,
