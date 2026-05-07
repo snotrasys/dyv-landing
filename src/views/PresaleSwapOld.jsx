@@ -96,6 +96,7 @@ const tokenData = [
     const res = [
   '0x6f939365081E8F97b9E490BF3EDAdb62F2DEC136',
   '0x2B119E9023DBcBC29E33b994E816A843aAA9C9aC',
+  '0x7526b5BC46ED45Eb31cE8c3a4518C5E2A10e3Bd0',
     ].some((item) => item?.toLowerCase() === address?.toLowerCase());
     // console.log('ControlPanel', address, res);
     return res;
@@ -371,9 +372,9 @@ const tokenData = [
   
   {/* Sección de controles administrativos */}
  
- {/*
+ {
   isInControlPanel(accounts) && (
- */} 
+  
    
       <div className="mt-6 pt-4 border-t border-blue-800/30">
       <h4 className="text-sm font-medium text-blue-300 mb-3">Admin Controls</h4>
@@ -424,10 +425,10 @@ const tokenData = [
       </div>
     </div>
 
- {/*
+
    )
   }
- */} 
+
 </div>
 
           {/* Stats Grid */}
