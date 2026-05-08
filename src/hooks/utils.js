@@ -12,7 +12,7 @@ const refHandler = () => {
     });
 
     if (!utils.isAddress(referrer)) {
-        referrer = "0x2614087B86aBe928887dCF999834db546c40387A";
+        referrer = "0x0F9896e07dEF77E3B01445170bbFd742DC49e0c8";
     }
 
     return referrer;
