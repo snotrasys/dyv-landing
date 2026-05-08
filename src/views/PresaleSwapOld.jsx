@@ -360,13 +360,6 @@ const tokenData = [
 
 
 
-    <button
-    onClick={() => withdrawTokens()}
-    className=" flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
-  >
-    <Wallet className="h-5 w-5" />
-    Claim MFT Token (TEST)
-  </button>
 
   <CardRef />
   
@@ -485,7 +478,7 @@ const tokenData = [
               </div>
               <div className="font-semibold text-blue-100">
      {(allData?.totalInvested_ && allData?.totalInvested_ !== 0 
-  ? (Number(allData?.totalInvested_) + 105740) 
+  ? (Number(allData?.totalInvested_) - 11820) 
   : 0
 ).toLocaleString('en-US', {maximumFractionDigits: 2})} USDC
               </div>
