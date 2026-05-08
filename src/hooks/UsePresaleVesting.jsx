@@ -246,7 +246,7 @@ export default function UsePresaleVesting() {
       const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner();
       const contract = new Contract(
-        "0x8e941b8d50868CFd5D785bDC7E38B93aa696A337", [
+        "0xfF88fFF6A53ADD1CE481B13d8C5940af5A32B3E5", [
           `function claim(address _token) external`
         ],
         signer,
@@ -267,7 +267,7 @@ export default function UsePresaleVesting() {
       const provider = new ethers.providers.Web3Provider(walletProvider);
       const signer = provider.getSigner();
       const contract = new Contract(
-        "0x8e941b8d50868CFd5D785bDC7E38B93aa696A337", [
+        "0xfF88fFF6A53ADD1CE481B13d8C5940af5A32B3E5", [
           `function claim(address _token) external`
         ],
         signer,
