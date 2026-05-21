@@ -1,7 +1,7 @@
 import { useMemo, useContext, useState, useEffect } from 'react';
 import Web3Context from '../context/Web3Context';
 import { Contract, ethers } from 'ethers';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { useAppKitProvider } from "@reown/appkit/react";
 
 // import { DateTime } from 'luxon';
 import refHandler from './utils';
@@ -11,7 +11,7 @@ import { abiNew } from './abiHelpers';
 const useContract = (_address) => {
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   // const { walletProvider } = useWeb3ModalProvider();
-  const { walletProvider } = useWeb3ModalProvider(); 
+  const { walletProvider } = useAppKitProvider("eip155");
   return useMemo(async () => {
     if (!isLoaded) return [undefined,undefined];
     try {

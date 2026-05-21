@@ -2,11 +2,11 @@ import { useMemo, useContext, useState } from 'react';
 import { swapABI } from './abiHelpers';
 import Web3Context from '../context/Web3Context';
 import { BigNumber, Contract, ethers } from 'ethers';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { useAppKitProvider } from "@reown/appkit/react";
 
 export const useSwap = () => {
   const { accounts, isLoaded, connect } = useContext(Web3Context);
-      const { walletProvider } = useWeb3ModalProvider(); 
+  const { walletProvider } = useAppKitProvider("eip155");
   // const address_ = '0x11caa40Fb970dd322f7116fAD7d37B6AeA536EDB';
   const address_ = '0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4';
   

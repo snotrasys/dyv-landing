@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Wallet, Menu, X } from 'lucide-react';
 
 export default function Navbar() {
-  const { accounts, connect } = useContext(Web3Context);
+  const { accounts, connectWallet } = useContext(Web3Context);
   const [account, setAccount] = useState('');
   const [isHovered, setIsHovered] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -112,7 +112,7 @@ export default function Navbar() {
               animate="animate"
               whileHover="hover"
               whileTap="tap"
-              onClick={() => connect()}
+              onClick={() => connectWallet()}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-blue-400 text-white font-medium shadow-md border border-blue-500/50"
             >
               <Wallet className="h-4 w-4" />

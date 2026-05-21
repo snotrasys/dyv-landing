@@ -2,7 +2,7 @@ import { useMemo, useContext, useState } from 'react';
 import { abi, BUSD, saleAbi, masterchefv2Abi, StakeAbi, abiClaim, abiStake, abiPresaleRoi } from './abiHelpers'
 import Web3Context from '../context/Web3Context'
 import { Contract, ethers } from 'ethers'
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { useAppKitProvider } from "@reown/appkit/react";
 
 
 export const address = {
@@ -34,7 +34,7 @@ export const address = {
 }
 
 export const usePrivateSale = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   return useMemo(async () => {
     if (!isLoaded)
@@ -52,7 +52,7 @@ export const usePrivateSale = () => {
 }
 
 export const usePresaleRoi = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   return useMemo(async () => {
     if (!isLoaded)
@@ -71,7 +71,7 @@ export const usePresaleRoi = () => {
 
 
 export const useTokenPresaleRoi = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   return useMemo(async () => {
     if (!isLoaded)
@@ -91,7 +91,7 @@ export const useTokenPresaleRoi = () => {
 
 
 export const usePublicSale = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -111,7 +111,7 @@ export const usePublicSale = () => {
 
 
 export const useClaim = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -129,7 +129,7 @@ export const useClaim = () => {
 }
 
 export const useStakeRoi = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -151,7 +151,7 @@ export const useStakeRoi = () => {
 
 
 export const useBUSD = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -170,7 +170,7 @@ export const useBUSD = () => {
 
 
 export const useTokenTest = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -188,7 +188,7 @@ export const useTokenTest = () => {
 }
 
 export const useContract = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -214,7 +214,7 @@ const etherJSProvider = async () => {
 
 
 export const useToken = (address_) => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -232,7 +232,7 @@ export const useToken = (address_) => {
 }
 
 export const useMasterChef = () => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
@@ -251,7 +251,7 @@ export const useMasterChef = () => {
 
 
 export const useStake = (address_) => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider("eip155");
   const { accounts, isLoaded, connect } = useContext(Web3Context)
   return useMemo(async () => {
     if (!isLoaded)
