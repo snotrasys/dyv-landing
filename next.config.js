@@ -12,10 +12,6 @@ const nextConfig = {
     NEXT_PUBLIC_SEO_KEYWORDS: process.env.NEXT_PUBLIC_SEO_KEYWORDS,
     NEXT_PUBLIC_PARTNER_TWITTER: process.env.NEXT_PUBLIC_PARTNER_TWITTER,
   },
-  i18n: {
-    locales: ['en'],
-    defaultLocale: 'en',
-  },
   images: {
     domains: ['minio-s3.caprover.snotrasys.com'],
   },

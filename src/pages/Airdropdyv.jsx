@@ -11,8 +11,6 @@ import { abi_Airdrop } from "../hooks/abiHelpers";
 const BASE_RPC = "https://frequent-flashy-slug.base-mainnet.quiknode.pro/c768dd581cd676309f6d69af17ec7cd9b3e490e1";
 const TOKEN_DECIMALS = 6;
 
-const AIRDROP_TOKEN = "0x65053fea6c7240A13B597157D91379370769942a";
-
 const POOLS = [
   {
     id: "dyv",
