@@ -2,7 +2,7 @@ import { useState, useEffect, useContext, useCallback } from "react";
 import { ethers } from "ethers";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, ChevronDown, ChevronUp, ExternalLink, Loader2 } from "lucide-react";
-import { useWeb3Modal } from "@web3modal/ethers5/react";
+
 import { useAppKitProvider } from "@reown/appkit/react";
 import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
@@ -45,7 +45,6 @@ function getReadContract(contractAddress) {
 
 function PoolRow({ pool, index, userAddress }) {
   const { walletProvider } = useAppKitProvider("eip155");
-  const { open } = useWeb3Modal();
 
   const [userData, setUserData] = useState(null); // { totalAmount, claimedAmount, balance }
   const [loading, setLoading] = useState(false);
@@ -75,7 +74,7 @@ function PoolRow({ pool, index, userAddress }) {
   }, [fetchUserData]);
 
   const handleClaim = async () => {
-    if (!userAddress) { open(); return; }
+    if (!userAddress) { connectWallet(); return; }
     if (!walletProvider) { toast.error("Conecta tu wallet"); return; }
 
     setClaiming(true);
@@ -196,7 +195,6 @@ function PoolRow({ pool, index, userAddress }) {
 
 export default function AirdropDYV() {
   const { accounts } = useContext(Web3Context);
-  const { open } = useWeb3Modal();
   const [showHistory, setShowHistory] = useState(false);
   const [claimHistory, setClaimHistory] = useState([]);
 
@@ -264,7 +262,7 @@ export default function AirdropDYV() {
           </p>
           {!accounts && (
             <button
-              onClick={() => open()}
+              onClick={() => connectWallet()}
               className="mt-3 text-xs px-4 py-1.5 rounded-full font-semibold text-white"
               style={{ background: "linear-gradient(135deg, #3b82f6cc, #3b82f677)" }}
             >

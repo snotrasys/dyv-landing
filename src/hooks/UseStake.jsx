@@ -5,7 +5,6 @@ import { useAppKitProvider } from "@reown/appkit/react";
 
 // import { DateTime } from 'luxon';
 import refHandler from './utils';
-// import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
 import { address } from './useContracts';
 import { abiNew } from './abiHelpers';
 const useContract = (_address) => {

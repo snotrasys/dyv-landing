@@ -5,7 +5,6 @@ import {
   Shield, Plus, Trash2, RefreshCw, AlertCircle,
   ExternalLink, X, Loader2, Wallet, Search,
 } from "lucide-react";
-import { useWeb3Modal } from "@web3modal/ethers5/react";
 import { useAppKitProvider } from "@reown/appkit/react";
 import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
@@ -248,7 +247,6 @@ function AirdropSection({ accounts, walletProvider }) {
 // ═══════════════════════════════════════════════════════════════════════════
 export default function PanelAdmin() {
   const { accounts } = useContext(Web3Context);
-  const { open } = useWeb3Modal();
  const { walletProvider } = useAppKitProvider("eip155");
 
   const [globalStats, setGlobalStats] = useState(null);
@@ -497,7 +495,7 @@ export default function PanelAdmin() {
               <RefreshCw className="h-3.5 w-3.5" />
             </button>
             <button
-              onClick={() => open()}
+              onClick={() => connectWallet()}
               className="flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-bold text-white"
               style={{ background: accounts ? "rgba(124,58,237,0.25)" : "linear-gradient(135deg, #7c3aed, #4f46e5)" }}
             >

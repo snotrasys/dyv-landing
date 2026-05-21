@@ -5,7 +5,6 @@ import {
   Zap, Clock, RefreshCw, ExternalLink,
   Wallet, AlertCircle, Loader2, ChevronDown, ChevronUp, CheckCircle,
 } from "lucide-react";
-import { useWeb3Modal } from "@web3modal/ethers5/react";
 import { useAppKitProvider } from "@reown/appkit/react";
 import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
@@ -56,8 +55,8 @@ function getReadContract() {
 // USER PAGE
 // ═══════════════════════════════════════════════════════════════════════════
 export default function VestingUsers() {
-  const { accounts } = useContext(Web3Context);
-  const { open } = useWeb3Modal();
+  const { accounts, connectWallet } = useContext(Web3Context);
+
   const { walletProvider } = useAppKitProvider("eip155");
 
   const [totals, setTotals] = useState(null);
@@ -222,7 +221,7 @@ export default function VestingUsers() {
               </button>
             )}
             <button
-              onClick={() => open()}
+              onClick={() => connectWallet()}
               className="flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-bold text-white"
               style={{ background: accounts ? "rgba(56,189,248,0.15)" : "linear-gradient(135deg, #0891b2, #0e7490)" }}
             >
@@ -248,7 +247,7 @@ export default function VestingUsers() {
               Para ver tus vestings y reclamar tus tokens.
             </p>
             <button
-              onClick={() => open()}
+              onClick={() => connectWallet()}
               className="px-6 py-3 rounded-xl font-bold text-white text-sm"
               style={{ background: "linear-gradient(135deg, #0891b2, #0e7490)" }}
             >
