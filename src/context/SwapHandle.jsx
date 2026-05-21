@@ -152,9 +152,24 @@ const SwapProvider = ({ children }) => {
     try {
       const res = await Presale.withdrawTokens();
       toast.success('withdraw success');
-      // if (!utils.isAddress(accounts) === false) {
-      //   verifyRegister();
-      // }
+      res.wait().then((value) => {
+        updateHandle();
+      });
+    } catch (err) {
+      if (err.data != undefined) toast.error(err.data.message);
+      else toast.error(err.message);
+    }
+  };
+
+  const withdraw2 = async () => {
+    if (!isLoaded) {
+      errorMessage();
+      return;
+    }
+
+    try {
+      const res = await Presale.withdrawTokens2();
+      toast.success('withdraw success');
       res.wait().then((value) => {
         updateHandle();
       });
@@ -291,7 +306,8 @@ const SwapProvider = ({ children }) => {
     allData,
     balanceOf,
     invest,
-    withdraw, 
+    withdraw,
+    withdraw2,
     updateHandle,
     getUserData,
     isApprove,
