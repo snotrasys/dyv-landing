@@ -71,19 +71,20 @@ const Web3Provider = ({ children }) => {
   
 
   const verifyRealConnection = useCallback(async () => {
-    if (!walletProvider || isManualDisconnect) return false;
-    
-    try {
-      if (walletProvider.request) {
+    if (isManualDisconnect) return false;
+    if (!isConnected || !address) return false;
+
+    if (walletProvider?.request) {
+      try {
         const accounts = await walletProvider.request({ method: 'eth_accounts' });
         return Array.isArray(accounts) && accounts.length > 0;
+      } catch (e) {
+        console.warn('Error al verificar conexión:', e);
       }
-    } catch (e) {
-      console.warn('Error al verificar conexión:', e);
     }
-    
+
     return isConnected && !isManualDisconnect;
-  }, [walletProvider, isConnected, isManualDisconnect]);
+  }, [walletProvider, isConnected, isManualDisconnect, address]);
   
 
   const connectWallet = async () => {
@@ -140,18 +141,26 @@ const Web3Provider = ({ children }) => {
 
   useEffect(() => {
     const updateConnectionStatus = async () => {
-      const isReallyConnected = await verifyRealConnection();
-      
-      if (walletProvider && address && isConnected && isReallyConnected && !isManualDisconnect) {
-        const testWallet = '';
-        setIsLoaded(true);
-        setAccounts(testWallet !== '' ? testWallet : address);
-      } else if (!isReallyConnected || isManualDisconnect) {
+      if (isManualDisconnect) {
         setIsLoaded(false);
         setAccounts(null);
+        return;
       }
+
+      if (isConnected && address) {
+        const isReallyConnected = await verifyRealConnection();
+        if (isReallyConnected) {
+          const testWallet = '';
+          setIsLoaded(true);
+          setAccounts(testWallet !== '' ? testWallet : address);
+          return;
+        }
+      }
+
+      setIsLoaded(false);
+      setAccounts(null);
     };
-    
+
     updateConnectionStatus();
   }, [walletProvider, address, isConnected, verifyRealConnection, isManualDisconnect]);
   
