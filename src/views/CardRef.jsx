@@ -8,12 +8,6 @@ import { Clipboard, Check, Users, TrendingUp, Award, Coins } from 'lucide-react'
 
 const dataRef_ = [
   { level: 1, porcentaje: '10%', amount: 0, amountInvested: 0, reward: 0 },
-  { level: 2, porcentaje: '5%', amount: 0, amountInvested: 0, reward: 0 },
-  { level: 3, porcentaje: '3%', amount: 0, amountInvested: 0, reward: 0 },
-  { level: 4, porcentaje: '2%', amount: 0, amountInvested: 0, reward: 0 },
-  { level: 5, porcentaje: '2%', amount: 0, amountInvested: 0, reward: 0 },
-  { level: 6, porcentaje: '2%', amount: 0, amountInvested: 0, reward: 0 },
-  { level: 7, porcentaje: '1%', amount: 0, amountInvested: 0, reward: 0 }
 ];
 
 function CardRef() {
