@@ -35,7 +35,6 @@ function CardRef() {
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    // Fixed Next.js window reference issue by checking if window exists
     if (typeof window !== 'undefined' && isLoaded && accounts) {
       const link = `${window.location.origin}/presale?ref=${accounts}`;
       setcopyText(link);
@@ -55,7 +54,6 @@ function CardRef() {
     setdataRef_(data_);
   }, [userData, isLoaded]);
 
-  // Totales (suma de todos los niveles)
   const totalReferrals = dataRef.reduce((acc, item) => acc + Number(item.amount || 0), 0);
   const totalRewards = dataRef.reduce((acc, item) => acc + Number(item.reward || 0), 0);
   const totalInvested = dataRef.reduce((acc, item) => acc + Number(item.amountInvested || 0), 0);
@@ -97,7 +95,7 @@ function CardRef() {
     >
       <motion.div 
         variants={cardMotion}
-        className="max-w-4xl mx-auto  overflow-hidden"
+        className="max-w-4xl mx-auto overflow-hidden"
       >
         <div className="p-2 sm:p-4">
           <div className="flex items-center justify-center gap-3 mb-6">
@@ -108,10 +106,10 @@ function CardRef() {
               }}
               transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
             >
-              <Users className="h-7 w-7 text-blue-400" />
+              <Users className="h-7 w-7 text-purple-400" />
             </motion.div>
             <motion.h1 
-              className="bg-gradient-to-r from-blue-400 via-blue-300 to-blue-500 bg-clip-text text-2xl font-bold tracking-tight text-transparent"
+              className="bg-gradient-to-r from-purple-400 via-violet-300 to-purple-500 bg-clip-text text-2xl font-bold tracking-tight text-transparent"
               animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
               transition={{ duration: 5, repeat: Infinity, repeatType: "reverse" }}
               style={{ backgroundSize: "200% auto" }}
@@ -120,20 +118,20 @@ function CardRef() {
             </motion.h1>
           </div>
           
-          <p className="text-center text-blue-200/70 text-sm mb-5">
+          <p className="text-center text-purple-200/70 text-sm mb-5">
             Share your referral link and earn rewards across 7 levels
           </p>
           
           {/* Referral link box */}
-          <div className="relative rounded-lg border border-blue-500/30 bg-gradient-to-br from-blue-900/10 to-blue-800/5 p-1 mb-5">
-            <div className="flex overflow-hidden rounded-md bg-[#121c2b] p-2">
-              <div className="w-full overflow-x-auto whitespace-nowrap text-blue-100 py-2 px-3 text-sm font-mono">
+          <div className="relative rounded-lg border border-purple-500/30 bg-gradient-to-br from-purple-900/10 to-purple-800/5 p-1 mb-5">
+            <div className="flex overflow-hidden rounded-md bg-[#0d0a1a] p-2">
+              <div className="w-full overflow-x-auto whitespace-nowrap text-purple-100 py-2 px-3 text-sm font-mono">
                 {copyText || "Connect your wallet to generate a referral link"}
               </div>
               
               <CopyToClipboard text={copyText} onCopy={onCopy}>
                 <motion.button
-                  className="ml-2 flex items-center justify-center rounded-md bg-blue-600 px-3 transition-colors hover:bg-blue-700 disabled:opacity-50"
+                  className="ml-2 flex items-center justify-center rounded-md bg-purple-600 px-3 transition-colors hover:bg-purple-700 disabled:opacity-50"
                   disabled={!copyText}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -150,33 +148,33 @@ function CardRef() {
 
           {/* Stats compactos - 3 columnas */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5">
-            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-2 sm:gap-3">
-              <div className="rounded-md bg-blue-500/20 p-2 hidden sm:block">
-                <Users className="h-4 w-4 text-blue-300" />
+            <div className="rounded-lg bg-purple-900/30 border border-purple-500/20 p-3 flex items-center gap-2 sm:gap-3">
+              <div className="rounded-md bg-purple-500/20 p-2 hidden sm:block">
+                <Users className="h-4 w-4 text-purple-300" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] sm:text-xs text-blue-300/70 truncate">Total Refs</div>
-                <div className="text-base font-bold text-blue-100">{totalReferrals}</div>
+                <div className="text-[10px] sm:text-xs text-purple-300/70 truncate">Total Refs</div>
+                <div className="text-base font-bold text-purple-100">{totalReferrals}</div>
               </div>
             </div>
-            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-2 sm:gap-3">
-              <div className="rounded-md bg-blue-500/20 p-2 hidden sm:block">
-                <Coins className="h-4 w-4 text-blue-300" />
+            <div className="rounded-lg bg-purple-900/30 border border-purple-500/20 p-3 flex items-center gap-2 sm:gap-3">
+              <div className="rounded-md bg-purple-500/20 p-2 hidden sm:block">
+                <Coins className="h-4 w-4 text-purple-300" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] sm:text-xs text-blue-300/70 truncate">Total Rewards</div>
-                <div className="text-base font-bold text-blue-100 truncate">
+                <div className="text-[10px] sm:text-xs text-purple-300/70 truncate">Total Rewards</div>
+                <div className="text-base font-bold text-purple-100 truncate">
                   {totalRewards.toLocaleString('en-US', { maximumFractionDigits: 2 })}
                 </div>
               </div>
             </div>
-            <div className="rounded-lg bg-blue-900/30 border border-blue-500/20 p-3 flex items-center gap-2 sm:gap-3">
-              <div className="rounded-md bg-blue-500/20 p-2 hidden sm:block">
-                <Award className="h-4 w-4 text-blue-300" />
+            <div className="rounded-lg bg-purple-900/30 border border-purple-500/20 p-3 flex items-center gap-2 sm:gap-3">
+              <div className="rounded-md bg-purple-500/20 p-2 hidden sm:block">
+                <Award className="h-4 w-4 text-purple-300" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] sm:text-xs text-blue-300/70 truncate">Network Vol.</div>
-                <div className="text-base font-bold text-blue-100 truncate">
+                <div className="text-[10px] sm:text-xs text-purple-300/70 truncate">Network Vol.</div>
+                <div className="text-base font-bold text-purple-100 truncate">
                   {totalInvested.toLocaleString('en-US', { maximumFractionDigits: 2 })}
                 </div>
               </div>
@@ -184,50 +182,50 @@ function CardRef() {
           </div>
 
           {/* Referral Levels */}
-          <div className="rounded-lg bg-blue-900/20 border border-blue-500/20 p-3">
+          <div className="rounded-lg bg-purple-900/20 border border-purple-500/20 p-3">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-blue-400" />
-                <h3 className="text-sm font-semibold text-blue-200">Referral Levels</h3>
+                <TrendingUp className="h-4 w-4 text-purple-400" />
+                <h3 className="text-sm font-semibold text-purple-200">Referral Levels</h3>
               </div>
-              <span className="text-xs text-blue-300/70">7 Levels</span>
+              <span className="text-xs text-purple-300/70">7 Levels</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {dataRef.map((item) => (
                 <div
                   key={item.level}
-                  className="rounded-md bg-[#0a1428] border border-blue-900/40 p-2.5"
+                  className="rounded-md bg-[#0d0a1a] border border-purple-900/40 p-2.5"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-xs font-bold text-white">
+                    <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-violet-700 text-xs font-bold text-white">
                       {item.level}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[10px] text-blue-300/70 leading-tight">
+                      <div className="text-[10px] text-purple-300/70 leading-tight">
                         Level {item.level}
                       </div>
-                      <div className="text-sm font-bold text-blue-100 leading-tight">
+                      <div className="text-sm font-bold text-purple-100 leading-tight">
                         {item.porcentaje} bonus
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] text-blue-300/70 leading-tight">Refs</div>
-                      <div className="text-xs font-semibold text-blue-200 leading-tight">
+                      <div className="text-[10px] text-purple-300/70 leading-tight">Refs</div>
+                      <div className="text-xs font-semibold text-purple-200 leading-tight">
                         {item.amount}
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-blue-900/40">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-purple-900/40">
                     <div>
-                      <div className="text-[10px] text-blue-300/70 leading-tight">Volume</div>
-                      <div className="text-xs font-medium text-blue-100 truncate">
+                      <div className="text-[10px] text-purple-300/70 leading-tight">Volume</div>
+                      <div className="text-xs font-medium text-purple-100 truncate">
                         {Number(item.amountInvested).toLocaleString('en-US', { maximumFractionDigits: 2 })}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[10px] text-blue-300/70 leading-tight">Earned</div>
+                      <div className="text-[10px] text-purple-300/70 leading-tight">Earned</div>
                       <div className="text-xs font-medium text-emerald-300 truncate">
                         {Number(item.reward).toLocaleString('en-US', { maximumFractionDigits: 2 })}
                       </div>

@@ -1,4 +1,3 @@
-
 import { Layout } from '@/components/app/Layout';
 import PresaleSwap from '@/views/PresaleSwap';
 import React, { useEffect } from 'react';
@@ -19,9 +18,8 @@ function Private() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             >
-            
               <motion.h1 
-                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-white to-blue-400 tracking-tight"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-white to-purple-400 tracking-tight"
                 initial={{ opacity: 0, filter: "blur(8px)" }}
                 animate={{ opacity: 1, filter: "blur(0px)" }}
                 transition={{ duration: 1, delay: 0.2 }}
@@ -29,7 +27,7 @@ function Private() {
                 TOKEN PRESALE
               </motion.h1>
               <motion.div 
-                className="h-1 w-24 sm:w-32 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mx-auto mt-3"
+                className="h-1 w-24 sm:w-32 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full mx-auto mt-3"
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: "6rem", opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
@@ -45,7 +43,7 @@ function Private() {
             >
               {/* Glow effect behind token */}
               <motion.div 
-                className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl"
+                className="absolute inset-0 bg-purple-500/20 rounded-full blur-2xl"
                 animate={{ 
                   scale: [1, 1.1, 1],
                   opacity: [0.4, 0.7, 0.4]
@@ -62,7 +60,7 @@ function Private() {
                 {[...Array(3)].map((_, index) => (
                   <motion.div
                     key={`circle-${index}`}
-                    className="absolute inset-0 rounded-full border border-blue-500/30"
+                    className="absolute inset-0 rounded-full border border-purple-500/30"
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ 
                       scale: [0.8, 1.1, 0.8],
@@ -81,8 +79,8 @@ function Private() {
               {/* Token image */}
               <motion.img
                 loading="lazy"
-                src="/logo-text.png" 
-                alt="D&V Token"
+                src="/logo.png" 
+                alt="Neutra"
                 className="relative mx-auto z-10 drop-shadow-xl w-full"
                 animate={{ 
                   y: [0, -10, 0],
@@ -102,22 +100,22 @@ function Private() {
                 }}
                 whileHover={{ 
                   scale: 1.03,
-                  filter: "drop-shadow(0 0 15px rgba(59, 130, 246, 0.8))"
+                  filter: "drop-shadow(0 0 15px rgba(147, 51, 234, 0.8))"
                 }}
               />
               
-              {/* Floating particles around token - limited for mobile */}
+              {/* Floating particles around token */}
               <div className="absolute inset-0 overflow-hidden">
                 {[...Array(8)].map((_, i) => (
                   <motion.div
                     key={`particle-${i}`}
-                    className="absolute rounded-full bg-blue-400"
+                    className="absolute rounded-full bg-purple-400"
                     style={{
                       width: `${Math.random() * 3 + 2}px`,
                       height: `${Math.random() * 3 + 2}px`,
                       left: `${Math.random() * 100}%`,
                       top: `${Math.random() * 100}%`,
-                      boxShadow: `0 0 ${Math.random() * 4 + 2}px rgba(59, 130, 246, 0.7)`
+                      boxShadow: `0 0 ${Math.random() * 4 + 2}px rgba(147, 51, 234, 0.7)`
                     }}
                     animate={{
                       y: [0, Math.random() * -60 - 20],
@@ -137,13 +135,13 @@ function Private() {
             
             {/* Informative text */}
             <motion.p 
-              className="text-center text-blue-100 max-w-md mx-auto mt-6 text-sm sm:text-base opacity-80"
+              className="text-center text-purple-100 max-w-md mx-auto mt-6 text-sm sm:text-base opacity-80"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 0.8, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               Secure your participation in our tokenized investment project. 
-              Acquire MFT tokens for blockchain, real estate, and renewable energy.
+              Acquire NEUTRA tokens for blockchain, real estate, and renewable energy.
             </motion.p>
           </div>
           
