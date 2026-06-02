@@ -280,7 +280,7 @@ const getUserData = async () => {
 
 
   const ParseEther = (amount) => {    
-    return Number(utils.formatUnits(amount, 6));
+    return Number(utils.formatUnits(amount, 18));
   };
   
 

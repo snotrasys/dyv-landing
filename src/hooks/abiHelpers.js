@@ -17454,12 +17454,7 @@ export const presaleAbi = [
         },
         {
           "internalType": "address",
-          "name": "_defWallet",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_mFee",
+          "name": "_mWallet",
           "type": "address"
         },
         {
@@ -17671,25 +17666,12 @@ export const presaleAbi = [
     },
     {
       "inputs": [],
-      "name": "ADMIN_ROLE",
+      "name": "ADMIND",
       "outputs": [
         {
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "DAYS",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -17723,7 +17705,7 @@ export const presaleAbi = [
     },
     {
       "inputs": [],
-      "name": "MIN_INVEST_AMOUNT",
+      "name": "MAX_INVEST_AMOUNT",
       "outputs": [
         {
           "internalType": "uint256",
@@ -17736,7 +17718,7 @@ export const presaleAbi = [
     },
     {
       "inputs": [],
-      "name": "MONTH_SECONDS",
+      "name": "MIN_INVEST_AMOUNT",
       "outputs": [
         {
           "internalType": "uint256",
@@ -17768,7 +17750,7 @@ export const presaleAbi = [
           "type": "uint256"
         }
       ],
-      "name": "REFERRAL_PERCENTS",
+      "name": "REFERRER_PERCENTS",
       "outputs": [
         {
           "internalType": "uint256",
@@ -17781,7 +17763,20 @@ export const presaleAbi = [
     },
     {
       "inputs": [],
-      "name": "ROI_BASE",
+      "name": "REFERRER_PERCENTS_LENGTH",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TIME_STEP",
       "outputs": [
         {
           "internalType": "uint256",
@@ -17814,7 +17809,7 @@ export const presaleAbi = [
         },
         {
           "internalType": "address",
-          "name": "_refAddress",
+          "name": "_ref",
           "type": "address"
         }
       ],
@@ -17856,19 +17851,6 @@ export const presaleAbi = [
           "internalType": "uint256",
           "name": "toWithdraw",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "defWallet",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -17948,6 +17930,11 @@ export const presaleAbi = [
             },
             {
               "internalType": "uint256",
+              "name": "toWithdraw",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "totalWithdrawn",
               "type": "uint256"
             },
@@ -17967,22 +17954,17 @@ export const presaleAbi = [
               "type": "address"
             },
             {
-              "internalType": "uint256[7]",
-              "name": "referrerCount",
-              "type": "uint256[7]"
+              "internalType": "uint256[1]",
+              "name": "referrer",
+              "type": "uint256[1]"
             },
             {
-              "internalType": "uint256[7]",
+              "internalType": "uint256[1]",
               "name": "referrerAmount",
-              "type": "uint256[7]"
-            },
-            {
-              "internalType": "uint256[7]",
-              "name": "referrerReward",
-              "type": "uint256[7]"
+              "type": "uint256[1]"
             }
           ],
-          "internalType": "struct IPreSale.Sale[]",
+          "internalType": "struct IPreSaleVesting.Sale[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -18029,6 +18011,11 @@ export const presaleAbi = [
             },
             {
               "internalType": "uint256",
+              "name": "toWithdraw",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "totalWithdrawn",
               "type": "uint256"
             },
@@ -18048,22 +18035,17 @@ export const presaleAbi = [
               "type": "address"
             },
             {
-              "internalType": "uint256[7]",
-              "name": "referrerCount",
-              "type": "uint256[7]"
+              "internalType": "uint256[1]",
+              "name": "referrer",
+              "type": "uint256[1]"
             },
             {
-              "internalType": "uint256[7]",
+              "internalType": "uint256[1]",
               "name": "referrerAmount",
-              "type": "uint256[7]"
-            },
-            {
-              "internalType": "uint256[7]",
-              "name": "referrerReward",
-              "type": "uint256[7]"
+              "type": "uint256[1]"
             }
           ],
-          "internalType": "struct IPreSale.Sale[]",
+          "internalType": "struct IPreSaleVesting.Sale[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -18098,7 +18080,7 @@ export const presaleAbi = [
               "type": "uint256"
             }
           ],
-          "internalType": "struct IPreSale.SaleToken[]",
+          "internalType": "struct IPreSaleVesting.SaleToken[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -18171,6 +18153,11 @@ export const presaleAbi = [
             },
             {
               "internalType": "uint256",
+              "name": "toWithdraw",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "totalWithdrawn",
               "type": "uint256"
             },
@@ -18190,22 +18177,17 @@ export const presaleAbi = [
               "type": "address"
             },
             {
-              "internalType": "uint256[7]",
-              "name": "referrerCount",
-              "type": "uint256[7]"
+              "internalType": "uint256[1]",
+              "name": "referrer",
+              "type": "uint256[1]"
             },
             {
-              "internalType": "uint256[7]",
+              "internalType": "uint256[1]",
               "name": "referrerAmount",
-              "type": "uint256[7]"
-            },
-            {
-              "internalType": "uint256[7]",
-              "name": "referrerReward",
-              "type": "uint256[7]"
+              "type": "uint256[1]"
             }
           ],
-          "internalType": "struct IPreSale.Sale[]",
+          "internalType": "struct IPreSaleVesting.Sale[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -18220,24 +18202,6 @@ export const presaleAbi = [
         {
           "internalType": "uint256",
           "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "getCurrentConversionRate",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "numerator",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "denominator",
           "type": "uint256"
         }
       ],
@@ -18274,9 +18238,9 @@ export const presaleAbi = [
       "name": "getRefArray",
       "outputs": [
         {
-          "internalType": "uint256[7]",
+          "internalType": "uint256[1]",
           "name": "",
-          "type": "uint256[7]"
+          "type": "uint256[1]"
         }
       ],
       "stateMutability": "view",
@@ -18359,6 +18323,11 @@ export const presaleAbi = [
             },
             {
               "internalType": "uint256",
+              "name": "toWithdraw",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "totalWithdrawn",
               "type": "uint256"
             },
@@ -18378,22 +18347,17 @@ export const presaleAbi = [
               "type": "address"
             },
             {
-              "internalType": "uint256[7]",
-              "name": "referrerCount",
-              "type": "uint256[7]"
+              "internalType": "uint256[1]",
+              "name": "referrer",
+              "type": "uint256[1]"
             },
             {
-              "internalType": "uint256[7]",
+              "internalType": "uint256[1]",
               "name": "referrerAmount",
-              "type": "uint256[7]"
-            },
-            {
-              "internalType": "uint256[7]",
-              "name": "referrerReward",
-              "type": "uint256[7]"
+              "type": "uint256[1]"
             }
           ],
-          "internalType": "struct IPreSale.Sale",
+          "internalType": "struct IPreSaleVesting.Sale",
           "name": "sales_",
           "type": "tuple"
         }
@@ -18424,7 +18388,7 @@ export const presaleAbi = [
               "type": "uint256"
             }
           ],
-          "internalType": "struct IPreSale.WithdrawData[]",
+          "internalType": "struct IPreSaleVesting.WithdrawData[]",
           "name": "",
           "type": "tuple[]"
         }
@@ -18582,8 +18546,81 @@ export const presaleAbi = [
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lastWithdraw",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
-      "name": "mFee",
+      "name": "mWallet",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextDates",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextDatesPlus",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "operator",
       "outputs": [
         {
           "internalType": "address",
@@ -18675,6 +18712,11 @@ export const presaleAbi = [
         },
         {
           "internalType": "uint256",
+          "name": "toWithdraw",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
           "name": "totalWithdrawn",
           "type": "uint256"
         },
@@ -18700,6 +18742,63 @@ export const presaleAbi = [
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "_bnbtoToken",
+          "type": "uint256"
+        }
+      ],
+      "name": "setBnbtoToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_endDate",
+          "type": "uint256"
+        }
+      ],
+      "name": "setEndDate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_initDate",
+          "type": "uint256"
+        }
+      ],
+      "name": "setInitDate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_users",
+          "type": "address[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "setSpecialUsers",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "_TOKEN",
           "type": "address"
@@ -18708,6 +18807,56 @@ export const presaleAbi = [
       "name": "setToken",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_whilelist",
+          "type": "address[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "setWhilelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "setWhitelistStatus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "specialUsers",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -18765,6 +18914,19 @@ export const presaleAbi = [
           "internalType": "bool",
           "name": "",
           "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tokenToBnb",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -18849,6 +19011,19 @@ export const presaleAbi = [
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "unlockTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -18862,6 +19037,38 @@ export const presaleAbi = [
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "whilelist",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "whilelistIsActive",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -18910,7 +19117,7 @@ export const presaleAbi = [
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ]
+]
 
 export const abi_dyv_2 = [
   {
