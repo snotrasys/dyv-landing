@@ -4,14 +4,14 @@ import { address } from '../hooks/useContracts.js';
 import { Contract, ethers } from 'ethers';
 
 import { BUSD } from '@/hooks/abiHelpers';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { useAppKitProvider } from '@reown/appkit/react'
 
 const MultiApproveContext = createContext();
 const MultiApproveProvider = ({ children }) => {
   // const { addToast } = useToasts();
   const { accounts, isLoaded, connect } =
     useContext(Web3Context);
-    const { walletProvider } = useWeb3ModalProvider(); 
+  const { walletProvider } = useAppKitProvider('eip155')
 const [update, setupdate] = useState(0)
 
 const updateHandle = () => {

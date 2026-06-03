@@ -6,7 +6,7 @@ import {
   ExternalLink, X, Loader2, Wallet, Search,
 } from "lucide-react";
 import { useWeb3Modal } from "@web3modal/ethers5/react";
-import { useWeb3ModalProvider } from "@web3modal/ethers5/react";
+import { useAppKitProvider } from '@reown/appkit/react'
 import { toast } from "react-hot-toast";
 import Web3Context from "../context/Web3Context";
 import { abi_MultiTokenVesting } from "../hooks/abiHelpers";
@@ -48,7 +48,7 @@ function getReadContract() {
 export default function PanelAdmin() {
   const { accounts } = useContext(Web3Context);
   const { open } = useWeb3Modal();
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider('eip155')
 
   const [globalStats, setGlobalStats] = useState(null);
   const [vestings, setVestings] = useState([]);

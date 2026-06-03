@@ -4,11 +4,11 @@ import { Contract, ethers } from 'ethers';
 import refHandler from './utils';
 import { address } from './useContracts';
 import { presaleAbi } from './abiHelpers';
-import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
+import { useAppKitProvider } from '@reown/appkit/react'
 import { toast } from 'react-hot-toast';
 
 const useContract = (_address) => {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider('eip155')
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   return useMemo(async () => {
     if (!isLoaded) return [undefined, undefined];
@@ -27,7 +27,7 @@ const useContract = (_address) => {
 };
 
 export default function UsePresaleVesting() {
-  const { walletProvider } = useWeb3ModalProvider();
+  const { walletProvider } = useAppKitProvider('eip155')
   const { accounts, isLoaded, connect } = useContext(Web3Context);
   const address_ = address.privateSale;
   const Stake = useContract(address_);
