@@ -38,6 +38,9 @@ function PresaleSwapOld() {
   const [showRewards, setShowRewards] = useState(false);
   const [percentage, setpercentage] = useState(0);
   const [withdrawPercentage, setWithdrawPercentage] = useState(0);
+  const [isBuying, setIsBuying] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
   const Presale = UsePresaleVesting();
 
   useEffect(() => {
@@ -52,11 +55,10 @@ function PresaleSwapOld() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    if (userData.tokenAmount == 0);
-    const percentage = (userData.totalWithdrawn / Number(userData.tokenAmount)) * 100;
-    console.log(percentage, 'percentage');
-    setWithdrawPercentage(percentage);
-  }, [userData]);
+    const total = Number(userData.tokenAmount);
+    const pct = total > 0 ? (Number(userData.totalWithdrawn) / total) * 100 : 0;
+    setWithdrawPercentage(Number.isFinite(pct) ? Math.min(100, Math.round(pct)) : 0);
+  }, [userData, isLoaded]);
 
   useEffect(() => {
     setpercentage(percentage_(Number(recaudacion || 0)));
@@ -66,8 +68,34 @@ function PresaleSwapOld() {
     return (input * 100) / 400000; // Hardcap is 400,000 USDT
   }
 
-  function buyToken(amount_) {
-    invest(amount_);
+  async function buyToken(amount_) {
+    if (isBuying) return;
+    try {
+      setIsBuying(true);
+      await invest(amount_);
+    } finally {
+      setIsBuying(false);
+    }
+  }
+
+  async function claimTokens() {
+    if (isClaiming) return;
+    try {
+      setIsClaiming(true);
+      await withdraw();
+    } finally {
+      setIsClaiming(false);
+    }
+  }
+
+  async function handleApprove() {
+    if (isApproving) return;
+    try {
+      setIsApproving(true);
+      await approveHandlePlus(undefined, address.privateSale);
+    } finally {
+      setIsApproving(false);
+    }
   }
 
   function calculateTokens(usdtAmount) {
@@ -117,7 +145,7 @@ function PresaleSwapOld() {
               </div>
               <div>
                 <p className="text-purple-200/70">Network</p>
-                <p className="font-medium text-purple-100">BSC</p>
+                <p className="font-medium text-purple-100">Base</p>
               </div>
               <div>
                 <p className="text-purple-200/70">Min Purchase</p>
@@ -307,28 +335,31 @@ function PresaleSwapOld() {
             {isApprove ? (
               <button
                 onClick={() => buyToken(amount)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-purple-500 p-3 font-semibold text-white transition-all hover:from-violet-700 hover:to-purple-600 shadow-lg"
+                disabled={isBuying}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-purple-500 p-3 font-semibold text-white transition-all hover:from-violet-700 hover:to-purple-600 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <ArrowRightCircle className="h-5 w-5" />
-                Buy NEUTRA Token
+                {isBuying ? 'Processing...' : 'Buy NEUTRA Token'}
               </button>
             ) : (
               <button
-                onClick={() => approveHandlePlus(undefined, address.privateSale)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-violet-500 p-3 font-semibold text-white transition-all hover:from-purple-600 hover:to-violet-600 shadow-lg"
+                onClick={handleApprove}
+                disabled={isApproving}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-violet-500 p-3 font-semibold text-white transition-all hover:from-purple-600 hover:to-violet-600 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <BadgeCheck className="h-5 w-5" />
-                Approve USDT
+                {isApproving ? 'Approving...' : 'Approve'}
               </button>
             )}
 
             {/* Botón de reclamación (destacado) */}
             <button
-              onClick={() => withdraw()}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md"
+              onClick={claimTokens}
+              disabled={isClaiming}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 p-3 font-semibold text-white transition-all hover:from-emerald-600 hover:to-teal-600 shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Wallet className="h-5 w-5" />
-              Claim NEUTRA Token
+              {isClaiming ? 'Processing...' : 'Claim NEUTRA Token'}
             </button>
 
             <CardRef />
@@ -434,10 +465,7 @@ function PresaleSwapOld() {
                 <span className="text-sm text-purple-300/80">Total Raised</span>
               </div>
               <div className="font-semibold text-purple-100">
-                {(allData?.totalInvested_ && allData?.totalInvested_ !== 0
-                  ? (Number(allData?.totalInvested_) - 11820)
-                  : 0
-                ).toLocaleString('en-US', { maximumFractionDigits: 2 })} USDT
+                {Number(allData?.totalInvested_ || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })} USDT
               </div>
             </div>
           </div>
@@ -490,7 +518,7 @@ function PresaleSwapOld() {
                 <div className="bg-[#0d0a1a] rounded-lg p-4">
                   <h4 className="text-lg font-semibold text-purple-300 mb-3">NEUTRA Token</h4>
                   <p className="text-sm text-purple-100 font-semibold mb-1">Total Supply: 1,000,000</p>
-                  <p className="text-xs text-purple-300/80 mb-3">Standard BSC Token</p>
+                  <p className="text-xs text-purple-300/80 mb-3">Standard Base Token</p>
 
                   {/* Cabecera responsiva */}
                   <div className="grid grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm mb-1">

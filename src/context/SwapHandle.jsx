@@ -1,11 +1,7 @@
-import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import Web3Context from './Web3Context';
-import { useToken } from '../hooks/useContracts.js';
-import { constants, ethers, utils } from 'ethers';
+import { utils } from 'ethers';
 import { toast } from 'react-hot-toast';
-import apiService from '../services/apiService';
-import { useRouter } from 'next/router';
-import { useSwap } from '@/hooks/useSwap';
 import UsePresaleVesting from '@/hooks/UsePresaleVesting';
 import { DateTime } from 'luxon';
 
@@ -36,78 +32,28 @@ const SwapProvider = ({ children }) => {
   const { accounts, isLoaded, setupdate, update, errorMessage } =
     useContext(Web3Context);
   const [update_, setupdate_] = useState(0);
-  const [balanceOf, setbalanceOf_] = useState(0);
-  const [balanceOfConctract, setbalanceOfContract_] = useState(0);
   const [userData, setuserData] = useState(userDefaul);
   const [allData, setallData] = useState({
     totalInvested_: 0,
   });
- 
+  const [withdrawData, setWithdrawData] = useState([]);
 
-  const [isApprove, setisApprove] = useState(false);
-  const history = useRouter();
-
-  const [Swap] = useSwap();
-  const Token = useToken();
   const Presale = UsePresaleVesting();
 
   useEffect(() => {
     if (!isLoaded) return;
-    // allowanceHandle();
-    // balanceOfHandle();
-    getPublicData()
-    getUserData();
-    // TotalBalance();
+    let ignore = false;
+    const isStale = () => ignore;
+    getPublicData(isStale);
+    getUserData(isStale);
 
-    return () => {};
+    return () => {
+      ignore = true;
+    };
   }, [accounts, isLoaded, update_]);
 
   const updateHandle = () => {
-    setupdate_(update_ + 1);
-  };
-
-  const balanceOfHandle = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    const [load, contract] = await Token;
-    if (!load) return;
-
-    let balance_ = await contract.balanceOf(accounts);
-    balance_ = Number(ethers.utils.formatEther(balance_)).toFixed(3);
-    setbalanceOf_(balance_);
-  };
-
-  const approveHandle = async (type) => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    const [load, contract] = await Token;
-    if (!load) return;
-    
-    const addr = Swap.address_;
-// console.log(addr,'addr');
-//     return
-    const res = await contract.approve(addr, constants.MaxUint256);
-    res.wait().then(() => updateHandle());
-  };
-
-  const allowanceHandle = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    const [load, contract] = await Token;
-    if (!load) return;     
-    const addr = Presale.address_;
-    const allowance_ = await contract.allowance(accounts, addr);
-    console.log(allowance_.gt(constants.MaxUint256.div(5)), 'allowance_');
-    setisApprove(allowance_.gt(constants.MaxUint256.div(5)));
+    setupdate_((prev) => prev + 1);
   };
 
   const invest = async (investAmt) => {
@@ -129,25 +75,6 @@ const SwapProvider = ({ children }) => {
       else toast.error(err.message);
     }
   };
-  // userData
-  const verifyRegister = async () => {
-    // showSpinner();
-    try {
-      console.log(accounts);
-      await apiService.get(`/user/verify/${accounts}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    } catch (error) {
-      console.log(error, 'error');
-
-      history.push(`/register${window.location.search}`);
-    } finally {
-      // hideSpinner();
-    }
-  };
-
   const withdraw = async () => {
     if (!isLoaded) {
       errorMessage();
@@ -169,113 +96,87 @@ const SwapProvider = ({ children }) => {
     }
   };
 
-  const withdrawData = useMemo(async() => {
-    let withdrawData_ =[];
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return withdrawData_
-      if(!userData.data )
-      return withdrawData_
-
-     try {
-     
-    
-      withdrawData_ = await Presale.withdrawData(accounts);
-      console.log(withdrawData_, 'withdrawData');
-      withdrawData_ = withdrawData_.map((e) => {
-        return {
-          date: DateTime.fromSeconds(Number(e.date.toString())).toLocaleString(DateTime.DATETIME_MED),
+  useEffect(() => {
+    let ignore = false;
+    const loadWithdrawData = async () => {
+      if (!isLoaded || !accounts) {
+        setWithdrawData([]);
+        return;
+      }
+      try {
+        const raw = await Presale.withdrawData(accounts);
+        if (ignore) return;
+        const mapped = (raw || []).map((e) => ({
+          date: DateTime.fromSeconds(Number(e.date.toString())).toLocaleString(
+            DateTime.DATETIME_MED,
+          ),
           tokenAmount: ParseEther(e.tokenAmount),
-        }
-      });
-      
+        }));
+        setWithdrawData(mapped);
+      } catch (error) {
+        if (!ignore) setWithdrawData([]);
+      }
+    };
+    loadWithdrawData();
+    return () => {
+      ignore = true;
+    };
+  }, [accounts, isLoaded, update_]);
 
-    } catch (error) {
-      console.log(error, 'withdrawData');
-      withdrawData_ = [];
-     
-    } 
-    return withdrawData_;   
-  }, [userData]);
-
-  const sleep = (ms) => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  // Formatea un timestamp (segundos) del contrato a fecha legible; 0 → '—'
+  const formatDate = (value) => {
+    const seconds = Number(value?.toString?.() ?? 0);
+    return seconds > 0
+      ? DateTime.fromSeconds(seconds).toLocaleString(DateTime.DATE_MED)
+      : '—';
   };
 
-const getUserData = async () => {
-  if (
-    !isLoaded &&
-    accounts != '000000000000000000000000000000000000000000000'
-  )
-    return;
-  try {
-    const [lastBlock_, data] = await Presale.sales();
-    sleep(500);
- 
-    const currentUserBalance = await Presale.currentUserBalance(accounts);
-    console.log(data, "data");
-    sleep(500);
- 
-    let nextDates = await Presale.nextDates();
+  const getUserData = async (isStale = () => false) => {
+    if (!isLoaded || !accounts) return;
+    try {
+      const [lastBlock_, data] = await Presale.sales();
+      const currentUserBalance = await Presale.currentUserBalance(accounts);
+      const nextDatesRaw = await Presale.nextDates();
 
+      if (isStale() || !data) return;
 
- 
-    // Estructura del contrato:
-    // address buyer;
-    // uint tokenAmount;
-    // uint bonusToken;
-    // uint investAmount;
-    // uint toWithdraw;
-    // uint totalWithdrawn;
-    // uint lastWithdraw;
-    // bool hasWithdrawn;
-    // address referrals;
-    // uint[7] referrerCount;
-    // uint[7] referrerAmount;
-    // uint[7] referrerReward;
- 
-    // Helpers para mapear arrays de 7 niveles
-    const mapBigNumberArray = (arr) => {
-      if (!arr || !Array.isArray(arr)) return [0, 0, 0, 0, 0, 0, 0];
-      return arr.map((e) => Number(e?.toString?.() ?? 0));
-    };
- 
-    const mapEtherArray = (arr) => {
-      if (!arr || !Array.isArray(arr)) return [0, 0, 0, 0, 0, 0, 0];
-      return arr.map((e) => Number(ParseEther(e)));
-    };
- 
-    const data_ = {
-      user: data.buyer,
-      id: 0,
-      invest: ParseEther(data.investAmount),
-    //  toWithdraw: ParseEther(data.toWithdraw),
-      tokenAmount: ParseEther(data.tokenAmount),
-      investAmount: ParseEther(data.investAmount),
-      totalWithdrawn: ParseEther(data.totalWithdrawn),
-      currentUserBalance: ParseEther(currentUserBalance),
-      bonusToken: ParseEther(data.bonusToken),
-      lastWithdrawn: data.lastWithdraw?.toString?.() ?? "0",
-      hasWithdrawn: data.hasWithdrawn?.toString?.() ?? "false",
-      referrals: data.referrals,
-      // Arrays de 7 niveles:
-      referrerCount_: mapBigNumberArray(data.referrerCount),
-      referrerAmount_: mapEtherArray(data.referrerAmount),
-      referrerReward_: mapEtherArray(data.referrerReward),
-      data: [],
-      nextDates: nextDates || [],
-    };
- 
-    console.log(data_, accounts, 'getUserData');
-    const res = Object.assign({}, userData, data_);
-    setuserData(res);
-  } catch (error) {
-    console.log('Errr user', error);
-    setuserData(userDefaul);
-  }
-};
+      // Struct Sale del contrato (PreSaleVestingV5):
+      // buyer, tokenAmount, bonusToken, investAmount, toWithdraw,
+      // totalWithdrawn, lastWithdraw, hasWithdrawn, referrals,
+      // referrer (uint[1]), referrerAmount (uint[1])
+      const mapBigNumberArray = (arr) =>
+        Array.isArray(arr) ? arr.map((e) => Number(e?.toString?.() ?? 0)) : [];
+
+      const mapEtherArray = (arr) =>
+        Array.isArray(arr) ? arr.map((e) => Number(ParseEther(e))) : [];
+
+      const data_ = {
+        user: data.buyer,
+        id: 0,
+        invest: ParseEther(data.investAmount),
+        tokenAmount: ParseEther(data.tokenAmount),
+        investAmount: ParseEther(data.investAmount),
+        totalWithdrawn: ParseEther(data.totalWithdrawn),
+        currentUserBalance: ParseEther(currentUserBalance),
+        bonusToken: ParseEther(data.bonusToken),
+        lastWithdrawn: data.lastWithdraw?.toString?.() ?? '0',
+        hasWithdrawn: data.hasWithdrawn?.toString?.() ?? 'false',
+        referrals: data.referrals,
+        // El contrato sólo tiene 1 nivel de referidos (REFERRER_PERCENTS_LENGTH = 1)
+        referrerCount_: mapBigNumberArray(data.referrer),
+        referrerAmount_: mapEtherArray(data.referrerAmount),
+        referrerReward_: [],
+        data: [],
+        nextDates: (nextDatesRaw || []).map(formatDate),
+      };
+
+      if (isStale()) return;
+      setuserData((prev) => ({ ...prev, ...data_ }));
+    } catch (error) {
+      console.log('Errr user', error);
+      if (!isStale()) setuserData(userDefaul);
+    }
+  };
  
 
 
@@ -284,21 +185,12 @@ const getUserData = async () => {
   };
   
 
-  const getPublicData = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
+  const getPublicData = async (isStale = () => false) => {
+    if (!isLoaded) return;
     try {
       const data = await Presale.totalInvested();
-
-
-      const data_ = {
-        totalInvested_: ParseEther(data) + Number(11770),
-      };
-      
-      setallData(data_);
+      if (isStale()) return;
+      setallData({ totalInvested_: ParseEther(data) });
     } catch (error) {
       console.log('Errr public', error);
     }
@@ -308,20 +200,13 @@ const getUserData = async () => {
   const datas = {
     userData,
     allData,
-    balanceOf,
     invest,
-    withdraw, 
+    withdraw,
     updateHandle,
     getUserData,
-    isApprove,
     getPublicData,
-    approveHandle,
-    allowanceHandle,
-    balanceOfConctract,
     withdrawData
-    
-    
-      };
+  };
 
   return <SwapContext.Provider value={datas}>{children}</SwapContext.Provider>;
 };

@@ -5,8 +5,6 @@ import { BigNumber, constants, ethers, utils } from 'ethers';
 
 import { toast } from 'react-hot-toast';
 
-import apiService from '../services/apiService';
-import { useRouter } from 'next/router';
 import UseStake from '@/hooks/UseStake';
 
 
@@ -69,7 +67,6 @@ const TokenProvider = ({ children }) => {
     const [userRoi, setuserRoi] = useState({
       withdrawn_: 0,
     });
-  const history = useRouter();
     const [rewards, setRewards] = useState(0);
   // const { isSpinnerShown, spinnerMessage, showSpinner, hideSpinner } =
   // useSpinner();
@@ -290,25 +287,6 @@ const getUser = async () => {
       else toast.error(err.message);
     }
   };
-  // userData
-  const verifyRegister = async () => {
-    // showSpinner();
-    try {
-      console.log(accounts);
-      await apiService.get(`/user/verify/${accounts}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    } catch (error) {
-      console.log(error, 'error');
-
-      history.push(`/register${window.location.search}`);
-    } finally {
-      // hideSpinner();
-    }
-  };
-
   const withdraw = async (pool,_useTokenFee ) => {
     if (!isLoaded) {
       errorMessage();

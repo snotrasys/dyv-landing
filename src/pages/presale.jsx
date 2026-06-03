@@ -1,6 +1,5 @@
 
 import { Layout } from '@/components/app/Layout';
-import PresaleSwap from '@/views/PresaleSwap';
 import React, { useEffect } from 'react';
 import { SwapProvider } from '@/context/SwapHandle';
 import { motion } from 'framer-motion';

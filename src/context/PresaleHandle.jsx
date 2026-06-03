@@ -10,8 +10,6 @@ import { BigNumber, constants, ethers, utils } from 'ethers';
 import { toast } from 'react-hot-toast';
 import refHandle from '../hooks/utils';
 // import { useSpinner } from './SpinnerContext';
-import apiService from '../services/apiService';
-import { useRouter } from 'next/router';
 import { useNftMarket } from '@/hooks/UseNftMarket';
 
 const PresaleContext = createContext();
@@ -69,7 +67,6 @@ const PresaleProvider = ({ children }) => {
   const [balanceOfToken, setbalanceOfToken_] = useState(0);
   const [isApprove, setisApprove] = useState(false);
   const [userWalletData, setuserWalletData] = useState([]);
-  const history = useRouter();
   // const { isSpinnerShown, spinnerMessage, showSpinner, hideSpinner } =
   //   useSpinner();
 
@@ -202,24 +199,6 @@ const PresaleProvider = ({ children }) => {
       // else toast.error(err.message.split("reason=\"")[1].split("\",")[0])
     }
   };
-  // userData
-  const verifyRegister = async () => {
-      try {
-      console.log(accounts);
-      await apiService.get(`/user/verify/${accounts}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    } catch (error) {
-      console.log(error, 'error');
-
-      history.push(`/register${window.location.search}`);
-    } finally {
-    console.log("finally");  
-    }
-  };
-
   const withdraw = async (isPrivate) => {
     if (!isLoaded) {
       errorMessage();
@@ -242,9 +221,6 @@ const PresaleProvider = ({ children }) => {
     try {
       const res = await contract.withdrawTokens();
       toast.success('withdraw success');
-      if (!utils.isAddress(accounts) === false) {
-        verifyRegister();
-      }
       res.wait().then((value) => {
         updateHandle();
       });
@@ -266,9 +242,6 @@ const PresaleProvider = ({ children }) => {
 
       const res = await contract.reInvest();
       toast.success('Invest success');
-      if (!utils.isAddress(accounts) === false) {
-        verifyRegister();
-      }
       res.wait().then((value) => {
         updateHandle();
       });
