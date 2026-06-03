@@ -56,20 +56,24 @@ const SwapProvider = ({ children }) => {
     setupdate_((prev) => prev + 1);
   };
 
+  // Refetch resiliente al lag del RPC de Base tras minar una tx: reintenta varias veces
+  const refresh = () => {
+    updateHandle();
+    setTimeout(updateHandle, 2500);
+    setTimeout(updateHandle, 6000);
+  };
+
   const invest = async (investAmt) => {
     if (!isLoaded) {
       errorMessage();
       return;
     }
     try {
-      // investAmt = utils.parseEther(investAmt.toString());
-      const res =await Presale.buy(investAmt);      
+      const res = await Presale.buy(investAmt);
+      if (!res) return; // la compra falló (el hook ya mostró el error)
+      await res.wait(); // espera a que se mine antes de refrescar
       toast.success('Invest success');
-      
-      res.wait().then((value) => {
-        updateHandle();
-      });
-            
+      refresh();
     } catch (err) {
       if (err.data != undefined) toast.error(err.data.message);
       else toast.error(err.message);
@@ -83,13 +87,10 @@ const SwapProvider = ({ children }) => {
 
     try {
       const res = await Presale.withdrawTokens();
+      if (!res) return;
+      await res.wait();
       toast.success('withdraw success');
-      // if (!utils.isAddress(accounts) === false) {
-      //   verifyRegister();
-      // }
-      res.wait().then((value) => {
-        updateHandle();
-      });
+      refresh();
     } catch (err) {
       if (err.data != undefined) toast.error(err.data.message);
       else toast.error(err.message);

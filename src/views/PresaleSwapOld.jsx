@@ -21,6 +21,7 @@ function PresaleSwapOld() {
     currentBalance_,
     setchangeToken,
     approveHandlePlus,
+    disapproveHandlePlus,
     allowanceHandlePlus,
     balanceOfHandlePlus,
     update
@@ -41,6 +42,7 @@ function PresaleSwapOld() {
   const [isBuying, setIsBuying] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [isRevoking, setIsRevoking] = useState(false);
   const Presale = UsePresaleVesting();
 
   useEffect(() => {
@@ -73,6 +75,9 @@ function PresaleSwapOld() {
     try {
       setIsBuying(true);
       await invest(amount_);
+      // refresca balance y allowance del token de pago tras la compra
+      await balanceOfHandlePlus();
+      await allowanceHandlePlus(undefined, address.privateSale);
     } finally {
       setIsBuying(false);
     }
@@ -83,6 +88,7 @@ function PresaleSwapOld() {
     try {
       setIsClaiming(true);
       await withdraw();
+      await balanceOfHandlePlus();
     } finally {
       setIsClaiming(false);
     }
@@ -95,6 +101,16 @@ function PresaleSwapOld() {
       await approveHandlePlus(undefined, address.privateSale);
     } finally {
       setIsApproving(false);
+    }
+  }
+
+  async function handleRevoke() {
+    if (isRevoking) return;
+    try {
+      setIsRevoking(true);
+      await disapproveHandlePlus(undefined, address.privateSale);
+    } finally {
+      setIsRevoking(false);
     }
   }
 
@@ -333,14 +349,25 @@ function PresaleSwapOld() {
           <div className="space-y-4">
             {/* Botón principal de compra/aprobación */}
             {isApprove ? (
-              <button
-                onClick={() => buyToken(amount)}
-                disabled={isBuying}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-purple-500 p-3 font-semibold text-white transition-all hover:from-violet-700 hover:to-purple-600 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                <ArrowRightCircle className="h-5 w-5" />
-                {isBuying ? 'Processing...' : 'Buy NEUTRA Token'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => buyToken(amount)}
+                  disabled={isBuying}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-purple-500 p-3 font-semibold text-white transition-all hover:from-violet-700 hover:to-purple-600 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <ArrowRightCircle className="h-5 w-5" />
+                  {isBuying ? 'Processing...' : 'Buy NEUTRA Token'}
+                </button>
+                {/* Revoke (approve a 0) — para probar el toggle del botón */}
+                <button
+                  onClick={handleRevoke}
+                  disabled={isRevoking}
+                  title="Revoke approval (approve 0)"
+                  className="flex items-center justify-center rounded-lg px-4 font-semibold text-rose-300 bg-rose-500/10 border border-rose-500/20 transition-all hover:bg-rose-500/20 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isRevoking ? '...' : 'Revoke'}
+                </button>
+              </div>
             ) : (
               <button
                 onClick={handleApprove}

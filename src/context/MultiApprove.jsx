@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import Web3Context from './Web3Context';
 import { address } from '../hooks/useContracts.js';
-import {  Contract, constants, ethers } from 'ethers';
+import { Contract, ethers } from 'ethers';
 
 import { BUSD } from '@/hooks/abiHelpers';
 import { useWeb3ModalProvider } from '@web3modal/ethers5/react';
@@ -70,15 +70,14 @@ const updateHandle = () => {
       return setisApprove(true);
 
     addr = addr || changeToken;
-    // console.log(addr, 'addr');
     allow = allow || address.fantom;
 
     const contract = await contractHandle(addr);
-    
+
     const allowance_ = await contract.allowance(accounts, allow);
-    // console.log(allowance_.gt(constants.MaxUint256.div(5)), 'allowance_');
-    setisApprove(allowance_.gte(ethers.utils.parseUnits("2000",6)));
-    return allowance_.gt(ethers.utils.parseUnits("2000",6));
+    // Aprobado si queda allowance > 0 (la aprobación es por un límite de 2000)
+    setisApprove(allowance_.gt(0));
+    return allowance_.gt(0);
   };
 
 
@@ -92,11 +91,42 @@ const approveHandlePlus = async (addr, appr) => {
   addr = addr || changeToken;
   appr = appr || address.fantom;
 
-  const contract = await contractHandle(addr);
-  const res = await contract.approve(appr, constants.MaxUint256);
-  await res.wait();        // ← espera confirmación
-  updateHandle();          // ← incrementa update → dispara useEffect → re-lee allowance
-  return true;             // ← retorna true para que el componente sepa que fue exitoso
+  try {
+    const contract = await contractHandle(addr);
+    const decimals = await contract.decimals();
+    // Aprobación limitada a 2000 (no MaxUint256)
+    const amount = ethers.utils.parseUnits('2000', decimals);
+    const res = await contract.approve(appr, amount);
+    await res.wait();          // espera confirmación
+    setisApprove(true);        // optimista: el botón cambia sin recargar
+    balanceOfHandlePlus();
+    return true;
+  } catch (e) {
+    console.log(e, 'approveHandlePlus');
+    return false;
+  }
+};
+
+const disapproveHandlePlus = async (addr, appr) => {
+  if (
+    !isLoaded &&
+    accounts != '000000000000000000000000000000000000000000000'
+  )
+    return false;
+  addr = addr || changeToken;
+  appr = appr || address.fantom;
+
+  try {
+    const contract = await contractHandle(addr);
+    const res = await contract.approve(appr, 0); // revoca la aprobación
+    await res.wait();
+    setisApprove(false);       // optimista
+    balanceOfHandlePlus();
+    return true;
+  } catch (e) {
+    console.log(e, 'disapproveHandlePlus');
+    return false;
+  }
 };
 
 
@@ -105,13 +135,12 @@ const approveHandlePlus = async (addr, appr) => {
     isApprove,
     currentBalance_,
     changeToken,
-    setchangeToken,    
+    setchangeToken,
     approveHandlePlus,
+    disapproveHandlePlus,
     allowanceHandlePlus,
     balanceOfHandlePlus,
     update
-
-
   };
 
   return (
