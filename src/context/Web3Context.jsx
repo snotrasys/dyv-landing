@@ -20,7 +20,7 @@ const metadata = {
 
 createWeb3Modal({
   ethersConfig: defaultConfig({ metadata }),
-  chains: [base],
+  chains: [bsc],
   projectId,
   allowUnsupportedChain: true,
 });

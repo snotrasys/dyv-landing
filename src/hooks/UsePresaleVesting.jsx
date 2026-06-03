@@ -39,7 +39,7 @@ export default function UsePresaleVesting() {
     if (!isLoaded) return;
     try {
       console.log(amount, 'amoun1t');
-      amount = ethers.utils.parseUnits(String(amount), 18);
+      amount = ethers.utils.parseUnits(String(amount));
       let _referrer = refHandler();
 
       console.log(amount, 'amount');
