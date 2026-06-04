@@ -7,7 +7,7 @@ import TonkenContext from '@/context/TokenHandle';
 import { Clipboard, Check, Users, TrendingUp, Award, Coins } from 'lucide-react';
 
 const dataRef_ = [
-  { level: 1, porcentaje: '10%', amount: 0, amountInvested: 0, reward: 0 },
+  { level: 1, porcentaje: '7%', amount: 0, amountInvested: 0, reward: 0 },
 ];
 
 function CardRef() {
@@ -113,7 +113,7 @@ function CardRef() {
           </div>
           
           <p className="text-center text-purple-200/70 text-sm mb-5">
-            Share your referral link and earn rewards across 7 levels
+            Share your referral link and earn rewards
           </p>
           
           {/* Referral link box */}

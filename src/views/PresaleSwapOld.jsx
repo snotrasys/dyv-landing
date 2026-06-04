@@ -161,7 +161,7 @@ function PresaleSwapOld() {
               </div>
               <div>
                 <p className="text-purple-200/70">Network</p>
-                <p className="font-medium text-purple-100">Base</p>
+                <p className="font-medium text-purple-100">BSC</p>
               </div>
               <div>
                 <p className="text-purple-200/70">Min Purchase</p>
