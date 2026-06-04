@@ -507,11 +507,7 @@ function PresaleSwapOld() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-purple-300/80">Listing Price:</span>
-                <div className="font-semibold text-purple-100">5 USDT</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-purple-300/80">Price Increase:</span>
-                <div className="font-semibold text-purple-100">+150%</div>
+                <div className="font-semibold text-purple-100">2 USDT</div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-purple-300/80">Total Supply:</span>
@@ -519,7 +515,7 @@ function PresaleSwapOld() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-purple-300/80">DEX:</span>
-                <div className="font-semibold text-purple-100">Aerodrome & Uniswap</div>
+                <div className="font-semibold text-purple-100">Pancakeswap</div>
               </div>
             </div>
           </div>
