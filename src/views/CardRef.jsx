@@ -30,7 +30,7 @@ function CardRef() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && isLoaded && accounts) {
-      const link = `${window.location.origin}/presale?ref=${accounts}`;
+      const link = `${window.location.origin}?ref=${accounts}`;
       setcopyText(link);
     }
   }, [accounts, isLoaded]);
