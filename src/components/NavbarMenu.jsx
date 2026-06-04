@@ -170,14 +170,7 @@ const NavbarMenu = () => {
         {/* Header Actions Group - Positioned absolutely within the header */}
         <div className="absolute top-3 right-4 md:right-8 lg:right-16 z-50 flex items-center gap-4">
           {/* Menu Toggle Button */}
-          <motion.button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-all duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Menu className="w-8 h-8 text-white" />
-          </motion.button>
+     
 
           {/* Connect Wallet Button */}
           {accounts !== null ? (
