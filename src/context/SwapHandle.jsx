@@ -1,329 +1,109 @@
-import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
-import Web3Context from './Web3Context';
-import { useToken } from '../hooks/useContracts.js';
-import { constants, ethers, utils } from 'ethers';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Contract, utils } from 'ethers';
 import { toast } from 'react-hot-toast';
-import apiService from '../services/apiService';
-import { useRouter } from 'next/router';
-import { useSwap } from '@/hooks/useSwap';
-import UsePresaleVesting from '@/hooks/UsePresaleVesting';
-import { DateTime } from 'luxon';
+import { address, PRESALE_CHAIN_ID, usePresaleVestingContract } from '@/hooks/useContracts';
+import Web3Context from './Web3Context';
 
+const SwapContext = createContext(null);
+const tokenAbi = ['function decimals() view returns (uint8)', 'function balanceOf(address) view returns (uint256)'];
+const errorText = (error) => error?.code === 4001 || error?.code === 'ACTION_REJECTED'
+  ? 'Transaction cancelled.'
+  : error?.reason || error?.data?.message || error?.message || 'Unable to read the vesting contract.';
 
-const SwapContext = createContext();
-const userDefaul = {
-  user: '',
-  id: 0,
-  invest: 0,
-  toWithdraw: 0,
-  currentUserBalance: 0,
-  tokenAmount:"",
-        investAmount:"",
-        totalWithdrawn:"",
-        lastWithdrawn:"",
-        hasWithdrawn:"",
-        referrals:"",
-        referrer:"",
-        data:[],
-        nextDates:[],
-};
 const SwapProvider = ({ children }) => {
-  const { accounts, isLoaded, setupdate, update, errorMessage } =
-    useContext(Web3Context);
-  const [update_, setupdate_] = useState(0);
-  const [balanceOf, setbalanceOf_] = useState(0);
-  const [balanceOfConctract, setbalanceOfContract_] = useState(0);
-  const [userData, setuserData] = useState(userDefaul);
-  const [allData, setallData] = useState({
-    totalInvested_: 0,
-  });
- 
+  const { accounts, isLoaded } = useContext(Web3Context);
+  const contractPromise = usePresaleVestingContract();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
+  const requestId = useRef(0);
+  const transactionLock = useRef(false);
 
-  const [isApprove, setisApprove] = useState(false);
-  const history = useRouter();
+  const getContract = useCallback(async () => {
+    const [loaded, contract] = await contractPromise;
+    if (!loaded || !accounts) throw new Error('Connect your wallet to continue.');
+    const network = await contract.provider.getNetwork();
+    if (network.chainId !== PRESALE_CHAIN_ID) throw new Error('Switch your wallet to Base to continue.');
+    const tokenAddress = await contract.TOKEN();
+    if (tokenAddress.toLowerCase() !== address.presaleVestingToken.toLowerCase()) {
+      throw new Error('The vesting token does not match the configured D&V token.');
+    }
+    return contract;
+  }, [contractPromise, accounts]);
 
-  const [Swap] = useSwap();
-  const Token = useToken();
-  const Presale = UsePresaleVesting();
+  const refresh = useCallback(async () => {
+    const id = ++requestId.current;
+    setData(null);
+    setError('');
+    if (!isLoaded || !accounts) { setLoading(false); return; }
+    setLoading(true);
+    try {
+      const contract = await getContract();
+      const token = new Contract(address.presaleVestingToken, tokenAbi, contract.provider);
+      const [decimals, balance, vesting, available, vested, enabled, allocated, withdrawn, users, endDate] = await Promise.all([
+        token.decimals(), token.balanceOf(accounts), contract.vestings(accounts),
+        contract.currentUserBalance(accounts), contract.vestedAmount(accounts), contract.startWithdraw(),
+        contract.totalAllocated(), contract.totalTokensWithdrawn(), contract.totalUsers(), contract.endDate(),
+      ]);
+      const format = (value) => utils.formatUnits(value, decimals);
+      const progress = vesting.amount.isZero() ? 0 : Math.min(100, vesting.withdrawn.mul(10000).div(vesting.amount).toNumber() / 100);
+      if (id !== requestId.current) return;
+      setData({
+        account: accounts, allocation: format(vesting.amount), withdrawn: format(vesting.withdrawn),
+        available: format(available), vested: format(vested), balance: format(balance),
+        initialized: vesting.initialized, lastWithdraw: vesting.lastWithdraw.toNumber(),
+        enabled, canClaim: enabled && vesting.initialized && available.gt(0), progress,
+        totalAllocated: format(allocated), totalWithdrawn: format(withdrawn), totalUsers: users.toString(),
+        endDate: endDate.toNumber(),
+      });
+    } catch (err) {
+      if (id === requestId.current) { setData(null); setError(errorText(err)); }
+    } finally {
+      if (id === requestId.current) setLoading(false);
+    }
+  }, [accounts, isLoaded, getContract]);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    // allowanceHandle();
-    // balanceOfHandle();
-    getPublicData()
-    getUserData();
-    // TotalBalance();
-
-    return () => {};
-  }, [accounts, isLoaded, update_]);
-
-  const updateHandle = () => {
-    setupdate_(update_ + 1);
-  };
-
-  const balanceOfHandle = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    const [load, contract] = await Token;
-    if (!load) return;
-
-    let balance_ = await contract.balanceOf(accounts);
-    balance_ = Number(ethers.utils.formatEther(balance_)).toFixed(3);
-    setbalanceOf_(balance_);
-  };
-
-  const approveHandle = async (type) => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    const [load, contract] = await Token;
-    if (!load) return;
-    
-    const addr = Swap.address_;
-// console.log(addr,'addr');
-//     return
-    const res = await contract.approve(addr, constants.MaxUint256);
-    res.wait().then(() => updateHandle());
-  };
-
-  const allowanceHandle = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    const [load, contract] = await Token;
-    if (!load) return;     
-    const addr = Presale.address_;
-    const allowance_ = await contract.allowance(accounts, addr);
-    console.log(allowance_.gt(constants.MaxUint256.div(5)), 'allowance_');
-    setisApprove(allowance_.gt(constants.MaxUint256.div(5)));
-  };
-
-  const invest = async (investAmt) => {
-    if (!isLoaded) {
-      errorMessage();
-      return;
-    }
-    try {
-      // investAmt = utils.parseEther(investAmt.toString());
-      const res =await Presale.buy(investAmt);      
-      toast.success('Invest success');
-      
-      res.wait().then((value) => {
-        updateHandle();
-      });
-            
-    } catch (err) {
-      if (err.data != undefined) toast.error(err.data.message);
-      else toast.error(err.message);
-    }
-  };
-  // userData
-  const verifyRegister = async () => {
-    // showSpinner();
-    try {
-      console.log(accounts);
-      await apiService.get(`/user/verify/${accounts}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    } catch (error) {
-      console.log(error, 'error');
-
-      history.push(`/register${window.location.search}`);
-    } finally {
-      // hideSpinner();
-    }
-  };
+    refresh();
+    const timer = setInterval(refresh, 30000);
+    return () => { ++requestId.current; clearInterval(timer); };
+  }, [refresh]);
 
   const withdraw = async () => {
-    if (!isLoaded) {
-      errorMessage();
-      return;
-    }
-
+    if (transactionLock.current) return;
+    transactionLock.current = true;
+    setPending(true);
     try {
-      const res = await Presale.withdrawTokens();
-      toast.success('withdraw success');
-      res.wait().then((value) => {
-        updateHandle();
-      });
+      const contract = await getContract();
+      const signerAddress = await contract.signer.getAddress();
+      if (signerAddress.toLowerCase() !== accounts.toLowerCase()) throw new Error('Wallet account changed. Reconnect and try again.');
+      const [enabled, available] = await Promise.all([contract.startWithdraw(), contract.currentUserBalance(accounts)]);
+      if (!enabled) throw new Error('Withdrawals are currently paused.');
+      if (available.isZero()) throw new Error('No tokens are available to claim.');
+      await contract.callStatic.withdrawTokens();
+      const tx = await contract.withdrawTokens();
+      let receipt;
+      try { receipt = await tx.wait(); } catch (err) {
+        if (err.code !== 'TRANSACTION_REPLACED' || err.cancelled) throw err;
+        receipt = err.receipt;
+      }
+      if (receipt.status !== 1) throw new Error('The withdrawal failed.');
+      toast.success('Tokens claimed successfully.');
+      await refresh();
     } catch (err) {
-      if (err.data != undefined) toast.error(err.data.message);
-      else toast.error(err.message);
+      toast.error(errorText(err));
+    } finally {
+      transactionLock.current = false;
+      setPending(false);
     }
   };
 
-  const withdraw2 = async () => {
-    if (!isLoaded) {
-      errorMessage();
-      return;
-    }
-
-    try {
-      const res = await Presale.withdrawTokens2();
-      toast.success('withdraw success');
-      res.wait().then((value) => {
-        updateHandle();
-      });
-    } catch (err) {
-      if (err.data != undefined) toast.error(err.data.message);
-      else toast.error(err.message);
-    }
-  };
-
-  const withdrawData = useMemo(async() => {
-    let withdrawData_ =[];
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return withdrawData_
-      if(!userData.data )
-      return withdrawData_
-
-     try {
-     
-    
-      withdrawData_ = await Presale.withdrawData(accounts);
-      console.log(withdrawData_, 'withdrawData');
-      withdrawData_ = withdrawData_.map((e) => {
-        return {
-          date: DateTime.fromSeconds(Number(e.date.toString())).toLocaleString(DateTime.DATETIME_MED),
-          tokenAmount: ParseEther(e.tokenAmount),
-        }
-      });
-      
-
-    } catch (error) {
-      console.log(error, 'withdrawData');
-      withdrawData_ = [];
-     
-    } 
-    return withdrawData_;   
-  }, [userData]);
-
-  const sleep = (ms) => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  };
-
-  const getUserData = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    try {
-      const [lastBlock_,data] = await Presale.sales()
-      sleep(500);
-    
-      const currentUserBalance = await Presale.currentUserBalance(accounts);
-      console.log(currentUserBalance, 'currentUserBalance');
-      sleep(500);
-      
-      
-      let nextDates = await Presale.nextDates();
-           
-     if(nextDates.length>0 && nextDates[0]>0)
-  nextDates=nextDates.map(e=>DateTime.fromSeconds(Number(e.toString())).toLocaleString(DateTime.DATETIME_SHORT))
-    else 
-  nextDates=[]
-      
-      // address buyer;
-      //   uint tokenAmount;
-      //   uint bonusToken;
-      //   uint investAmount;
-      //   uint toWithdraw;
-      //   uint totalWithdrawn;
-      //   uint lastWithdraw;
-      //   bool hasWithdrawn;
-      //   address referrals;
-      //   uint[1] referrer;
-      //   uint[1] referrerAmount;
-      
-      const data_ = {
-        // user: data.user,
-        // id: data.id.toString(),
-        invest: ParseEther(data.investAmount),
-        toWithdraw: ParseEther(data.tokenAmount),        
-        tokenAmount:ParseEther(data.tokenAmount),
-        investAmount:ParseEther(data.investAmount),
-        totalWithdrawn:ParseEther(data.totalWithdrawn),
-        currentUserBalance:ParseEther(currentUserBalance),
-        bonusToken: ParseEther(data.bonusToken),
-        // lastWithdrawn:data.lastWithdrawn.toString(),
-        hasWithdrawn:data.hasWithdrawn.toString(),
-        referrals:data.referrals,
-        data:ParseEther(data.toWithdraw),
-        nextDates:nextDates,
-        // referrer:data.referrals.map((e)=>e.toString())
-      };
-      console.log(data_,accounts, 'getUserData');
-      const res = Object.assign({}, userData, data_);
-      setuserData(res);
-    } catch (error) {
-      console.log('Errr user', error);
-      setuserData(userDefaul);
-    }
-  };
-
-
-  const ParseEther = (amount) => {    
-    return Number(utils.formatUnits(amount, 6));
-  };
-  
-
-  const getPublicData = async () => {
-    if (
-      !isLoaded &&
-      accounts != '000000000000000000000000000000000000000000000'
-    )
-      return;
-    try {
-      const data = await Presale.totalInvested();
-
-
-      const data_ = {
-        totalInvested_: ParseEther(data) + Number(11770),
-      };
-      
-      setallData(data_);
-    } catch (error) {
-      console.log('Errr public', error);
-    }
-  };
-  
-
-  const datas = {
-    userData,
-    allData,
-    balanceOf,
-    invest,
-    withdraw,
-    withdraw2,
-    updateHandle,
-    getUserData,
-    isApprove,
-    getPublicData,
-    approveHandle,
-    allowanceHandle,
-    balanceOfConctract,
-    withdrawData
-    
-    
-      };
-
-  return <SwapContext.Provider value={datas}>{children}</SwapContext.Provider>;
+  // Never display balances from a previously connected account.
+  const currentData = isLoaded && data?.account === accounts ? data : null;
+  return <SwapContext.Provider value={{ data: currentData, loading, error, pending, refresh, withdraw }}>{children}</SwapContext.Provider>;
 };
 
 export { SwapProvider };
 export default SwapContext;
-
-export const useSwap_ = ()=>useContext(SwapContext); 
+export const useSwap_ = () => useContext(SwapContext);

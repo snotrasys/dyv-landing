@@ -1,3 +1,4 @@
+import abiPresaleVesting from './abiPresaleVesting.json';
 import { useMemo, useContext, useState } from 'react';
 import { abi, BUSD, saleAbi, masterchefv2Abi, StakeAbi, abiClaim, abiStake, abiPresaleRoi } from './abiHelpers'
 import Web3Context from '../context/Web3Context'
@@ -5,7 +6,11 @@ import { Contract, ethers } from 'ethers'
 import { useAppKitProvider } from "@reown/appkit/react";
 
 
+export const PRESALE_CHAIN_ID = 8453;
+
 export const address = {
+  presaleVesting: "0x72aB02B4C44a8841889A8c95d80A0329e62dC9fF",
+  presaleVestingToken: "0x91F9BFa2fB281ACb80169708B45FBcdB565160B9",
   fantom: "0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4",
   presaleRoi: "0x9ea869C059512cd34Ae9Cc077fa6aF367b82dF4D",
   presaleRoiToken: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
@@ -268,3 +273,14 @@ export const useStake = (address_) => {
     }
   }, [accounts, isLoaded])
 }
+
+// Keep the existing async [loaded, contract] integration used by contexts.
+export const usePresaleVestingContract = () => {
+  const { accounts, isLoaded, connect, chainId } = useContext(Web3Context);
+  return useMemo(async () => {
+    const walletProvider = connect();
+    if (!isLoaded || !accounts || !walletProvider) return [false, null];
+    const provider = new ethers.providers.Web3Provider(walletProvider, 'any');
+    return [true, new Contract(address.presaleVesting, abiPresaleVesting, provider.getSigner(accounts))];
+  }, [accounts, isLoaded, connect, chainId]);
+};

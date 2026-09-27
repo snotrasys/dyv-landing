@@ -1,7 +1,6 @@
 
 import { Layout } from '@/components/app/Layout';
-import PresaleSwap from '@/views/PresaleSwap';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { SwapProvider } from '@/context/SwapHandle';
 import { motion } from 'framer-motion';
 import PresaleSwapOld from '@/views/PresaleSwapOld';
@@ -33,7 +32,7 @@ function Private() {
                 animate={{ opacity: 1, filter: "blur(0px)" }}
                 transition={{ duration: 1, delay: 0.2 }}
               >
-                TOKEN PRESALE
+                PRESALE VESTING
               </motion.h1>
               <motion.div 
                 className="h-1 w-24 sm:w-32 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mx-auto mt-3"
@@ -149,8 +148,7 @@ function Private() {
               animate={{ opacity: 0.8, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              Secure your participation in our tokenized investment project. 
-              Acquire D&V tokens for blockchain, real estate, and renewable energy.
+              View your D&V token allocation and claim your available presale tokens.
             </motion.p>
           </div>
           

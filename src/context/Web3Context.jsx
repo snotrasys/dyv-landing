@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast';
 import { 
   useAppKit, 
   useAppKitAccount, 
-  useAppKitState, 
+  useAppKitNetwork,
   useAppKitProvider,
   useDisconnect
 } from '@reown/appkit/react';
@@ -64,7 +64,7 @@ const Web3Provider = ({ children }) => {
   
 
   const { open, close } = useAppKit();
-  const { chainId } = useAppKitState();
+  const { chainId } = useAppKitNetwork();
   const { address, isConnected } = useAppKitAccount();
   const { walletProvider } = useAppKitProvider('eip155');
   const { disconnect } = useDisconnect();
