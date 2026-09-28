@@ -9,7 +9,7 @@ import { useAppKitProvider } from "@reown/appkit/react";
 export const PRESALE_CHAIN_ID = 8453;
 
 export const address = {
-  presaleVesting: "0x72aB02B4C44a8841889A8c95d80A0329e62dC9fF",
+  presaleVesting: "0xd1D5c0EA59b8be21fe8dd2d3B486EE784BCdf1FD",
   presaleVestingToken: "0x91F9BFa2fB281ACb80169708B45FBcdB565160B9",
   fantom: "0x8272BB29315d7D43A9a9EE5830DbDDd01160C2D4",
   presaleRoi: "0x9ea869C059512cd34Ae9Cc077fa6aF367b82dF4D",
